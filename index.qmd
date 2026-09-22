@@ -12,3 +12,6 @@ listing:
 page-layout: full
 title-block-banner: true
 ---
+
+Browse everything below, or jump to a topic: [**R**](r.qmd).
+Each topic has its own feed — the [R feed](r.xml) is the one syndicated to R-Bloggers.

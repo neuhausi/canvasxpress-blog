@@ -1,0 +1,18 @@
+---
+title: "R"
+subtitle: "Hands-on R recipes for interactive, reproducible scientific visualization with canvasXpress."
+listing:
+  id: r-listing
+  contents: posts/r
+  sort: "date desc"
+  type: default
+  categories: true
+  sort-ui: false
+  filter-ui: false
+  feed: true
+page-layout: full
+title-block-banner: true
+---
+
+Every post here is runnable R. This page's feed (`r.xml`) is the one syndicated to
+[R-Bloggers](https://www.r-bloggers.com).

@@ -8,13 +8,15 @@ website:
   site-url: "https://neuhausi.github.io/canvasxpress-blog"
   navbar:
     right:
-      - text: "Posts"
+      - text: "All posts"
         href: index.qmd
+      - text: "R"
+        href: r.qmd
       - about.qmd
       - icon: github
         href: https://github.com/neuhausi/canvasXpress
       - icon: rss
-        href: index.xml
+        href: r.xml
 
 format:
   html:
