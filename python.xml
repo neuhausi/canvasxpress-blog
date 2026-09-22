@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>CanvasXpress in R</title>
+<link>https://neuhausi.github.io/canvasxpress-blog/python.html</link>
+<atom:link href="https://neuhausi.github.io/canvasxpress-blog/python.xml" rel="self" type="application/rss+xml"/>
+<description>Interactive, reproducible scientific visualization in R with canvasXpress.</description>
+<generator>quarto-1.6.39</generator>
+<lastBuildDate>Thu, 24 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Clustered heatmaps in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/clustered-heatmap-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="an-expression-matrix-with-sample-metadata" class="level2">
+<h2 class="anchored" data-anchor-id="an-expression-matrix-with-sample-metadata">An expression matrix with sample metadata</h2>
+<p>Swap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations.</p>
+<div id="ebc75476" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">rng   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-5">ng, ns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span></span>
+<span id="cb2-6">genes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Gene</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(ng)]</span>
+<span id="cb2-7">samps <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"S</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(ns)]</span>
+<span id="cb2-8">cond  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tumor"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (ns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normal"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (ns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb2-9"></span>
+<span id="cb2-10">m <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, (ng, ns))</span>
+<span id="cb2-11">tumor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(cond) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> c <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tumor"</span>]</span>
+<span id="cb2-12">normal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(cond) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> c <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normal"</span>]</span>
+<span id="cb2-13">m[np.ix_(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>),  tumor)]  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># first block up in Tumor</span></span>
+<span id="cb2-14">m[np.ix_(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>), normal)] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># second block up in Normal</span></span>
+<span id="cb2-15"></span>
+<span id="cb2-16">expr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(m.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>), index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>genes, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>samps)</span></code></pre></div>
+</div>
+</section>
+<section id="build-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="build-the-spec">Build the spec</h2>
+<p>The matrix goes in as <code>data</code>, and the sample annotation becomes an annotation track over the columns. <code>samplesClustered</code> / <code>variablesClustered</code> turn on hierarchical clustering with dendrograms.</p>
+<div id="92b32ccc" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: genes, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: samps, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: expr.values.tolist()},</span>
+<span id="cb3-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>: cond},</span>
+<span id="cb3-7">}</span>
+<span id="cb3-8"></span>
+<span id="cb3-9">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Heatmap"</span>,</span>
+<span id="cb3-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"samplesClustered"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"variablesClustered"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorSpectrum"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"navy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"firebrick3"</span>],</span>
+<span id="cb3-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showSmpDendrogram"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showVarDendrogram"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Clustered expression heatmap"</span>,</span>
+<span id="cb3-15">}</span>
+<span id="cb3-16"></span>
+<span id="cb3-17">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">550</span>)</span>
+<span id="cb3-18">CXNoteBook(cx).render()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>[&lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.Javascript object&gt;]</code></pre>
+</div>
+</div>
+<p>Rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or JavaScript.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-python/">Interactive volcano plots in Python</a></li>
+<li><a href="../kaplan-meier-in-python/">Kaplan–Meier survival curves in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>heatmap</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/clustered-heatmap-in-python/</guid>
+  <pubDate>Thu, 24 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/clustered-heatmap-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+<item>
+  <title>Kaplan–Meier survival curves in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/kaplan-meier-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — it computes the survival steps for you from a <strong>time</strong> column and a <strong>censoring</strong> column — and the result is interactive and reproducible.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="a-survival-table" class="level2">
+<h2 class="anchored" data-anchor-id="a-survival-table">A survival table</h2>
+<p>Swap this simulated block for your own data: per subject you need a follow-up <strong>time</strong>, a <strong>censoring indicator</strong> (1 = censored, 0 = event), and the grouping variable.</p>
+<div id="855a80cf" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">rng  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-4">n    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span></span>
+<span id="cb2-5">arm  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.choice([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control"</span>], n)</span>
+<span id="cb2-6">base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.where(arm <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># treatment survives longer</span></span>
+<span id="cb2-7">time <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(rng.exponential(base), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-8">cens <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.binomial(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, n)                  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1 = censored, 0 = event</span></span>
+<span id="cb2-9">subj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Subj</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(n)]</span></code></pre></div>
+</div>
+</section>
+<section id="build-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="build-the-spec">Build the spec</h2>
+<p>The two columns — the time and its matching censor flag — go in as the variable samples, and the arm rides along as a variable annotation. The key is <code>graphType="KaplanMeier"</code> and passing <strong>both</strong> columns to <code>xAxis</code>.</p>
+<div id="665ebf73" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time-Censor"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: subj,</span>
+<span id="cb3-6">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [time.tolist(), cens.tolist()]},</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Arm"</span>: arm.tolist()},</span>
+<span id="cb3-8">}</span>
+<span id="cb3-9"></span>
+<span id="cb3-10">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"KaplanMeier"</span>,</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time-Censor"</span>],</span>
+<span id="cb3-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Arm"</span>,</span>
+<span id="cb3-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Overall survival by treatment arm"</span>,</span>
+<span id="cb3-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxisTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time (weeks)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxisTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Probability of survival"</span>,</span>
+<span id="cb3-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"invertCensored"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,               <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># draw censoring ticks</span></span>
+<span id="cb3-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showKMConfidenceIntervals"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb3-18">}</span>
+<span id="cb3-19"></span>
+<span id="cb3-20">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"km"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb3-21">CXNoteBook(cx).render()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>[&lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.Javascript object&gt;]</code></pre>
+</div>
+</div>
+<p>Hover any step for the time and survival probability; the tick marks are censored subjects. canvasxpress derives the survival curve from the raw table, so you never precompute the steps — and the same spec re-renders the identical curve from R or JavaScript.</p>
+</section>
+<section id="a-common-gotcha" class="level2">
+<h2 class="anchored" data-anchor-id="a-common-gotcha">A common gotcha</h2>
+<p>The survival transform only fires with <code>graphType="KaplanMeier"</code>. A bare <code>"Scatter2D"</code> gives a raw scatter of the censor values instead — survival probability is <em>computed</em> by the engine, not a column in your data.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-python/">Interactive volcano plots in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>survival</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/kaplan-meier-in-python/</guid>
+  <pubDate>Wed, 23 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/kaplan-meier-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+<item>
+  <title>Interactive volcano plots in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/volcano-plots-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed to the top corners. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — interactive (zoom, hover, filter) and <strong>reproducible</strong>: the whole figure is one portable specification you can store and re-render from Python, R or JavaScript.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="a-differential-expression-table" class="level2">
+<h2 class="anchored" data-anchor-id="a-differential-expression-table">A differential-expression table</h2>
+<p>Swap this simulated block for your own results — the output of any DE pipeline works, as long as you have a log fold change and a significance value per gene.</p>
+<div id="40ff1612" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-5">n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb2-6">genes   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Gene</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(n)]</span>
+<span id="cb2-7">logfc   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>, n)</span>
+<span id="cb2-8">neglogp <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>np.log10(rng.uniform(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>n) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># stand-in for -log10(p-value)</span></span>
+<span id="cb2-9"></span>
+<span id="cb2-10">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>: logfc.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log-pVal"</span>: neglogp.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)}, index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>genes)</span>
+<span id="cb2-11"></span>
+<span id="cb2-12"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> classify(fc, p):</span>
+<span id="cb2-13">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> fc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>:   <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Increased"</span></span>
+<span id="cb2-14">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> fc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>:  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Decreased"</span></span>
+<span id="cb2-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NoChange"</span></span>
+<span id="cb2-16"></span>
+<span id="cb2-17">group <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [classify(fc, p) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> fc, p <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>], df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log-pVal"</span>])]</span>
+<span id="cb2-18">fold  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>()).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="build-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="build-the-spec">Build the spec</h2>
+<p>canvasxpress takes a <code>data</code> object (a value matrix plus annotations) and a <code>config</code>. We put the two measurements as the variable’s samples and carry the regulation call and fold change as variable annotations (<code>z</code>).</p>
+<div id="f7f044e8" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log-pVal"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: genes,</span>
+<span id="cb3-6">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>].tolist(), df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log-pVal"</span>].tolist()]},</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Group"</span>: group, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"FC"</span>: fold.tolist()},</span>
+<span id="cb3-8">}</span>
+<span id="cb3-9"></span>
+<span id="cb3-10">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatter2D"</span>,</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Publication-ready volcano plot"</span>,</span>
+<span id="cb3-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"logFC"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log-pVal"</span>],</span>
+<span id="cb3-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxisTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"log2 fold change"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxisTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-log10 p-value"</span>,</span>
+<span id="cb3-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Group"</span>,</span>
+<span id="cb3-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorKey"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Group"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Increased"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(197,27,38,0.75)"</span>,</span>
+<span id="cb3-17">                            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Decreased"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(33,102,172,0.75)"</span>,</span>
+<span id="cb3-18">                            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NoChange"</span>:  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(150,150,150,0.35)"</span>}},</span>
+<span id="cb3-19">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sizeBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"FC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sizes"</span>: [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>],</span>
+<span id="cb3-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showDecorations"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"decorations"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>: [</span>
+<span id="cb3-22">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"color"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(120,120,120,0.8)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>},</span>
+<span id="cb3-23">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"color"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(120,120,120,0.8)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>},</span>
+<span id="cb3-24">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"color"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgba(120,120,120,0.8)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.301</span>},</span>
+<span id="cb3-25">    ]},</span>
+<span id="cb3-26">}</span>
+<span id="cb3-27"></span>
+<span id="cb3-28">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"volcano"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb3-29">CXNoteBook(cx).render()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>[&lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.HTML object&gt;,
+ &lt;IPython.core.display.Javascript object&gt;]</code></pre>
+</div>
+</div>
+<p>The chart is interactive — hover a point for its gene and values, drag to zoom, filter by regulation group in the toolbar. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>Everything above serializes to one JSON specification — the <code>data</code> and the <code>config</code>. That spec is portable: the identical figure renders from the R (<code>canvasXpress</code>) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just viewed.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li>Gallery of examples: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Coming from Plotly/Matplotlib: <a href="https://canvasxpress.org/migrate.html" class="uri">https://canvasxpress.org/migrate.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/volcano-plots-in-python/</guid>
+  <pubDate>Tue, 22 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/volcano-plots-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+</channel>
+</rss>
