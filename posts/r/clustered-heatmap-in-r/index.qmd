@@ -1,0 +1,79 @@
+---
+title: "Clustered heatmaps in R with canvasXpress"
+description: "Build an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec."
+author: "Isaac Neuhaus"
+date: "2026-09-24"
+categories: [R, canvasXpress, heatmap, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+The clustered heatmap is the default way to look at an expression matrix: rows and columns
+reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this
+post we build one in R with [canvasXpress](https://canvasxpress.org) — clustering happens
+inside the render, so you pass a plain matrix and get an interactive, reproducible figure.
+
+## An expression matrix with sample metadata
+
+Swap this simulated block for your own matrix (genes in rows, samples in columns) and a table
+of per-sample annotations — the output of any normalization/DE pipeline works.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(1)
+ng    <- 40                       # genes (rows)
+ns    <- 30                       # samples (columns)
+genes <- paste0("Gene", seq_len(ng))
+samps <- paste0("S", seq_len(ns))
+cond  <- rep(c("Tumor", "Normal"), each = ns / 2)
+
+# Two gene blocks, up in one condition each
+m <- matrix(rnorm(ng * ns), ng, ns, dimnames = list(genes, samps))
+m[ 1:20, cond == "Tumor"]  <- m[ 1:20, cond == "Tumor"]  + 2
+m[21:40, cond == "Normal"] <- m[21:40, cond == "Normal"] + 2
+```
+
+canvasXpress takes the matrix as `data` and a **sample annotation** table (rows = samples)
+that becomes an annotation track over the columns.
+
+```{r}
+smpAnnot <- data.frame(Condition = cond, row.names = samps, check.names = FALSE)
+```
+
+## The plot
+
+`samplesClustered` and `variablesClustered` turn on hierarchical clustering (with
+dendrograms) on columns and rows; `colorSpectrum` sets the diverging palette.
+
+```{r}
+canvasXpress(
+  data     = as.data.frame(m),
+  smpAnnot = smpAnnot,
+  graphType = "Heatmap",
+  samplesClustered  = TRUE,
+  variablesClustered = TRUE,
+  colorSpectrum = list("navy", "white", "firebrick3"),
+  showSmpDendrogram = TRUE,
+  showVarDendrogram = TRUE,
+  title = "Clustered expression heatmap",
+  width  = 650,
+  height = 550
+)
+```
+
+The rows and columns are reordered by similarity, the dendrograms show the clustering, and
+the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the
+whole figure is one portable spec you can store, validate and re-render.
+
+## Scaling up
+
+The same call handles much larger matrices — hundreds of genes by dozens to hundreds of
+samples — clustering and rendering the full matrix interactively in the browser, not a static
+image. Point size and labels adapt automatically.
+
+## Next
+
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- [Kaplan–Meier survival curves in R](../kaplan-meier-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
