@@ -1,6 +1,6 @@
 ---
-title: "CanvasXpress in R"
-subtitle: "Interactive, reproducible scientific visualization — every figure is one portable spec."
+title: "CanvasXpress Recipes"
+subtitle: "Interactive, reproducible scientific visualization in R, Python and JavaScript — every figure is one portable spec."
 listing:
   contents: posts
   sort: "date desc"
@@ -14,5 +14,5 @@ page-layout: full
 title-block-banner: true
 ---
 
-Browse everything below, or jump to a topic: [**R**](r.qmd).
-Each topic has its own feed — the [R feed](r.xml) is the one syndicated to R-Bloggers.
+Browse everything below, or jump to a topic: [**R**](r.qmd) or [**Python**](python.qmd).
+Each topic has its own feed — the [R feed](r.xml) and [Python feed](python.xml) syndicate to R-Bloggers and Python-bloggers.

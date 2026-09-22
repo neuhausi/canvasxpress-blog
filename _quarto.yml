@@ -3,8 +3,8 @@ project:
   output-dir: _site
 
 website:
-  title: "CanvasXpress in R"
-  description: "Interactive, reproducible scientific visualization in R with canvasXpress."
+  title: "CanvasXpress Recipes"
+  description: "Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript."
   site-url: "https://neuhausi.github.io/canvasxpress-blog"
   navbar:
     right:
