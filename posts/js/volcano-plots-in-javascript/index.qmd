@@ -29,20 +29,20 @@ call `new CanvasXpress(...)`:
 ```html
 <canvas id="volcano" width="650" height="500"></canvas>
 <script>
-  // A differential-expression table: 1,000 genes with logFC and -log10(p)
-  var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+  // A differential-expression table: 1,000 genes with logFC and -log10(p).
+  // Genes are the variables (rows); each row holds [logFC, -log-pVal].
+  var genes = [], rows = [], group = [], fc = [];
   for (var i = 0; i < 1000; i++) {
     var f = (Math.random() * 2 - 1) * 2.2;                 // log fold change
     var p = -Math.log(Math.random()) / Math.LN10 * 1.5;    // -log10(p) stand-in
     genes.push("Gene" + (i + 1));
-    logFC.push(Math.round(f * 1000) / 1000);
-    negLogP.push(Math.round(p * 1000) / 1000);
+    rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);
     group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
     fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
   }
 
   var data = {
-    y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+    y: { vars: genes, smps: ["logFC", "-log-pVal"], data: rows },
     z: { Group: group, FC: fc }
   };
 
@@ -80,18 +80,17 @@ Here's exactly that code, running on this page:
 (function () {
   function draw() {
     if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
-    var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+    var genes = [], rows = [], group = [], fc = [];
     for (var i = 0; i < 1000; i++) {
       var f = (Math.random() * 2 - 1) * 2.2;
       var p = -Math.log(Math.random()) / Math.LN10 * 1.5;
       genes.push("Gene" + (i + 1));
-      logFC.push(Math.round(f * 1000) / 1000);
-      negLogP.push(Math.round(p * 1000) / 1000);
+      rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);
       group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
       fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
     }
     new CanvasXpress("volcanoLive",
-      { y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+      { y: { vars: genes, smps: ["logFC", "-log-pVal"], data: rows },
         z: { Group: group, FC: fc } },
       { graphType: "Scatter2D", title: "Publication-ready volcano plot",
         xAxis: ["logFC"], yAxis: ["-log-pVal"],

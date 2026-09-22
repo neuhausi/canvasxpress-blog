@@ -48,8 +48,9 @@ from canvasxpress.render.jupyter import CXNoteBook
 from IPython.display import display
 
 data = {
-    "y": {"vars": ["Time", "Time-Censor"], "smps": subj,
-          "data": [time.tolist(), cens.tolist()]},
+    # Subjects are the variables (rows); each row holds [Time, Time-Censor].
+    "y": {"vars": subj, "smps": ["Time", "Time-Censor"],
+          "data": [[t, c] for t, c in zip(time.tolist(), cens.tolist())]},
     "z": {"Arm": arm.tolist()},
 }
 

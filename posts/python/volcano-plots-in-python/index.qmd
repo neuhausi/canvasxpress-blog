@@ -58,8 +58,9 @@ from canvasxpress.render.jupyter import CXNoteBook
 from IPython.display import display
 
 data = {
-    "y": {"vars": ["logFC", "-log-pVal"], "smps": genes,
-          "data": [df["logFC"].tolist(), df["-log-pVal"].tolist()]},
+    # Genes are the variables (rows); each row holds [logFC, -log-pVal].
+    "y": {"vars": genes, "smps": ["logFC", "-log-pVal"],
+          "data": [[fc, p] for fc, p in zip(df["logFC"], df["-log-pVal"])]},
     "z": {"Group": group, "FC": fold.tolist()},
 }
 
