@@ -17,7 +17,9 @@
       "/posts/python/volcano-plots-in-python/index.html",
       "/posts/js/volcano-plots-in-javascript/index.html",
       "/posts/r/paired-boxplots/index.html",
+      "/posts/js/kaplan-meier-in-javascript/index.html",
       "/posts/r/ggplot-direct/index.html",
+      "/posts/js/clustered-heatmap-in-javascript/index.html",
       "/posts/r/clustered-heatmap-in-r/index.html",
       "/posts/r/kaplan-meier-in-r/index.html",
       "/posts/r/volcano-plots-in-r/index.html"
@@ -26,7 +28,9 @@
   {
     "listing": "/js.html",
     "items": [
-      "/posts/js/volcano-plots-in-javascript/index.html"
+      "/posts/js/volcano-plots-in-javascript/index.html",
+      "/posts/js/kaplan-meier-in-javascript/index.html",
+      "/posts/js/clustered-heatmap-in-javascript/index.html"
     ]
   },
   {

@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Isaac Neuhaus">
+<meta name="dcterms.date" content="2026-09-21">
+<meta name="description" content="Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.">
 
-<title>CanvasXpress in JavaScript – CanvasXpress Recipes</title>
+<title>Kaplan–Meier survival curves in JavaScript with CanvasXpress – CanvasXpress Recipes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +23,59 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-6bd9cfa162949bde0a231f530c97869d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-9ce2abe5906e9f62962fd5a4218470f6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,77 +103,19 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-js-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-js-listing'] = new List('listing-js-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="CanvasXpress Recipes" href="js.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../../styles.css">
+</head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">CanvasXpress Recipes</span>
     </a>
   </div>
@@ -149,23 +126,23 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../../index.html"> 
 <span class="menu-text">All posts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./r.html"> 
+    <a class="nav-link" href="../../../r.html"> 
 <span class="menu-text">R</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./python.html"> 
+    <a class="nav-link" href="../../../python.html"> 
 <span class="menu-text">Python</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./js.html" aria-current="page"> 
+    <a class="nav-link" href="../../../js.html"> 
 <span class="menu-text">JavaScript</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -174,7 +151,7 @@ window.Quarto = {
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./r.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../../r.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -186,180 +163,155 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">CanvasXpress in JavaScript</h1>
-            <p class="subtitle lead">Hands-on JavaScript recipes for interactive, reproducible scientific visualization with CanvasXpress.</p>
-                      </div>
-  </div>
-    
-  
-  <div class="quarto-title-meta column-page-left">
-
-      
-    
-      
-    </div>
-    
-  
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Q2FudmFzWHByZXNz">CanvasXpress <span class="quarto-category-count">(3)</span></div><div class="category" data-category="SmF2YVNjcmlwdA==">JavaScript <span class="quarto-category-count">(3)</span></div><div class="category" data-category="YmlvaW5mb3JtYXRpY3M=">bioinformatics <span class="quarto-category-count">(3)</span></div><div class="category" data-category="aGVhdG1hcA==">heatmap <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3Vydml2YWw=">survival <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dmlzdWFsaXphdGlvbg==">visualization <span class="quarto-category-count">(3)</span></div></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-the-library" id="toc-load-the-library" class="nav-link active" data-scroll-target="#load-the-library">Load the library</a></li>
+  <li><a href="#the-markup-and-the-spec" id="toc-the-markup-and-the-spec" class="nav-link" data-scroll-target="#the-markup-and-the-spec">The markup and the spec</a></li>
+  <li><a href="#live-result" id="toc-live-result" class="nav-link" data-scroll-target="#live-result">Live result</a></li>
+  <li><a href="#a-common-gotcha" id="toc-a-common-gotcha" class="nav-link" data-scroll-target="#a-common-gotcha">A common gotcha</a></li>
+  <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next">Next</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Kaplan–Meier survival curves in JavaScript with CanvasXpress</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">JavaScript</div>
+    <div class="quarto-category">CanvasXpress</div>
+    <div class="quarto-category">survival</div>
+    <div class="quarto-category">bioinformatics</div>
+    <div class="quarto-category">visualization</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.
+  </div>
+</div>
 
 
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Isaac Neuhaus </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 21, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
 
 
-
-<p>Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like <a href="https://www.echojs.com">Echo JS</a> and <a href="https://javascriptweekly.com">JavaScript Weekly</a>; this page also has its own feed (<code>js.xml</code>).</p>
-
+</header>
 
 
+<p>Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. CanvasXpress computes the survival steps for you — you give it a <strong>time</strong> column and a <strong>censoring</strong> column — so in the browser it’s just a <code>data</code> object and a <code>config</code>. The result is interactive and reproducible.</p>
+<section id="load-the-library" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-library">Load the library</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css"</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="the-markup-and-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="the-markup-and-the-spec">The markup and the spec</h2>
+<p>Subjects are the variables (rows); each row holds <code>[Time, Time-Censor]</code> (1 = censored, 0 = event). The arm rides along as a variable annotation. The key is <code>graphType: "KaplanMeier"</code> and passing <strong>both</strong> columns to <code>xAxis</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">"km"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"650"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"500"</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> subj <span class="op">=</span> []<span class="op">,</span> rows <span class="op">=</span> []<span class="op">,</span> arm <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">200</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> a <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">?</span> <span class="st">"Treatment"</span> <span class="op">:</span> <span class="st">"Control"</span><span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> base <span class="op">=</span> a <span class="op">===</span> <span class="st">"Treatment"</span> <span class="op">?</span> <span class="dv">60</span> <span class="op">:</span> <span class="dv">40</span><span class="op">;</span>                 <span class="co">// treatment survives longer</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> time <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="op">-</span>base <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>()) <span class="op">*</span> <span class="dv">10</span>) <span class="op">/</span> <span class="dv">10</span><span class="op">;</span>  <span class="co">// exponential</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> cens <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">&lt;</span> <span class="fl">0.3</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">;</span>                 <span class="co">// 1 = censored, 0 = event</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    subj<span class="op">.</span><span class="fu">push</span>(<span class="st">"Subj"</span> <span class="op">+</span> (i <span class="op">+</span> <span class="dv">1</span>))<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">.</span><span class="fu">push</span>([time<span class="op">,</span> cens])<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    arm<span class="op">.</span><span class="fu">push</span>(a)<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> data <span class="op">=</span> {</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">y</span><span class="op">:</span> { <span class="dt">vars</span><span class="op">:</span> subj<span class="op">,</span> <span class="dt">smps</span><span class="op">:</span> [<span class="st">"Time"</span><span class="op">,</span> <span class="st">"Time-Censor"</span>]<span class="op">,</span> <span class="dt">data</span><span class="op">:</span> rows }<span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">z</span><span class="op">:</span> { <span class="dt">Arm</span><span class="op">:</span> arm }</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> config <span class="op">=</span> {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">graphType</span><span class="op">:</span> <span class="st">"KaplanMeier"</span><span class="op">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">xAxis</span><span class="op">:</span> [<span class="st">"Time"</span><span class="op">,</span> <span class="st">"Time-Censor"</span>]<span class="op">,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorBy</span><span class="op">:</span> <span class="st">"Arm"</span><span class="op">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span><span class="op">:</span> <span class="st">"Overall survival by treatment arm"</span><span class="op">,</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">xAxisTitle</span><span class="op">:</span> <span class="st">"Time (weeks)"</span><span class="op">,</span> <span class="dt">yAxisTitle</span><span class="op">:</span> <span class="st">"Probability of survival"</span><span class="op">,</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">invertCensored</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>                 <span class="co">// draw censoring ticks</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">showKMConfidenceIntervals</span><span class="op">:</span> <span class="kw">false</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span> <span class="fu">CanvasXpress</span>(<span class="st">"km"</span><span class="op">,</span> data<span class="op">,</span> config)<span class="op">;</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="live-result" class="level2">
+<h2 class="anchored" data-anchor-id="live-result">Live result</h2>
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="kmLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var subj = [], rows = [], arm = [];
+    for (var i = 0; i < 200; i++) {
+      var a = Math.random() < 0.5 ? "Treatment" : "Control";
+      var base = a === "Treatment" ? 60 : 40;
+      var time = Math.round(-base * Math.log(Math.random()) * 10) / 10;
+      var cens = Math.random() < 0.3 ? 1 : 0;
+      subj.push("Subj" + (i + 1));
+      rows.push([time, cens]);
+      arm.push(a);
+    }
+    new CanvasXpress("kmLive",
+      { y: { vars: subj, smps: ["Time", "Time-Censor"], data: rows }, z: { Arm: arm } },
+      { graphType: "KaplanMeier", xAxis: ["Time", "Time-Censor"], colorBy: "Arm",
+        title: "Overall survival by treatment arm",
+        xAxisTitle: "Time (weeks)", yAxisTitle: "Probability of survival",
+        invertCensored: true, showKMConfidenceIntervals: false });
+  }
+  draw();
+})();
+</script>
+<p>Hover any step for the time and survival probability; the tick marks are censored subjects. CanvasXpress derives the survival curve from the raw table, so you never precompute the steps — and the same spec re-renders the identical curve from R or Python.</p>
+</section>
+<section id="a-common-gotcha" class="level2">
+<h2 class="anchored" data-anchor-id="a-common-gotcha">A common gotcha</h2>
+<p>The survival transform only fires with <code>graphType: "KaplanMeier"</code>. A bare <code>"Scatter2D"</code> gives a raw scatter of the censor values instead — survival probability is <em>computed</em> by the engine, not a column in your data.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-javascript/">Interactive volcano plots in JavaScript</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Source &amp; npm: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
+</ul>
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-js-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="SmF2YVNjcmlwdCUyQ0NhbnZhc1hwcmVzcyUyQ2Jpb2luZm9ybWF0aWNzJTJDdmlzdWFsaXphdGlvbg==" data-listing-date-sort="1790049600000" data-listing-file-modified-sort="1790111923812" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1437">
-<div class="thumbnail">
-<p><a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external"></a></p><a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/js/volcano-plots-in-javascript/thumbnail.png" class="thumbnail-image"></p>
-</a><p><a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external">Interactive volcano plots in JavaScript with CanvasXpress</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('SmF2YVNjcmlwdA=='); return false;">
-JavaScript
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Q2FudmFzWHByZXNz'); return false;">
-CanvasXpress
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('YmlvaW5mb3JtYXRpY3M='); return false;">
-bioinformatics
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('dmlzdWFsaXphdGlvbg=='); return false;">
-visualization
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external">Build a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/js/volcano-plots-in-javascript/index.html" class="no-external">
-<div class="listing-date">
-Sep 22, 2026
-</div>
-<div class="listing-author">
-Isaac Neuhaus
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="SmF2YVNjcmlwdCUyQ0NhbnZhc1hwcmVzcyUyQ3N1cnZpdmFsJTJDYmlvaW5mb3JtYXRpY3MlMkN2aXN1YWxpemF0aW9u" data-listing-date-sort="1789963200000" data-listing-file-modified-sort="1790112196936" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="649">
-<div class="thumbnail">
-<p><a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external"></a></p><a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/js/kaplan-meier-in-javascript/thumbnail.png" class="thumbnail-image"></p>
-</a><p><a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external">Kaplan–Meier survival curves in JavaScript with CanvasXpress</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('SmF2YVNjcmlwdA=='); return false;">
-JavaScript
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Q2FudmFzWHByZXNz'); return false;">
-CanvasXpress
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWw='); return false;">
-survival
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('YmlvaW5mb3JtYXRpY3M='); return false;">
-bioinformatics
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('dmlzdWFsaXphdGlvbg=='); return false;">
-visualization
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external">Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/js/kaplan-meier-in-javascript/index.html" class="no-external">
-<div class="listing-date">
-Sep 21, 2026
-</div>
-<div class="listing-author">
-Isaac Neuhaus
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="SmF2YVNjcmlwdCUyQ0NhbnZhc1hwcmVzcyUyQ2hlYXRtYXAlMkNiaW9pbmZvcm1hdGljcyUyQ3Zpc3VhbGl6YXRpb24=" data-listing-date-sort="1789876800000" data-listing-file-modified-sort="1790112219209" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="767">
-<div class="thumbnail">
-<p><a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external"></a></p><a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/js/clustered-heatmap-in-javascript/thumbnail.png" class="thumbnail-image"></p>
-</a><p><a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external">Clustered heatmaps in JavaScript with CanvasXpress</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('SmF2YVNjcmlwdA=='); return false;">
-JavaScript
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Q2FudmFzWHByZXNz'); return false;">
-CanvasXpress
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('aGVhdG1hcA=='); return false;">
-heatmap
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('YmlvaW5mb3JtYXRpY3M='); return false;">
-bioinformatics
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('dmlzdWFsaXphdGlvbg=='); return false;">
-visualization
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external">Build an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/js/clustered-heatmap-in-javascript/index.html" class="no-external">
-<div class="listing-date">
-Sep 20, 2026
-</div>
-<div class="listing-author">
-Isaac Neuhaus
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -791,7 +743,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </a>
   </li>  
     <li class="nav-item">
-    <a class="nav-link" href="./about.html">
+    <a class="nav-link" href="../../../about.html">
 <p>About</p>
 </a>
   </li>  
