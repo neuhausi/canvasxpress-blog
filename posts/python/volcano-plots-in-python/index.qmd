@@ -1,0 +1,101 @@
+---
+title: "Interactive volcano plots in Python with canvasxpress"
+description: "Build a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec."
+author: "Isaac Neuhaus"
+date: "2026-09-22"
+categories: [Python, canvasxpress, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A volcano plot is the workhorse of differential-expression analysis: log fold change on x,
+statistical significance on y, and the interesting genes pushed to the top corners. Here we build
+one in Python with [canvasxpress](https://pypi.org/project/canvasxpress/) — interactive (zoom,
+hover, filter) and **reproducible**: the whole figure is one portable specification you can store
+and re-render from Python, R or JavaScript.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## A differential-expression table
+
+Swap this simulated block for your own results — the output of any DE pipeline works, as long as you
+have a log fold change and a significance value per gene.
+
+```{python}
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(1)
+n = 1000
+genes   = [f"Gene{i+1}" for i in range(n)]
+logfc   = rng.normal(0, 0.8, n)
+neglogp = -np.log10(rng.uniform(size=n) ** 1.5)   # stand-in for -log10(p-value)
+
+df = pd.DataFrame({"logFC": logfc.round(3), "-log-pVal": neglogp.round(3)}, index=genes)
+
+def classify(fc, p):
+    if fc > 1 and p > 2:   return "Increased"
+    if fc < -1 and p > 2:  return "Decreased"
+    return "NoChange"
+
+group = [classify(fc, p) for fc, p in zip(df["logFC"], df["-log-pVal"])]
+fold  = (2 ** df["logFC"].abs()).round(2)
+```
+
+## Build the spec
+
+canvasxpress takes a `data` object (a value matrix plus annotations) and a `config`. We put the two
+measurements as the variable's samples and carry the regulation call and fold change as variable
+annotations (`z`).
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+
+data = {
+    "y": {"vars": ["logFC", "-log-pVal"], "smps": genes,
+          "data": [df["logFC"].tolist(), df["-log-pVal"].tolist()]},
+    "z": {"Group": group, "FC": fold.tolist()},
+}
+
+config = {
+    "graphType": "Scatter2D",
+    "title": "Publication-ready volcano plot",
+    "xAxis": ["logFC"], "yAxis": ["-log-pVal"],
+    "xAxisTitle": "log2 fold change", "yAxisTitle": "-log10 p-value",
+    "colorBy": "Group",
+    "colorKey": {"Group": {"Increased": "rgba(197,27,38,0.75)",
+                            "Decreased": "rgba(33,102,172,0.75)",
+                            "NoChange":  "rgba(150,150,150,0.35)"}},
+    "sizeBy": "FC", "sizes": [3, 6, 9, 12, 15],
+    "showDecorations": True,
+    "decorations": {"line": [
+        {"color": "rgba(120,120,120,0.8)", "width": 1, "x": 1},
+        {"color": "rgba(120,120,120,0.8)", "width": 1, "x": -1},
+        {"color": "rgba(120,120,120,0.8)", "width": 1, "y": 1.301},
+    ]},
+}
+
+cx = CanvasXpress(render_to="volcano", data=data, config=config, width=650, height=500)
+CXNoteBook(cx).render()
+```
+
+The chart is interactive — hover a point for its gene and values, drag to zoom, filter by regulation
+group in the toolbar. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs.
+
+## Why "reproducible"
+
+Everything above serializes to one JSON specification — the `data` and the `config`. That spec is
+portable: the identical figure renders from the R (`canvasXpress`) and JavaScript packages, and it
+can be validated against a published schema and re-rendered later, so a figure in a paper can be
+regenerated and audited rather than just viewed.
+
+## Next
+
+- Gallery of examples: <https://canvasxpress.org/examples.html>
+- Coming from Plotly/Matplotlib: <https://canvasxpress.org/migrate.html>
+- Package: <https://pypi.org/project/canvasxpress/>

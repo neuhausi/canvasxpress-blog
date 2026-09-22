@@ -1,0 +1,83 @@
+---
+title: "Kaplan–Meier survival curves in Python with canvasxpress"
+description: "Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python."
+author: "Isaac Neuhaus"
+date: "2026-09-23"
+categories: [Python, canvasxpress, survival, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time,
+usually split by a group like treatment arm. Here we build one in Python with
+[canvasxpress](https://pypi.org/project/canvasxpress/) — it computes the survival steps for you from
+a **time** column and a **censoring** column — and the result is interactive and reproducible.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## A survival table
+
+Swap this simulated block for your own data: per subject you need a follow-up **time**, a
+**censoring indicator** (1 = censored, 0 = event), and the grouping variable.
+
+```{python}
+import numpy as np
+
+rng  = np.random.default_rng(1)
+n    = 200
+arm  = rng.choice(["Treatment", "Control"], n)
+base = np.where(arm == "Treatment", 60, 40)     # treatment survives longer
+time = np.round(rng.exponential(base), 1)
+cens = rng.binomial(1, 0.3, n)                  # 1 = censored, 0 = event
+subj = [f"Subj{i+1}" for i in range(n)]
+```
+
+## Build the spec
+
+The two columns — the time and its matching censor flag — go in as the variable samples, and the
+arm rides along as a variable annotation. The key is `graphType="KaplanMeier"` and passing **both**
+columns to `xAxis`.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+
+data = {
+    "y": {"vars": ["Time", "Time-Censor"], "smps": subj,
+          "data": [time.tolist(), cens.tolist()]},
+    "z": {"Arm": arm.tolist()},
+}
+
+config = {
+    "graphType": "KaplanMeier",
+    "xAxis": ["Time", "Time-Censor"],
+    "colorBy": "Arm",
+    "title": "Overall survival by treatment arm",
+    "xAxisTitle": "Time (weeks)", "yAxisTitle": "Probability of survival",
+    "invertCensored": True,               # draw censoring ticks
+    "showKMConfidenceIntervals": False,
+}
+
+cx = CanvasXpress(render_to="km", data=data, config=config, width=650, height=500)
+CXNoteBook(cx).render()
+```
+
+Hover any step for the time and survival probability; the tick marks are censored subjects.
+canvasxpress derives the survival curve from the raw table, so you never precompute the steps — and
+the same spec re-renders the identical curve from R or JavaScript.
+
+## A common gotcha
+
+The survival transform only fires with `graphType="KaplanMeier"`. A bare `"Scatter2D"` gives a raw
+scatter of the censor values instead — survival probability is *computed* by the engine, not a
+column in your data.
+
+## Next
+
+- [Interactive volcano plots in Python](../volcano-plots-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>

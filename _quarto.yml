@@ -12,6 +12,8 @@ website:
         href: index.qmd
       - text: "R"
         href: r.qmd
+      - text: "Python"
+        href: python.qmd
       - about.qmd
       - icon: github
         href: https://github.com/neuhausi/canvasXpress

@@ -1,0 +1,80 @@
+---
+title: "Clustered heatmaps in Python with canvasxpress"
+description: "Build an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec."
+author: "Isaac Neuhaus"
+date: "2026-09-24"
+categories: [Python, canvasxpress, heatmap, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered
+by similarity, dendrograms on the margins, and sample metadata alongside. Here we build one in Python
+with [canvasxpress](https://pypi.org/project/canvasxpress/) — clustering happens inside the render,
+so you pass a plain matrix and get an interactive, reproducible figure.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## An expression matrix with sample metadata
+
+Swap this simulated block for your own matrix (genes in rows, samples in columns) and a table of
+per-sample annotations.
+
+```{python}
+import numpy as np
+import pandas as pd
+
+rng   = np.random.default_rng(1)
+ng, ns = 40, 30
+genes = [f"Gene{i+1}" for i in range(ng)]
+samps = [f"S{i+1}"    for i in range(ns)]
+cond  = ["Tumor"] * (ns // 2) + ["Normal"] * (ns // 2)
+
+m = rng.normal(0, 1, (ng, ns))
+tumor = [i for i, c in enumerate(cond) if c == "Tumor"]
+normal = [i for i, c in enumerate(cond) if c == "Normal"]
+m[np.ix_(range(0, 20),  tumor)]  += 2      # first block up in Tumor
+m[np.ix_(range(20, 40), normal)] += 2      # second block up in Normal
+
+expr = pd.DataFrame(m.round(3), index=genes, columns=samps)
+```
+
+## Build the spec
+
+The matrix goes in as `data`, and the sample annotation becomes an annotation track over the
+columns. `samplesClustered` / `variablesClustered` turn on hierarchical clustering with dendrograms.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+
+data = {
+    "y": {"vars": genes, "smps": samps, "data": expr.values.tolist()},
+    "x": {"Condition": cond},
+}
+
+config = {
+    "graphType": "Heatmap",
+    "samplesClustered": True, "variablesClustered": True,
+    "colorSpectrum": ["navy", "white", "firebrick3"],
+    "showSmpDendrogram": True, "showVarDendrogram": True,
+    "title": "Clustered expression heatmap",
+}
+
+cx = CanvasXpress(render_to="heatmap", data=data, config=config, width=650, height=550)
+CXNoteBook(cx).render()
+```
+
+Rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples
+separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one
+portable spec you can store, validate and re-render from R or JavaScript.
+
+## Next
+
+- [Interactive volcano plots in Python](../volcano-plots-in-python/)
+- [Kaplan–Meier survival curves in Python](../kaplan-meier-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
