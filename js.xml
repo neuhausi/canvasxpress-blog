@@ -108,19 +108,18 @@ background-color: null;
 font-style: inherit;">&gt;</span></span>
 <span id="cb2-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">// A differential-expression table: 1,000 genes with logFC and -log10(p)</span></span>
-<span id="cb2-4">  <span class="kw" style="color: #003B4F;
+font-style: inherit;">// A differential-expression table: 1,000 genes with logFC and -log10(p).</span></span>
+<span id="cb2-4">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Genes are the variables (rows); each row holds [logFC, -log-pVal].</span></span>
+<span id="cb2-5">  <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">var</span> genes <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> []<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">,</span> logFC <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> []<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> negLogP <span class="op" style="color: #5E5E5E;
+font-style: inherit;">,</span> rows <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> []<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -133,7 +132,7 @@ background-color: null;
 font-style: inherit;">=</span> []<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb2-5">  <span class="cf" style="color: #003B4F;
+<span id="cb2-6">  <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> (<span class="kw" style="color: #003B4F;
@@ -154,7 +153,7 @@ background-color: null;
 font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">++</span>) {</span>
-<span id="cb2-6">    <span class="kw" style="color: #003B4F;
+<span id="cb2-7">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">var</span> f <span class="op" style="color: #5E5E5E;
@@ -182,7 +181,7 @@ background-color: null;
 font-style: inherit;">;</span>                 <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">// log fold change</span></span>
-<span id="cb2-7">    <span class="kw" style="color: #003B4F;
+<span id="cb2-8">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">var</span> p <span class="op" style="color: #5E5E5E;
@@ -218,7 +217,7 @@ background-color: null;
 font-style: inherit;">;</span>    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">// -log10(p) stand-in</span></span>
-<span id="cb2-8">    genes<span class="op" style="color: #5E5E5E;
+<span id="cb2-9">    genes<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -233,11 +232,11 @@ background-color: null;
 font-style: inherit;">1</span>))<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb2-9">    logFC<span class="op" style="color: #5E5E5E;
+<span id="cb2-10">    rows<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">push</span>(<span class="bu" style="color: null;
+font-style: inherit;">push</span>([<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -251,14 +250,9 @@ font-style: inherit;">1000</span>) <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1000</span>)<span class="op" style="color: #5E5E5E;
+font-style: inherit;">1000</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">;</span></span>
-<span id="cb2-10">    negLogP<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">push</span>(<span class="bu" style="color: null;
+font-style: inherit;">,</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -272,7 +266,7 @@ font-style: inherit;">1000</span>) <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1000</span>)<span class="op" style="color: #5E5E5E;
+font-style: inherit;">1000</span>])<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
 <span id="cb2-11">    group<span class="op" style="color: #5E5E5E;
@@ -371,6 +365,12 @@ font-style: inherit;">:</span> { <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">vars</span><span class="op" style="color: #5E5E5E;
 background-color: null;
+font-style: inherit;">:</span> genes<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">smps</span><span class="op" style="color: #5E5E5E;
+background-color: null;
 font-style: inherit;">:</span> [<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"logFC"</span><span class="op" style="color: #5E5E5E;
@@ -381,17 +381,9 @@ font-style: inherit;">"-log-pVal"</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">smps</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> genes<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
-background-color: null;
 font-style: inherit;">data</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span> [logFC<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> negLogP] }<span class="op" style="color: #5E5E5E;
+font-style: inherit;">:</span> rows }<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
 <span id="cb2-17">    <span class="dt" style="color: #AD0000;
@@ -680,18 +672,17 @@ font-style: inherit;">&gt;</span></span></code></pre></div>
 (function () {
   function draw() {
     if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
-    var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+    var genes = [], rows = [], group = [], fc = [];
     for (var i = 0; i < 1000; i++) {
       var f = (Math.random() * 2 - 1) * 2.2;
       var p = -Math.log(Math.random()) / Math.LN10 * 1.5;
       genes.push("Gene" + (i + 1));
-      logFC.push(Math.round(f * 1000) / 1000);
-      negLogP.push(Math.round(p * 1000) / 1000);
+      rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);
       group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
       fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
     }
     new CanvasXpress("volcanoLive",
-      { y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+      { y: { vars: genes, smps: ["logFC", "-log-pVal"], data: rows },
         z: { Group: group, FC: fc } },
       { graphType: "Scatter2D", title: "Publication-ready volcano plot",
         xAxis: ["logFC"], yAxis: ["-log-pVal"],
