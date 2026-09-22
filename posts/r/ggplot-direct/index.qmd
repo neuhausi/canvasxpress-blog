@@ -2,7 +2,7 @@
 title: "Use your ggplot2 (and ggpubr) plots directly with canvasXpress"
 description: "You don't have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included."
 author: "Isaac Neuhaus"
-date: "2026-09-25"
+date: "2026-09-21"
 categories: [R, canvasXpress, ggplot2, ggpubr, visualization]
 image: "thumbnail.png"
 ---

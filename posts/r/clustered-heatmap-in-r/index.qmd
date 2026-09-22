@@ -2,7 +2,7 @@
 title: "Clustered heatmaps in R with canvasXpress"
 description: "Build an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec."
 author: "Isaac Neuhaus"
-date: "2026-09-24"
+date: "2026-09-20"
 categories: [R, canvasXpress, heatmap, bioinformatics, visualization]
 image: "thumbnail.png"
 ---

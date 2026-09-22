@@ -2,7 +2,7 @@
 title: "Paired before/after boxplots in R with canvasXpress"
 description: "Show paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress()."
 author: "Isaac Neuhaus"
-date: "2026-09-26"
+date: "2026-09-22"
 categories: [R, canvasXpress, ggpubr, visualization]
 image: "thumbnail.png"
 ---

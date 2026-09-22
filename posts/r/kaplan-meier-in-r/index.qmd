@@ -2,7 +2,7 @@
 title: "Kaplan–Meier survival curves in R with canvasXpress"
 description: "Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R."
 author: "Isaac Neuhaus"
-date: "2026-09-23"
+date: "2026-09-19"
 categories: [R, canvasXpress, survival, bioinformatics, visualization]
 image: "thumbnail.png"
 ---

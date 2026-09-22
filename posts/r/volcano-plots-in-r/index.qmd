@@ -2,7 +2,7 @@
 title: "Interactive volcano plots in R with canvasXpress"
 description: "Build a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere."
 author: "Isaac Neuhaus"
-date: "2026-09-22"
+date: "2026-09-18"
 categories: [R, canvasXpress, bioinformatics, visualization]
 image: "thumbnail.png"
 ---
