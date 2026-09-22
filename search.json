@@ -11,119 +11,140 @@
     "href": "index.html",
     "title": "CanvasXpress Recipes",
     "section": "",
-    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html",
-    "href": "posts/r/paired-boxplots/index.html",
-    "title": "Paired before/after boxplots in R with canvasXpress",
+    "objectID": "js.html",
+    "href": "js.html",
+    "title": "CanvasXpress in JavaScript",
     "section": "",
-    "text": "When the same subjects are measured twice — before/after a treatment, baseline vs follow-up — a paired boxplot with a line connecting each subject across the two timepoints tells the story a plain boxplot can’t. This post builds one in R by wrapping a ggpubr ggpaired plot with canvasXpress, so it becomes interactive and reproducible without re-specifying anything."
+    "text": "Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like Echo JS and JavaScript Weekly; this page also has its own feed (js.xml).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html#install",
-    "href": "posts/r/paired-boxplots/index.html#install",
-    "title": "Paired before/after boxplots in R with canvasXpress",
+    "objectID": "posts/r/volcano-plots-in-r/index.html",
+    "href": "posts/r/volcano-plots-in-r/index.html",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "",
+    "text": "A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed out to the top corners. In this post we build one in R with canvasXpress — interactive (zoom, hover, filter), and, importantly, reproducible: the whole figure is a single portable specification you can store, validate and re-render from R, Python or JavaScript."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#install",
+    "href": "posts/r/volcano-plots-in-r/index.html#install",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Install",
+    "text": "Install\n\ninstall.packages(\"canvasXpress\")"
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
+    "href": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "A differential-expression table",
+    "text": "A differential-expression table\nFor a self-contained example we simulate 1,000 genes. Swap this block for your own results table (e.g. the output of limma::topTable() or DESeq2::results()) — you need a log fold change and a significance value per gene.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn       &lt;- 1000\ngenes   &lt;- paste0(\"Gene\", seq_len(n))\nlogFC   &lt;- rnorm(n, 0, 0.8)\nnegLogP &lt;- -log10(runif(n)^1.5)   # stand-in for -log10(p-value)\n\n# Classify each gene by effect size + significance\ngroup &lt;- ifelse(logFC &gt;  1 & negLogP &gt; 2, \"Increased\",\n         ifelse(logFC &lt; -1 & negLogP &gt; 2, \"Decreased\", \"NoChange\"))\n\ncanvasXpress expects a numeric matrix/data frame of values (genes in rows) plus an optional variable annotation table carrying per-gene attributes — here the regulation call and the fold change we’ll use for point size.\n\ny &lt;- data.frame(\n  \"logFC\"     = logFC,\n  \"-log-pVal\" = negLogP,\n  row.names   = genes,\n  check.names = FALSE\n)\n\nvarAnnot &lt;- data.frame(\n  Group = group,\n  FC    = round(2^abs(logFC), 2),\n  row.names   = genes,\n  check.names = FALSE\n)"
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#the-plot",
+    "href": "posts/r/volcano-plots-in-r/index.html#the-plot",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"Scatter2D\",\n  xAxis    = list(\"logFC\"),\n  yAxis    = list(\"-log-pVal\"),\n  colorBy  = \"Group\",\n  colorKey = list(Group = list(\n    Increased = \"rgba(197,27,38,0.75)\",\n    Decreased = \"rgba(33,102,172,0.75)\",\n    NoChange  = \"rgba(150,150,150,0.35)\"\n  )),\n  sizeBy   = \"FC\",\n  sizes    = c(3, 6, 9, 12, 15),\n  title    = \"Publication-ready volcano plot\",\n  xAxisTitle = \"log2 fold change\",\n  yAxisTitle = \"-log10 p-value\",\n  showDecorations = TRUE,\n  decorations = list(line = list(\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x =  1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x = -1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, y = 1.301)\n  )),\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nThe chart is interactive: hover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and the p = 0.05 cutoffs."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
+    "href": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nEverything above serializes to one JSON specification — the data and the config. That spec is portable: the identical figure renders from the Python (canvasxpress) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just looked at."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
+    "href": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nGallery of examples: https://canvasxpress.org/examples.html\nFrom your object (survival tables, expression matrices, single-cell): https://canvasxpress.org/migrate.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+  },
+  {
+    "objectID": "posts/r/ggplot-direct/index.html",
+    "href": "posts/r/ggplot-direct/index.html",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "",
+    "text": "If you already build plots with ggplot2 or ggpubr, you don’t need to learn a new plotting API to make them interactive. canvasXpress accepts a ggplot object directly: pass it to canvasXpress() and it renders an interactive, reproducible version of the same figure — you keep your existing code."
+  },
+  {
+    "objectID": "posts/r/ggplot-direct/index.html#install",
+    "href": "posts/r/ggplot-direct/index.html#install",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
     "section": "Install",
     "text": "Install\n\ninstall.packages(c(\"canvasXpress\", \"ggpubr\"))"
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html#a-paired-dataset",
-    "href": "posts/r/paired-boxplots/index.html#a-paired-dataset",
-    "title": "Paired before/after boxplots in R with canvasXpress",
-    "section": "A paired dataset",
-    "text": "A paired dataset\nLong format, two rows per subject — one per timepoint. Swap in your own repeated-measures table.\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\nset.seed(7)\nn  &lt;- 25\ndf &lt;- data.frame(\n  id    = rep(paste0(\"P\", seq_len(n)), 2),\n  time  = rep(c(\"Baseline\", \"Week 12\"), each = n),\n  value = c(rnorm(n, 8, 1.2),                       # baseline\n            rnorm(n, 8, 1.2) + rnorm(n, -1.2, 0.8)) # follow-up (a drop)\n)"
+    "objectID": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
+    "href": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "Wrap a plot you already have",
+    "text": "Wrap a plot you already have\nHere’s an ordinary ggpubr boxplot with pairwise comparisons (geom_pwc) — the significance brackets that show a test between each pair of groups. Build it exactly as you normally would:\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\ng &lt;- ggboxplot(iris, x = \"Species\", y = \"Sepal.Width\", fill = \"Species\") +\n  geom_pwc(method = \"t_test\", label = \"p.format\")\n\nNow make it interactive — one call, the same object:\n\nlibrary(canvasXpress)\n\ncanvasXpress(g)\n\n\n\n\n\nThat’s the whole idea: no re-specification. canvasXpress reads the ggplot object — its data, aesthetics, layers, scales and the geom_pwc brackets — and renders it. Hover the points, drag to zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you can store and reproduce from R, Python or JavaScript."
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html#build-it-with-ggpaired-then-wrap-it",
-    "href": "posts/r/paired-boxplots/index.html#build-it-with-ggpaired-then-wrap-it",
-    "title": "Paired before/after boxplots in R with canvasXpress",
-    "section": "Build it with ggpaired, then wrap it",
-    "text": "Build it with ggpaired, then wrap it\nggpaired draws the two boxes and the per-subject connecting lines; stat_compare_means adds a paired test. Then hand the whole thing to canvasXpress():\n\nlibrary(canvasXpress)\n\ng &lt;- ggpaired(\n  df, x = \"time\", y = \"value\", id = \"id\",\n  color = \"time\", line.color = \"gray\", line.size = 0.3\n) +\n  stat_compare_means(paired = TRUE, method = \"t.test\")\n\ncanvasXpress(g)\n\n\n\n\n\nEach grey line is one subject moving from Baseline to Week 12, the boxes summarize each timepoint, and the paired t-test labels the comparison. It’s interactive — hover a line to follow a subject — and the figure is one portable spec you can reproduce from R, Python or JavaScript."
+    "objectID": "posts/r/ggplot-direct/index.html#what-transfers",
+    "href": "posts/r/ggplot-direct/index.html#what-transfers",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "What transfers",
+    "text": "What transfers\n\nGeoms and layers — points, boxes, lines, and stats like geom_pwc / stat_compare_means.\nAesthetic mappings — x, y, fill, color, grouping.\nScales, labels and facets from the ggplot object."
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html#why-paired-not-two-independent-boxes",
-    "href": "posts/r/paired-boxplots/index.html#why-paired-not-two-independent-boxes",
-    "title": "Paired before/after boxplots in R with canvasXpress",
-    "section": "Why paired, not two independent boxes",
-    "text": "Why paired, not two independent boxes\nA side-by-side boxplot hides who changed. The connecting lines make within-subject change visible: a treatment can lower the group median while a handful of subjects still rise — exactly the pattern you want to catch before drawing conclusions."
+    "objectID": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
+    "href": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "When to reach for the native API instead",
+    "text": "When to reach for the native API instead\nWrapping a ggplot is ideal for reusing plots you already have. When you’re building a figure fresh — or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive annotations) — call canvasXpress() on your data directly with a graphType. See the other posts for that style."
   },
   {
-    "objectID": "posts/r/paired-boxplots/index.html#next",
-    "href": "posts/r/paired-boxplots/index.html#next",
-    "title": "Paired before/after boxplots in R with canvasXpress",
+    "objectID": "posts/r/ggplot-direct/index.html#next",
+    "href": "posts/r/ggplot-direct/index.html#next",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nUse ggplot2 & ggpubr plots directly with canvasXpress\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nPaired before/after boxplots in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html",
-    "href": "posts/r/clustered-heatmap-in-r/index.html",
-    "title": "Clustered heatmaps in R with canvasXpress",
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html",
+    "href": "posts/js/volcano-plots-in-javascript/index.html",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
     "section": "",
-    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this post we build one in R with canvasXpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
+    "text": "A volcano plot puts log fold change on x, statistical significance on y, and pushes the interesting genes into the top corners. CanvasXpress is a JavaScript library at heart, so in the browser there’s no wrapper at all — you give a &lt;canvas&gt; a data object and a config, and you get an interactive, reproducible figure. The same spec renders identically from R and Python too."
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "An expression matrix with sample metadata",
-    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations — the output of any normalization/DE pipeline works.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nng    &lt;- 40                       # genes (rows)\nns    &lt;- 30                       # samples (columns)\ngenes &lt;- paste0(\"Gene\", seq_len(ng))\nsamps &lt;- paste0(\"S\", seq_len(ns))\ncond  &lt;- rep(c(\"Tumor\", \"Normal\"), each = ns / 2)\n\n# Two gene blocks, up in one condition each\nm &lt;- matrix(rnorm(ng * ns), ng, ns, dimnames = list(genes, samps))\nm[ 1:20, cond == \"Tumor\"]  &lt;- m[ 1:20, cond == \"Tumor\"]  + 2\nm[21:40, cond == \"Normal\"] &lt;- m[21:40, cond == \"Normal\"] + 2\n\ncanvasXpress takes the matrix as data and a sample annotation table (rows = samples) that becomes an annotation track over the columns.\n\nsmpAnnot &lt;- data.frame(Condition = cond, row.names = samps, check.names = FALSE)"
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Load the library",
+    "text": "Load the library\nDrop one script tag (and the stylesheet) on your page. Here we pin to a released version on a CDN:\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "The plot",
-    "text": "The plot\nsamplesClustered and variablesClustered turn on hierarchical clustering (with dendrograms) on columns and rows; colorSpectrum sets the diverging palette.\n\ncanvasXpress(\n  data     = as.data.frame(m),\n  smpAnnot = smpAnnot,\n  graphType = \"Heatmap\",\n  samplesClustered  = TRUE,\n  variablesClustered = TRUE,\n  colorSpectrum = list(\"navy\", \"white\", \"firebrick3\"),\n  showSmpDendrogram = TRUE,\n  showVarDendrogram = TRUE,\n  title = \"Clustered expression heatmap\",\n  width  = 650,\n  height = 550\n)\n\n\n\n\n\nThe rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render."
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "The markup and the spec",
+    "text": "The markup and the spec\nGive the page a canvas, then build the data (a value matrix plus annotations) and a config, and call new CanvasXpress(...):\n&lt;canvas id=\"volcano\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // A differential-expression table: 1,000 genes with logFC and -log10(p)\n  var genes = [], logFC = [], negLogP = [], group = [], fc = [];\n  for (var i = 0; i &lt; 1000; i++) {\n    var f = (Math.random() * 2 - 1) * 2.2;                 // log fold change\n    var p = -Math.log(Math.random()) / Math.LN10 * 1.5;    // -log10(p) stand-in\n    genes.push(\"Gene\" + (i + 1));\n    logFC.push(Math.round(f * 1000) / 1000);\n    negLogP.push(Math.round(p * 1000) / 1000);\n    group.push(f &gt; 1 && p &gt; 2 ? \"Increased\" : f &lt; -1 && p &gt; 2 ? \"Decreased\" : \"NoChange\");\n    fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);\n  }\n\n  var data = {\n    y: { vars: [\"logFC\", \"-log-pVal\"], smps: genes, data: [logFC, negLogP] },\n    z: { Group: group, FC: fc }\n  };\n\n  var config = {\n    graphType: \"Scatter2D\",\n    title: \"Publication-ready volcano plot\",\n    xAxis: [\"logFC\"], yAxis: [\"-log-pVal\"],\n    xAxisTitle: \"log2 fold change\", yAxisTitle: \"-log10 p-value\",\n    colorBy: \"Group\",\n    colorKey: { Group: { Increased: \"rgba(197,27,38,0.75)\",\n                         Decreased: \"rgba(33,102,172,0.75)\",\n                         NoChange:  \"rgba(150,150,150,0.35)\" } },\n    sizeBy: \"FC\", sizes: [3, 6, 9, 12, 15],\n    showDecorations: true,\n    decorations: { line: [\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: 1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: -1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, y: 1.301 }\n    ] }\n  };\n\n  new CanvasXpress(\"volcano\", data, config);\n&lt;/script&gt;"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "Scaling up",
-    "text": "Scaling up\nThe same call handles much larger matrices — hundreds of genes by dozens to hundreds of samples — clustering and rendering the full matrix interactively in the browser, not a static image. Point size and labels adapt automatically."
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#live-result",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#live-result",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Live result",
+    "text": "Live result\nHere’s exactly that code, running on this page:\n\n\n\n\nHover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs."
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#next",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#next",
-    "title": "Clustered heatmaps in R with canvasXpress",
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data and config above are the figure — one portable JSON specification. Save it and the identical plot renders from the R (canvasXpress) and Python (canvasxpress) packages, and it can be validated against a published schema and re-rendered later, so a figure can be regenerated and audited rather than just viewed."
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#next",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#next",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in R\nKaplan–Meier survival curves in R\nGallery: https://canvasxpress.org/examples.html"
-  },
-  {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html",
-    "href": "posts/r/kaplan-meier-in-r/index.html",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "",
-    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. In this post we build one in R with canvasXpress. canvasXpress computes the survival steps for you — you hand it a time column and a censoring column, and it does the rest — and the result is an interactive figure that serializes to one portable, reproducible spec."
-  },
-  {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
-    "href": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "A survival table",
-    "text": "A survival table\nSwap this simulated block for your own data: you need, per subject, a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn    &lt;- 200\narm  &lt;- sample(c(\"Treatment\", \"Control\"), n, replace = TRUE)\nbase &lt;- ifelse(arm == \"Treatment\", 60, 40)      # treatment survives longer\ntime &lt;- round(rexp(n, rate = 1 / base), 1)\ncens &lt;- rbinom(n, 1, 0.3)                        # 1 = censored, 0 = event\nsubj &lt;- paste0(\"Subj\", seq_len(n))\n\ncanvasXpress reads two columns for a Kaplan–Meier plot — the time and its matching censor flag — plus a per-subject annotation carrying the group.\n\ny &lt;- data.frame(\n  \"Time\"        = time,\n  \"Time-Censor\" = cens,\n  row.names     = subj,\n  check.names   = FALSE\n)\n\nvarAnnot &lt;- data.frame(Arm = arm, row.names = subj, check.names = FALSE)"
-  },
-  {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#the-plot",
-    "href": "posts/r/kaplan-meier-in-r/index.html#the-plot",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "The plot",
-    "text": "The plot\nThe key is graphType = \"KaplanMeier\" and passing both columns to xAxis (time first, then the censor column). colorBy stratifies the curves.\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"KaplanMeier\",\n  xAxis    = list(\"Time\", \"Time-Censor\"),\n  colorBy  = \"Arm\",\n  title    = \"Overall survival by treatment arm\",\n  xAxisTitle = \"Time (weeks)\",\n  yAxisTitle = \"Probability of survival\",\n  invertCensored = TRUE,     # draw censoring ticks\n  showKMConfidenceIntervals = FALSE,\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. Because canvasXpress derives the survival curve from the raw table, you never precompute the steps — and the same spec re-renders the identical curve from Python or JavaScript."
-  },
-  {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
-    "href": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "A common gotcha",
-    "text": "A common gotcha\nThe survival transform only fires with graphType = \"KaplanMeier\". If you use a bare \"Scatter2D\" you’ll get a raw scatter of the censor values instead — survival probability is computed by the engine, it is not a column in your data."
-  },
-  {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#next",
-    "href": "posts/r/kaplan-meier-in-r/index.html#next",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+    "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nDocumentation: https://canvasxpress.org/documentation.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
   },
   {
     "objectID": "posts/python/kaplan-meier-in-python/index.html",
@@ -245,88 +266,116 @@
     "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nComing from Plotly/Matplotlib: https://canvasxpress.org/migrate.html\nPackage: https://pypi.org/project/canvasxpress/"
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html",
-    "href": "posts/r/ggplot-direct/index.html",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "objectID": "posts/r/kaplan-meier-in-r/index.html",
+    "href": "posts/r/kaplan-meier-in-r/index.html",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
     "section": "",
-    "text": "If you already build plots with ggplot2 or ggpubr, you don’t need to learn a new plotting API to make them interactive. canvasXpress accepts a ggplot object directly: pass it to canvasXpress() and it renders an interactive, reproducible version of the same figure — you keep your existing code."
+    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. In this post we build one in R with canvasXpress. canvasXpress computes the survival steps for you — you hand it a time column and a censoring column, and it does the rest — and the result is an interactive figure that serializes to one portable, reproducible spec."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#install",
-    "href": "posts/r/ggplot-direct/index.html#install",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
+    "href": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "A survival table",
+    "text": "A survival table\nSwap this simulated block for your own data: you need, per subject, a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn    &lt;- 200\narm  &lt;- sample(c(\"Treatment\", \"Control\"), n, replace = TRUE)\nbase &lt;- ifelse(arm == \"Treatment\", 60, 40)      # treatment survives longer\ntime &lt;- round(rexp(n, rate = 1 / base), 1)\ncens &lt;- rbinom(n, 1, 0.3)                        # 1 = censored, 0 = event\nsubj &lt;- paste0(\"Subj\", seq_len(n))\n\ncanvasXpress reads two columns for a Kaplan–Meier plot — the time and its matching censor flag — plus a per-subject annotation carrying the group.\n\ny &lt;- data.frame(\n  \"Time\"        = time,\n  \"Time-Censor\" = cens,\n  row.names     = subj,\n  check.names   = FALSE\n)\n\nvarAnnot &lt;- data.frame(Arm = arm, row.names = subj, check.names = FALSE)"
+  },
+  {
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#the-plot",
+    "href": "posts/r/kaplan-meier-in-r/index.html#the-plot",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\nThe key is graphType = \"KaplanMeier\" and passing both columns to xAxis (time first, then the censor column). colorBy stratifies the curves.\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"KaplanMeier\",\n  xAxis    = list(\"Time\", \"Time-Censor\"),\n  colorBy  = \"Arm\",\n  title    = \"Overall survival by treatment arm\",\n  xAxisTitle = \"Time (weeks)\",\n  yAxisTitle = \"Probability of survival\",\n  invertCensored = TRUE,     # draw censoring ticks\n  showKMConfidenceIntervals = FALSE,\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. Because canvasXpress derives the survival curve from the raw table, you never precompute the steps — and the same spec re-renders the identical curve from Python or JavaScript."
+  },
+  {
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
+    "href": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "A common gotcha",
+    "text": "A common gotcha\nThe survival transform only fires with graphType = \"KaplanMeier\". If you use a bare \"Scatter2D\" you’ll get a raw scatter of the censor values instead — survival probability is computed by the engine, it is not a column in your data."
+  },
+  {
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#next",
+    "href": "posts/r/kaplan-meier-in-r/index.html#next",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html",
+    "href": "posts/r/clustered-heatmap-in-r/index.html",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "",
+    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this post we build one in R with canvasXpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "An expression matrix with sample metadata",
+    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations — the output of any normalization/DE pipeline works.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nng    &lt;- 40                       # genes (rows)\nns    &lt;- 30                       # samples (columns)\ngenes &lt;- paste0(\"Gene\", seq_len(ng))\nsamps &lt;- paste0(\"S\", seq_len(ns))\ncond  &lt;- rep(c(\"Tumor\", \"Normal\"), each = ns / 2)\n\n# Two gene blocks, up in one condition each\nm &lt;- matrix(rnorm(ng * ns), ng, ns, dimnames = list(genes, samps))\nm[ 1:20, cond == \"Tumor\"]  &lt;- m[ 1:20, cond == \"Tumor\"]  + 2\nm[21:40, cond == \"Normal\"] &lt;- m[21:40, cond == \"Normal\"] + 2\n\ncanvasXpress takes the matrix as data and a sample annotation table (rows = samples) that becomes an annotation track over the columns.\n\nsmpAnnot &lt;- data.frame(Condition = cond, row.names = samps, check.names = FALSE)"
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\nsamplesClustered and variablesClustered turn on hierarchical clustering (with dendrograms) on columns and rows; colorSpectrum sets the diverging palette.\n\ncanvasXpress(\n  data     = as.data.frame(m),\n  smpAnnot = smpAnnot,\n  graphType = \"Heatmap\",\n  samplesClustered  = TRUE,\n  variablesClustered = TRUE,\n  colorSpectrum = list(\"navy\", \"white\", \"firebrick3\"),\n  showSmpDendrogram = TRUE,\n  showVarDendrogram = TRUE,\n  title = \"Clustered expression heatmap\",\n  width  = 650,\n  height = 550\n)\n\n\n\n\n\nThe rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "Scaling up",
+    "text": "Scaling up\nThe same call handles much larger matrices — hundreds of genes by dozens to hundreds of samples — clustering and rendering the full matrix interactively in the browser, not a static image. Point size and labels adapt automatically."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#next",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#next",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in R\nKaplan–Meier survival curves in R\nGallery: https://canvasxpress.org/examples.html"
+  },
+  {
+    "objectID": "posts/r/paired-boxplots/index.html",
+    "href": "posts/r/paired-boxplots/index.html",
+    "title": "Paired before/after boxplots in R with canvasXpress",
+    "section": "",
+    "text": "When the same subjects are measured twice — before/after a treatment, baseline vs follow-up — a paired boxplot with a line connecting each subject across the two timepoints tells the story a plain boxplot can’t. This post builds one in R by wrapping a ggpubr ggpaired plot with canvasXpress, so it becomes interactive and reproducible without re-specifying anything."
+  },
+  {
+    "objectID": "posts/r/paired-boxplots/index.html#install",
+    "href": "posts/r/paired-boxplots/index.html#install",
+    "title": "Paired before/after boxplots in R with canvasXpress",
     "section": "Install",
     "text": "Install\n\ninstall.packages(c(\"canvasXpress\", \"ggpubr\"))"
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
-    "href": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "Wrap a plot you already have",
-    "text": "Wrap a plot you already have\nHere’s an ordinary ggpubr boxplot with pairwise comparisons (geom_pwc) — the significance brackets that show a test between each pair of groups. Build it exactly as you normally would:\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\ng &lt;- ggboxplot(iris, x = \"Species\", y = \"Sepal.Width\", fill = \"Species\") +\n  geom_pwc(method = \"t_test\", label = \"p.format\")\n\nNow make it interactive — one call, the same object:\n\nlibrary(canvasXpress)\n\ncanvasXpress(g)\n\n\n\n\n\nThat’s the whole idea: no re-specification. canvasXpress reads the ggplot object — its data, aesthetics, layers, scales and the geom_pwc brackets — and renders it. Hover the points, drag to zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you can store and reproduce from R, Python or JavaScript."
+    "objectID": "posts/r/paired-boxplots/index.html#a-paired-dataset",
+    "href": "posts/r/paired-boxplots/index.html#a-paired-dataset",
+    "title": "Paired before/after boxplots in R with canvasXpress",
+    "section": "A paired dataset",
+    "text": "A paired dataset\nLong format, two rows per subject — one per timepoint. Swap in your own repeated-measures table.\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\nset.seed(7)\nn  &lt;- 25\ndf &lt;- data.frame(\n  id    = rep(paste0(\"P\", seq_len(n)), 2),\n  time  = rep(c(\"Baseline\", \"Week 12\"), each = n),\n  value = c(rnorm(n, 8, 1.2),                       # baseline\n            rnorm(n, 8, 1.2) + rnorm(n, -1.2, 0.8)) # follow-up (a drop)\n)"
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#what-transfers",
-    "href": "posts/r/ggplot-direct/index.html#what-transfers",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "What transfers",
-    "text": "What transfers\n\nGeoms and layers — points, boxes, lines, and stats like geom_pwc / stat_compare_means.\nAesthetic mappings — x, y, fill, color, grouping.\nScales, labels and facets from the ggplot object."
+    "objectID": "posts/r/paired-boxplots/index.html#build-it-with-ggpaired-then-wrap-it",
+    "href": "posts/r/paired-boxplots/index.html#build-it-with-ggpaired-then-wrap-it",
+    "title": "Paired before/after boxplots in R with canvasXpress",
+    "section": "Build it with ggpaired, then wrap it",
+    "text": "Build it with ggpaired, then wrap it\nggpaired draws the two boxes and the per-subject connecting lines; stat_compare_means adds a paired test. Then hand the whole thing to canvasXpress():\n\nlibrary(canvasXpress)\n\ng &lt;- ggpaired(\n  df, x = \"time\", y = \"value\", id = \"id\",\n  color = \"time\", line.color = \"gray\", line.size = 0.3\n) +\n  stat_compare_means(paired = TRUE, method = \"t.test\")\n\ncanvasXpress(g)\n\n\n\n\n\nEach grey line is one subject moving from Baseline to Week 12, the boxes summarize each timepoint, and the paired t-test labels the comparison. It’s interactive — hover a line to follow a subject — and the figure is one portable spec you can reproduce from R, Python or JavaScript."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
-    "href": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "When to reach for the native API instead",
-    "text": "When to reach for the native API instead\nWrapping a ggplot is ideal for reusing plots you already have. When you’re building a figure fresh — or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive annotations) — call canvasXpress() on your data directly with a graphType. See the other posts for that style."
+    "objectID": "posts/r/paired-boxplots/index.html#why-paired-not-two-independent-boxes",
+    "href": "posts/r/paired-boxplots/index.html#why-paired-not-two-independent-boxes",
+    "title": "Paired before/after boxplots in R with canvasXpress",
+    "section": "Why paired, not two independent boxes",
+    "text": "Why paired, not two independent boxes\nA side-by-side boxplot hides who changed. The connecting lines make within-subject change visible: a treatment can lower the group median while a handful of subjects still rise — exactly the pattern you want to catch before drawing conclusions."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#next",
-    "href": "posts/r/ggplot-direct/index.html#next",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "objectID": "posts/r/paired-boxplots/index.html#next",
+    "href": "posts/r/paired-boxplots/index.html#next",
+    "title": "Paired before/after boxplots in R with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nPaired before/after boxplots in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html",
-    "href": "posts/r/volcano-plots-in-r/index.html",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "",
-    "text": "A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed out to the top corners. In this post we build one in R with canvasXpress — interactive (zoom, hover, filter), and, importantly, reproducible: the whole figure is a single portable specification you can store, validate and re-render from R, Python or JavaScript."
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html#install",
-    "href": "posts/r/volcano-plots-in-r/index.html#install",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "Install",
-    "text": "Install\n\ninstall.packages(\"canvasXpress\")"
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
-    "href": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "A differential-expression table",
-    "text": "A differential-expression table\nFor a self-contained example we simulate 1,000 genes. Swap this block for your own results table (e.g. the output of limma::topTable() or DESeq2::results()) — you need a log fold change and a significance value per gene.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn       &lt;- 1000\ngenes   &lt;- paste0(\"Gene\", seq_len(n))\nlogFC   &lt;- rnorm(n, 0, 0.8)\nnegLogP &lt;- -log10(runif(n)^1.5)   # stand-in for -log10(p-value)\n\n# Classify each gene by effect size + significance\ngroup &lt;- ifelse(logFC &gt;  1 & negLogP &gt; 2, \"Increased\",\n         ifelse(logFC &lt; -1 & negLogP &gt; 2, \"Decreased\", \"NoChange\"))\n\ncanvasXpress expects a numeric matrix/data frame of values (genes in rows) plus an optional variable annotation table carrying per-gene attributes — here the regulation call and the fold change we’ll use for point size.\n\ny &lt;- data.frame(\n  \"logFC\"     = logFC,\n  \"-log-pVal\" = negLogP,\n  row.names   = genes,\n  check.names = FALSE\n)\n\nvarAnnot &lt;- data.frame(\n  Group = group,\n  FC    = round(2^abs(logFC), 2),\n  row.names   = genes,\n  check.names = FALSE\n)"
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html#the-plot",
-    "href": "posts/r/volcano-plots-in-r/index.html#the-plot",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "The plot",
-    "text": "The plot\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"Scatter2D\",\n  xAxis    = list(\"logFC\"),\n  yAxis    = list(\"-log-pVal\"),\n  colorBy  = \"Group\",\n  colorKey = list(Group = list(\n    Increased = \"rgba(197,27,38,0.75)\",\n    Decreased = \"rgba(33,102,172,0.75)\",\n    NoChange  = \"rgba(150,150,150,0.35)\"\n  )),\n  sizeBy   = \"FC\",\n  sizes    = c(3, 6, 9, 12, 15),\n  title    = \"Publication-ready volcano plot\",\n  xAxisTitle = \"log2 fold change\",\n  yAxisTitle = \"-log10 p-value\",\n  showDecorations = TRUE,\n  decorations = list(line = list(\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x =  1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x = -1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, y = 1.301)\n  )),\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nThe chart is interactive: hover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and the p = 0.05 cutoffs."
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
-    "href": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "Why “reproducible”",
-    "text": "Why “reproducible”\nEverything above serializes to one JSON specification — the data and the config. That spec is portable: the identical figure renders from the Python (canvasxpress) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just looked at."
-  },
-  {
-    "objectID": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
-    "href": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
-    "title": "Interactive volcano plots in R with canvasXpress",
-    "section": "Where to go next",
-    "text": "Where to go next\n\nGallery of examples: https://canvasxpress.org/examples.html\nFrom your object (survival tables, expression matrices, single-cell): https://canvasxpress.org/migrate.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+    "text": "Next\n\nUse ggplot2 & ggpubr plots directly with canvasXpress\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
     "objectID": "python.html",

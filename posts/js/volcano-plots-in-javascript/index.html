@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Isaac Neuhaus">
-<meta name="dcterms.date" content="2026-09-23">
-<meta name="description" content="Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.">
+<meta name="dcterms.date" content="2026-09-22">
+<meta name="description" content="Build a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.">
 
-<title>Kaplan–Meier survival curves in Python with canvasxpress – CanvasXpress Recipes</title>
+<title>Interactive volcano plots in JavaScript with CanvasXpress – CanvasXpress Recipes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -60,7 +60,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -103,9 +103,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../../../styles.css">
@@ -174,10 +171,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#install" id="toc-install" class="nav-link active" data-scroll-target="#install">Install</a></li>
-  <li><a href="#a-survival-table" id="toc-a-survival-table" class="nav-link" data-scroll-target="#a-survival-table">A survival table</a></li>
-  <li><a href="#build-the-spec" id="toc-build-the-spec" class="nav-link" data-scroll-target="#build-the-spec">Build the spec</a></li>
-  <li><a href="#a-common-gotcha" id="toc-a-common-gotcha" class="nav-link" data-scroll-target="#a-common-gotcha">A common gotcha</a></li>
+  <li><a href="#load-the-library" id="toc-load-the-library" class="nav-link active" data-scroll-target="#load-the-library">Load the library</a></li>
+  <li><a href="#the-markup-and-the-spec" id="toc-the-markup-and-the-spec" class="nav-link" data-scroll-target="#the-markup-and-the-spec">The markup and the spec</a></li>
+  <li><a href="#live-result" id="toc-live-result" class="nav-link" data-scroll-target="#live-result">Live result</a></li>
+  <li><a href="#why-reproducible" id="toc-why-reproducible" class="nav-link" data-scroll-target="#why-reproducible">Why “reproducible”</a></li>
   <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next">Next</a></li>
   </ul>
 </nav>
@@ -187,11 +184,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Kaplan–Meier survival curves in Python with canvasxpress</h1>
+<h1 class="title">Interactive volcano plots in JavaScript with CanvasXpress</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">Python</div>
-    <div class="quarto-category">canvasxpress</div>
-    <div class="quarto-category">survival</div>
+    <div class="quarto-category">JavaScript</div>
+    <div class="quarto-category">CanvasXpress</div>
     <div class="quarto-category">bioinformatics</div>
     <div class="quarto-category">visualization</div>
   </div>
@@ -199,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.
+    Build a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.
   </div>
 </div>
 
@@ -216,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 23, 2026</p>
+      <p class="date">September 22, 2026</p>
     </div>
   </div>
   
@@ -228,176 +224,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — it computes the survival steps for you from a <strong>time</strong> column and a <strong>censoring</strong> column — and the result is interactive and reproducible.</p>
-<section id="install" class="level2">
-<h2 class="anchored" data-anchor-id="install">Install</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install canvasxpress</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A volcano plot puts log fold change on x, statistical significance on y, and pushes the interesting genes into the top corners. CanvasXpress is a <strong>JavaScript</strong> library at heart, so in the browser there’s no wrapper at all — you give a <code>&lt;canvas&gt;</code> a <code>data</code> object and a <code>config</code>, and you get an interactive, reproducible figure. The same spec renders identically from R and Python too.</p>
+<section id="load-the-library" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-library">Load the library</h2>
+<p>Drop one script tag (and the stylesheet) on your page. Here we pin to a released version on a CDN:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">link</span><span class="ot"> href</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css"</span><span class="ot"> rel</span><span class="op">=</span><span class="st">"stylesheet"</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="a-survival-table" class="level2">
-<h2 class="anchored" data-anchor-id="a-survival-table">A survival table</h2>
-<p>Swap this simulated block for your own data: per subject you need a follow-up <strong>time</strong>, a <strong>censoring indicator</strong> (1 = censored, 0 = event), and the grouping variable.</p>
-<div id="152c1010" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rng  <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n    <span class="op">=</span> <span class="dv">200</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>arm  <span class="op">=</span> rng.choice([<span class="st">"Treatment"</span>, <span class="st">"Control"</span>], n)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> np.where(arm <span class="op">==</span> <span class="st">"Treatment"</span>, <span class="dv">60</span>, <span class="dv">40</span>)     <span class="co"># treatment survives longer</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>time <span class="op">=</span> np.<span class="bu">round</span>(rng.exponential(base), <span class="dv">1</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>cens <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.3</span>, n)                  <span class="co"># 1 = censored, 0 = event</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>subj <span class="op">=</span> [<span class="ss">f"Subj</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<section id="the-markup-and-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="the-markup-and-the-spec">The markup and the spec</h2>
+<p>Give the page a canvas, then build the <code>data</code> (a value matrix plus annotations) and a <code>config</code>, and call <code>new CanvasXpress(...)</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">"volcano"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"650"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"500"</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// A differential-expression table: 1,000 genes with logFC and -log10(p)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> genes <span class="op">=</span> []<span class="op">,</span> logFC <span class="op">=</span> []<span class="op">,</span> negLogP <span class="op">=</span> []<span class="op">,</span> group <span class="op">=</span> []<span class="op">,</span> fc <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">1000</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> f <span class="op">=</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="fl">2.2</span><span class="op">;</span>                 <span class="co">// log fold change</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> p <span class="op">=</span> <span class="op">-</span><span class="bu">Math</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>()) <span class="op">/</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">LN10</span> <span class="op">*</span> <span class="fl">1.5</span><span class="op">;</span>    <span class="co">// -log10(p) stand-in</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    genes<span class="op">.</span><span class="fu">push</span>(<span class="st">"Gene"</span> <span class="op">+</span> (i <span class="op">+</span> <span class="dv">1</span>))<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    logFC<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(f <span class="op">*</span> <span class="dv">1000</span>) <span class="op">/</span> <span class="dv">1000</span>)<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    negLogP<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(p <span class="op">*</span> <span class="dv">1000</span>) <span class="op">/</span> <span class="dv">1000</span>)<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    group<span class="op">.</span><span class="fu">push</span>(f <span class="op">&gt;</span> <span class="dv">1</span> <span class="op">&amp;&amp;</span> p <span class="op">&gt;</span> <span class="dv">2</span> <span class="op">?</span> <span class="st">"Increased"</span> <span class="op">:</span> f <span class="op">&lt;</span> <span class="op">-</span><span class="dv">1</span> <span class="op">&amp;&amp;</span> p <span class="op">&gt;</span> <span class="dv">2</span> <span class="op">?</span> <span class="st">"Decreased"</span> <span class="op">:</span> <span class="st">"NoChange"</span>)<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    fc<span class="op">.</span><span class="fu">push</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">pow</span>(<span class="dv">2</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(f)) <span class="op">*</span> <span class="dv">100</span>) <span class="op">/</span> <span class="dv">100</span>)<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> data <span class="op">=</span> {</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">y</span><span class="op">:</span> { <span class="dt">vars</span><span class="op">:</span> [<span class="st">"logFC"</span><span class="op">,</span> <span class="st">"-log-pVal"</span>]<span class="op">,</span> <span class="dt">smps</span><span class="op">:</span> genes<span class="op">,</span> <span class="dt">data</span><span class="op">:</span> [logFC<span class="op">,</span> negLogP] }<span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">z</span><span class="op">:</span> { <span class="dt">Group</span><span class="op">:</span> group<span class="op">,</span> <span class="dt">FC</span><span class="op">:</span> fc }</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> config <span class="op">=</span> {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">graphType</span><span class="op">:</span> <span class="st">"Scatter2D"</span><span class="op">,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span><span class="op">:</span> <span class="st">"Publication-ready volcano plot"</span><span class="op">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">xAxis</span><span class="op">:</span> [<span class="st">"logFC"</span>]<span class="op">,</span> <span class="dt">yAxis</span><span class="op">:</span> [<span class="st">"-log-pVal"</span>]<span class="op">,</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">xAxisTitle</span><span class="op">:</span> <span class="st">"log2 fold change"</span><span class="op">,</span> <span class="dt">yAxisTitle</span><span class="op">:</span> <span class="st">"-log10 p-value"</span><span class="op">,</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorBy</span><span class="op">:</span> <span class="st">"Group"</span><span class="op">,</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorKey</span><span class="op">:</span> { <span class="dt">Group</span><span class="op">:</span> { <span class="dt">Increased</span><span class="op">:</span> <span class="st">"rgba(197,27,38,0.75)"</span><span class="op">,</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                         <span class="dt">Decreased</span><span class="op">:</span> <span class="st">"rgba(33,102,172,0.75)"</span><span class="op">,</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                         <span class="dt">NoChange</span><span class="op">:</span>  <span class="st">"rgba(150,150,150,0.35)"</span> } }<span class="op">,</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sizeBy</span><span class="op">:</span> <span class="st">"FC"</span><span class="op">,</span> <span class="dt">sizes</span><span class="op">:</span> [<span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">9</span><span class="op">,</span> <span class="dv">12</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">showDecorations</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">decorations</span><span class="op">:</span> { <span class="dt">line</span><span class="op">:</span> [</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">color</span><span class="op">:</span> <span class="st">"rgba(120,120,120,0.8)"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">color</span><span class="op">:</span> <span class="st">"rgba(120,120,120,0.8)"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">color</span><span class="op">:</span> <span class="st">"rgba(120,120,120,0.8)"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="fl">1.301</span> }</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    ] }</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span> <span class="fu">CanvasXpress</span>(<span class="st">"volcano"</span><span class="op">,</span> data<span class="op">,</span> config)<span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="build-the-spec" class="level2">
-<h2 class="anchored" data-anchor-id="build-the-spec">Build the spec</h2>
-<p>The two columns — the time and its matching censor flag — go in as the variable samples, and the arm rides along as a variable annotation. The key is <code>graphType="KaplanMeier"</code> and passing <strong>both</strong> columns to <code>xAxis</code>.</p>
-<div id="f4dced46" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> canvasxpress.canvas <span class="im">import</span> CanvasXpress</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> canvasxpress.render.jupyter <span class="im">import</span> CXNoteBook</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"y"</span>: {<span class="st">"vars"</span>: [<span class="st">"Time"</span>, <span class="st">"Time-Censor"</span>], <span class="st">"smps"</span>: subj,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"data"</span>: [time.tolist(), cens.tolist()]},</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"z"</span>: {<span class="st">"Arm"</span>: arm.tolist()},</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> {</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"graphType"</span>: <span class="st">"KaplanMeier"</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"xAxis"</span>: [<span class="st">"Time"</span>, <span class="st">"Time-Censor"</span>],</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"colorBy"</span>: <span class="st">"Arm"</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>: <span class="st">"Overall survival by treatment arm"</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"xAxisTitle"</span>: <span class="st">"Time (weeks)"</span>, <span class="st">"yAxisTitle"</span>: <span class="st">"Probability of survival"</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"invertCensored"</span>: <span class="va">True</span>,               <span class="co"># draw censoring ticks</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"showKMConfidenceIntervals"</span>: <span class="va">False</span>,</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>cx <span class="op">=</span> CanvasXpress(render_to<span class="op">=</span><span class="st">"km"</span>, data<span class="op">=</span>data, config<span class="op">=</span>config, width<span class="op">=</span><span class="dv">650</span>, height<span class="op">=</span><span class="dv">500</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> part <span class="kw">in</span> CXNoteBook(cx).render():</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    display(part)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-
-</div>
-<div class="cell-output cell-output-display">
-
-<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
-  <div><canvas id="km" width="650" height="500"></canvas></div>
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/javascript">
-
-// 1. First, handle CSS Insertion and wait for it to be completely ready
-new Promise((cssResolve, cssReject) => {
-    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
-    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
-
-    if (!existingLink) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = cssUrl;
-        link.onload = () => {
-            link.dataset.state = "loaded";
-            link.dispatchEvent(new Event("assetLoaded"));
-            cssResolve();
-        };
-        link.onerror = () => {
-            link.dataset.state = "failed";
-            link.dispatchEvent(new Event("assetFailed"));
-            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
-        };
-        document.head.appendChild(link);
-    } else if (existingLink.dataset.state === "loaded") {
-        cssResolve();
-    } else if (existingLink.dataset.state === "failed") {
-        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
-    } else {
-        // Safe queueing for subsequent runs initiated while CSS is downloading
-        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
-        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+<section id="live-result" class="level2">
+<h2 class="anchored" data-anchor-id="live-result">Live result</h2>
+<p>Here’s exactly that code, running on this page:</p>
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="volcanoLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+    for (var i = 0; i < 1000; i++) {
+      var f = (Math.random() * 2 - 1) * 2.2;
+      var p = -Math.log(Math.random()) / Math.LN10 * 1.5;
+      genes.push("Gene" + (i + 1));
+      logFC.push(Math.round(f * 1000) / 1000);
+      negLogP.push(Math.round(p * 1000) / 1000);
+      group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
+      fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
     }
-})
-.then(() => {
-    // 2. CSS is guaranteed ready. Now handle JS Insertion
-    return new Promise((jsResolve, jsReject) => {
-        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
-        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
-
-        if (existingScript) {
-            if (existingScript.dataset.state === "loaded") {
-                jsResolve();
-            } else if (existingScript.dataset.state === "failed") {
-                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
-            } else {
-                // Safe queueing for subsequent runs initiated while JS is downloading
-                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
-                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
-            }
-        } else {
-            const script = document.createElement("script");
-            script.type = "text/javascript";
-            script.src = scriptUrl;
-            script.dataset.state = "loading";
-
-            script.onload = () => {
-                script.dataset.state = "loaded";
-                script.dispatchEvent(new Event("assetLoaded"));
-                jsResolve();
-            };
-            script.onerror = () => {
-                script.dataset.state = "failed";
-                script.dispatchEvent(new Event("assetFailed"));
-                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
-            };
-            document.head.appendChild(script);
-        }
-    });
-})
-.then(() => { 
-    // 3. Both CSS and JS are ready in order. Run user payload.
-    
-try {
-  // 1. Get the chart object using the HTML element ID
-  let myChart = CanvasXpress.getObject("km");
-  
-  // 2. Check if the chart exists before trying to delete it
-  if (myChart) {
-    myChart.destroy();
-    console.log("Chart km removed for re-rendering.");
-  } else {
-    console.log("Chart km ready for rendering.");
+    new CanvasXpress("volcanoLive",
+      { y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+        z: { Group: group, FC: fc } },
+      { graphType: "Scatter2D", title: "Publication-ready volcano plot",
+        xAxis: ["logFC"], yAxis: ["-log-pVal"],
+        xAxisTitle: "log2 fold change", yAxisTitle: "-log10 p-value",
+        colorBy: "Group",
+        colorKey: { Group: { Increased: "rgba(197,27,38,0.75)", Decreased: "rgba(33,102,172,0.75)", NoChange: "rgba(150,150,150,0.35)" } },
+        sizeBy: "FC", sizes: [3, 6, 9, 12, 15], showDecorations: true,
+        decorations: { line: [ { color: "rgba(120,120,120,0.8)", width: 1, x: 1 }, { color: "rgba(120,120,120,0.8)", width: 1, x: -1 }, { color: "rgba(120,120,120,0.8)", width: 1, y: 1.301 } ] } });
   }
-} catch (error) {
-  // 3. Handle any unexpected errors safely
-  console.error("Chart km could not be cleaned for re-rendering:", error);
-}
-
-var chart_km = new CanvasXpress({"renderTo": "km", "data": {"y": {"vars": ["Time", "Time-Censor"], "smps": ["Subj1", "Subj2", "Subj3", "Subj4", "Subj5", "Subj6", "Subj7", "Subj8", "Subj9", "Subj10", "Subj11", "Subj12", "Subj13", "Subj14", "Subj15", "Subj16", "Subj17", "Subj18", "Subj19", "Subj20", "Subj21", "Subj22", "Subj23", "Subj24", "Subj25", "Subj26", "Subj27", "Subj28", "Subj29", "Subj30", "Subj31", "Subj32", "Subj33", "Subj34", "Subj35", "Subj36", "Subj37", "Subj38", "Subj39", "Subj40", "Subj41", "Subj42", "Subj43", "Subj44", "Subj45", "Subj46", "Subj47", "Subj48", "Subj49", "Subj50", "Subj51", "Subj52", "Subj53", "Subj54", "Subj55", "Subj56", "Subj57", "Subj58", "Subj59", "Subj60", "Subj61", "Subj62", "Subj63", "Subj64", "Subj65", "Subj66", "Subj67", "Subj68", "Subj69", "Subj70", "Subj71", "Subj72", "Subj73", "Subj74", "Subj75", "Subj76", "Subj77", "Subj78", "Subj79", "Subj80", "Subj81", "Subj82", "Subj83", "Subj84", "Subj85", "Subj86", "Subj87", "Subj88", "Subj89", "Subj90", "Subj91", "Subj92", "Subj93", "Subj94", "Subj95", "Subj96", "Subj97", "Subj98", "Subj99", "Subj100", "Subj101", "Subj102", "Subj103", "Subj104", "Subj105", "Subj106", "Subj107", "Subj108", "Subj109", "Subj110", "Subj111", "Subj112", "Subj113", "Subj114", "Subj115", "Subj116", "Subj117", "Subj118", "Subj119", "Subj120", "Subj121", "Subj122", "Subj123", "Subj124", "Subj125", "Subj126", "Subj127", "Subj128", "Subj129", "Subj130", "Subj131", "Subj132", "Subj133", "Subj134", "Subj135", "Subj136", "Subj137", "Subj138", "Subj139", "Subj140", "Subj141", "Subj142", "Subj143", "Subj144", "Subj145", "Subj146", "Subj147", "Subj148", "Subj149", "Subj150", "Subj151", "Subj152", "Subj153", "Subj154", "Subj155", "Subj156", "Subj157", "Subj158", "Subj159", "Subj160", "Subj161", "Subj162", "Subj163", "Subj164", "Subj165", "Subj166", "Subj167", "Subj168", "Subj169", "Subj170", "Subj171", "Subj172", "Subj173", "Subj174", "Subj175", "Subj176", "Subj177", "Subj178", "Subj179", "Subj180", "Subj181", "Subj182", "Subj183", "Subj184", "Subj185", "Subj186", "Subj187", "Subj188", "Subj189", "Subj190", "Subj191", "Subj192", "Subj193", "Subj194", "Subj195", "Subj196", "Subj197", "Subj198", "Subj199", "Subj200"], "data": [[118.6, 25.1, 6.6, 143.3, 145.7, 39.1, 38.5, 6.1, 88.3, 13.3, 11.8, 52.9, 226.1, 9.9, 22.4, 7.7, 14.2, 9.5, 21.6, 61.0, 112.6, 24.2, 94.6, 31.6, 18.7, 4.5, 19.0, 22.8, 45.1, 72.8, 45.2, 159.3, 78.3, 81.7, 268.0, 79.6, 49.6, 34.4, 40.8, 7.1, 118.1, 4.2, 5.1, 68.0, 55.4, 24.7, 67.6, 69.8, 6.6, 92.4, 64.8, 28.3, 72.7, 43.3, 101.4, 54.5, 14.6, 6.5, 120.8, 16.8, 95.5, 93.4, 16.7, 72.7, 26.5, 29.1, 103.1, 8.2, 119.0, 17.7, 30.8, 16.8, 53.9, 27.6, 78.1, 1.2, 16.2, 59.7, 43.3, 101.3, 27.8, 16.6, 72.1, 0.7, 28.8, 35.2, 34.7, 39.2, 125.5, 35.3, 100.0, 1.7, 9.1, 42.0, 146.9, 10.1, 11.5, 17.6, 48.6, 36.2, 83.1, 41.6, 100.2, 34.2, 12.2, 76.7, 16.2, 7.7, 119.4, 30.4, 36.1, 38.7, 22.7, 5.1, 16.7, 97.4, 19.7, 9.4, 120.6, 6.9, 2.1, 13.4, 81.0, 74.3, 4.5, 8.9, 15.0, 45.1, 101.9, 89.1, 26.3, 55.0, 49.0, 27.3, 31.0, 37.3, 1.0, 6.9, 40.0, 2.4, 55.7, 27.9, 71.1, 29.3, 9.2, 97.4, 24.2, 29.9, 1.7, 37.1, 74.9, 21.6, 49.6, 0.9, 11.0, 1.6, 24.3, 42.1, 53.8, 2.1, 5.4, 141.0, 10.8, 5.0, 167.0, 55.8, 68.3, 0.5, 3.9, 133.8, 112.6, 3.2, 102.1, 64.8, 14.7, 14.7, 38.1, 16.0, 94.4, 31.2, 6.7, 38.0, 24.1, 73.6, 48.9, 33.2, 12.0, 1.5, 3.7, 89.6, 18.9, 134.0, 14.8, 161.7, 1.5, 11.1, 19.9, 82.1, 36.8, 63.7], [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1]]}, "z": {"Arm": ["Treatment", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Treatment", "Control", "Treatment", "Control", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Control", "Control", "Treatment", "Control", "Treatment", "Control", "Control", "Treatment", "Control", "Treatment", "Treatment", "Control", "Treatment", "Control", "Treatment", "Treatment", "Treatment", "Control", "Treatment", "Control", "Treatment", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Control", "Control", "Treatment", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Control", "Control", "Control", "Control", "Treatment", "Control", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Control", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Treatment", "Control", "Treatment", "Control", "Control", "Treatment", "Control", "Treatment", "Control", "Control", "Treatment", "Treatment", "Treatment", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Control", "Treatment", "Control", "Control", "Control", "Treatment", "Treatment", "Control", "Treatment", "Control", "Control", "Control", "Treatment", "Control", "Treatment", "Control", "Treatment", "Treatment", "Control", "Control", "Control", "Treatment", "Control", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Treatment", "Treatment", "Treatment", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Control", "Treatment", "Control", "Treatment", "Control", "Treatment", "Control", "Treatment", "Control", "Treatment", "Treatment", "Control", "Control", "Treatment", "Treatment", "Control"]}, "x": null}, "config": {"graphType": "KaplanMeier", "xAxis": ["Time", "Time-Censor"], "colorBy": "Arm", "title": "Overall survival by treatment arm", "xAxisTitle": "Time (weeks)", "yAxisTitle": "Probability of survival", "invertCensored": true, "showKMConfidenceIntervals": false}, "events": null}); 
-;
-
- 
-})
-.catch((error) => {
-    console.error("CanvasXpress injection failed:", error);
-});
-
-
+  draw();
+})();
 </script>
-</div>
-</div>
-<p>Hover any step for the time and survival probability; the tick marks are censored subjects. canvasxpress derives the survival curve from the raw table, so you never precompute the steps — and the same spec re-renders the identical curve from R or JavaScript.</p>
+<p>Hover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs.</p>
 </section>
-<section id="a-common-gotcha" class="level2">
-<h2 class="anchored" data-anchor-id="a-common-gotcha">A common gotcha</h2>
-<p>The survival transform only fires with <code>graphType="KaplanMeier"</code>. A bare <code>"Scatter2D"</code> gives a raw scatter of the censor values instead — survival probability is <em>computed</em> by the engine, not a column in your data.</p>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The <code>data</code> and <code>config</code> above <strong>are</strong> the figure — one portable JSON specification. Save it and the identical plot renders from the R (<code>canvasXpress</code>) and Python (<code>canvasxpress</code>) packages, and it can be validated against a published schema and re-rendered later, so a figure can be regenerated and audited rather than just viewed.</p>
 </section>
 <section id="next" class="level2">
 <h2 class="anchored" data-anchor-id="next">Next</h2>
 <ul>
-<li><a href="../volcano-plots-in-python/">Interactive volcano plots in Python</a></li>
-<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
-<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+<li>Gallery of examples: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Documentation: <a href="https://canvasxpress.org/documentation.html" class="uri">https://canvasxpress.org/documentation.html</a></li>
+<li>Source &amp; npm: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
 </ul>
 
 
