@@ -31,14 +31,23 @@ change and a significance value per gene.
 library(canvasXpress)
 
 set.seed(1)
-n       <- 1000
-genes   <- paste0("Gene", seq_len(n))
-logFC   <- rnorm(n, 0, 0.8)
-negLogP <- -log10(runif(n)^1.5)   # stand-in for -log10(p-value)
+n     <- 1000
+genes <- paste0("Gene", seq_len(n))
+
+# Simulate a realistic volcano: most genes have no real effect, a minority are
+# differentially expressed. Significance follows effect size / standard error, which
+# is what gives a volcano its shape.
+de     <- runif(n) < 0.12                                   # ~12% truly changed
+sgn    <- sample(c(-1, 1), n, replace = TRUE)
+effect <- ifelse(de, sgn * (0.8 + 0.9 * runif(n)), 0)       # true log2FC
+se     <- 0.22 + 0.5 * runif(n)                             # per-gene standard error
+logFC  <- round(effect + rnorm(n, 0, se), 3)               # observed log2FC
+pval   <- 2 * pnorm(-abs(logFC / se))                       # z-test p-value
+negLogP <- round(pmin(-log10(pval), 16), 3)
 
 # Classify each gene by effect size + significance
-group <- ifelse(logFC >  1 & negLogP > 2, "Increased",
-         ifelse(logFC < -1 & negLogP > 2, "Decreased", "NoChange"))
+group <- ifelse(logFC >  1 & negLogP > 1.3, "Increased",
+         ifelse(logFC < -1 & negLogP > 1.3, "Decreased", "NoChange"))
 ```
 
 canvasXpress expects a numeric matrix/data frame of values (genes in rows) plus an optional

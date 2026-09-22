@@ -29,15 +29,35 @@ call `new CanvasXpress(...)`:
 ```html
 <canvas id="volcano" width="650" height="500"></canvas>
 <script>
-  // A differential-expression table: 1,000 genes with logFC and -log10(p).
-  // Genes are the variables (rows); each row holds [logFC, -log-pVal].
+  // Normal-distribution helpers (no stats library needed in the browser)
+  function gauss() {                        // standard normal via Box–Muller
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  function normCdf(x) {                      // standard normal CDF via an erf approximation
+    var s = x < 0 ? -1 : 1, ax = Math.abs(x) / Math.SQRT2;
+    var t = 1 / (1 + 0.3275911 * ax);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-ax * ax);
+    return 0.5 * (1 + s * y);
+  }
+
+  // Simulate a realistic volcano: most genes unchanged, a minority differentially
+  // expressed; significance follows effect size / standard error. Genes are the
+  // variables (rows); each row holds [logFC, -log-pVal].
   var genes = [], rows = [], group = [], fc = [];
   for (var i = 0; i < 1000; i++) {
-    var f = (Math.random() * 2 - 1) * 2.2;                 // log fold change
-    var p = -Math.log(Math.random()) / Math.LN10 * 1.5;    // -log10(p) stand-in
+    var de = Math.random() < 0.12;                          // ~12% truly changed
+    var sgn = Math.random() < 0.5 ? -1 : 1;
+    var effect = de ? sgn * (0.8 + 0.9 * Math.random()) : 0;
+    var se = 0.22 + 0.5 * Math.random();                    // per-gene standard error
+    var f = effect + se * gauss();                          // observed log2FC
+    var praw = 2 * (1 - normCdf(Math.abs(f / se)));         // z-test p-value
+    var p = Math.min(-Math.log(Math.max(praw, 1e-16)) / Math.LN10, 16);
     genes.push("Gene" + (i + 1));
     rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);
-    group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
+    group.push(f > 1 && p > 1.3 ? "Increased" : f < -1 && p > 1.3 ? "Decreased" : "NoChange");
     fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
   }
 
@@ -80,13 +100,30 @@ Here's exactly that code, running on this page:
 (function () {
   function draw() {
     if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    function gauss() {
+      var u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+    function normCdf(x) {
+      var s = x < 0 ? -1 : 1, ax = Math.abs(x) / Math.SQRT2;
+      var t = 1 / (1 + 0.3275911 * ax);
+      var y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-ax * ax);
+      return 0.5 * (1 + s * y);
+    }
     var genes = [], rows = [], group = [], fc = [];
     for (var i = 0; i < 1000; i++) {
-      var f = (Math.random() * 2 - 1) * 2.2;
-      var p = -Math.log(Math.random()) / Math.LN10 * 1.5;
+      var de = Math.random() < 0.12;
+      var sgn = Math.random() < 0.5 ? -1 : 1;
+      var effect = de ? sgn * (0.8 + 0.9 * Math.random()) : 0;
+      var se = 0.22 + 0.5 * Math.random();
+      var f = effect + se * gauss();
+      var praw = 2 * (1 - normCdf(Math.abs(f / se)));
+      var p = Math.min(-Math.log(Math.max(praw, 1e-16)) / Math.LN10, 16);
       genes.push("Gene" + (i + 1));
       rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);
-      group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
+      group.push(f > 1 && p > 1.3 ? "Increased" : f < -1 && p > 1.3 ? "Decreased" : "NoChange");
       fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
     }
     new CanvasXpress("volcanoLive",

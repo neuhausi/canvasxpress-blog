@@ -28,18 +28,28 @@ have a log fold change and a significance value per gene.
 ```{python}
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 rng = np.random.default_rng(1)
 n = 1000
-genes   = [f"Gene{i+1}" for i in range(n)]
-logfc   = rng.normal(0, 0.8, n)
-neglogp = -np.log10(rng.uniform(size=n) ** 1.5)   # stand-in for -log10(p-value)
+genes = [f"Gene{i+1}" for i in range(n)]
+
+# Simulate a realistic volcano: most genes have no real effect, a minority are
+# differentially expressed. Significance follows effect size / standard error, which
+# is what gives a volcano its shape.
+de     = rng.random(n) < 0.12                              # ~12% truly changed
+sign   = rng.choice([-1, 1], n)
+effect = np.where(de, sign * (0.8 + 0.9 * rng.random(n)), 0.0)   # true log2FC
+se     = 0.22 + 0.5 * rng.random(n)                        # per-gene standard error
+logfc  = effect + rng.normal(0, se)                        # observed log2FC
+pval   = 2 * norm.sf(np.abs(logfc / se))                   # z-test p-value
+neglogp = np.minimum(-np.log10(pval), 16)
 
 df = pd.DataFrame({"logFC": logfc.round(3), "-log-pVal": neglogp.round(3)}, index=genes)
 
 def classify(fc, p):
-    if fc > 1 and p > 2:   return "Increased"
-    if fc < -1 and p > 2:  return "Decreased"
+    if fc > 1 and p > 1.3:   return "Increased"
+    if fc < -1 and p > 1.3:  return "Decreased"
     return "NoChange"
 
 group = [classify(fc, p) for fc, p in zip(df["logFC"], df["-log-pVal"])]
