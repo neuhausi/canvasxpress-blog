@@ -1,0 +1,67 @@
+---
+title: "Use your ggplot2 (and ggpubr) plots directly with canvasXpress"
+description: "You don't have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included."
+author: "Isaac Neuhaus"
+date: "2026-09-25"
+categories: [R, canvasXpress, ggplot2, ggpubr, visualization]
+image: "thumbnail.png"
+---
+
+If you already build plots with **ggplot2** or **ggpubr**, you don't need to learn a new plotting
+API to make them interactive. [canvasXpress](https://canvasxpress.org) accepts a **ggplot object
+directly**: pass it to `canvasXpress()` and it renders an interactive, reproducible version of the
+same figure — you keep your existing code.
+
+## Install
+
+```{r}
+#| eval: false
+install.packages(c("canvasXpress", "ggpubr"))
+```
+
+## Wrap a plot you already have
+
+Here's an ordinary `ggpubr` boxplot with **pairwise comparisons** (`geom_pwc`) — the significance
+brackets that show a test between each pair of groups. Build it exactly as you normally would:
+
+```{r}
+#| message: false
+library(ggplot2)
+library(ggpubr)
+
+g <- ggboxplot(iris, x = "Species", y = "Sepal.Width", fill = "Species") +
+  geom_pwc(method = "t_test", label = "p.format")
+```
+
+Now make it interactive — **one call, the same object**:
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+canvasXpress(g)
+```
+
+That's the whole idea: no re-specification. canvasXpress reads the ggplot object — its data,
+aesthetics, layers, scales and the `geom_pwc` brackets — and renders it. Hover the points, drag to
+zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you
+can store and reproduce from R, Python or JavaScript.
+
+## What transfers
+
+- **Geoms and layers** — points, boxes, lines, and stats like `geom_pwc` / `stat_compare_means`.
+- **Aesthetic mappings** — `x`, `y`, `fill`, `color`, grouping.
+- **Scales, labels and facets** from the ggplot object.
+
+## When to reach for the native API instead
+
+Wrapping a ggplot is ideal for reusing plots you already have. When you're building a figure fresh —
+or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive
+annotations) — call `canvasXpress()` on your data directly with a `graphType`. See the other posts
+for that style.
+
+## Next
+
+- [Paired before/after boxplots in R](../paired-boxplots/)
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>

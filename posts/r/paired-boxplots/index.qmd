@@ -1,0 +1,75 @@
+---
+title: "Paired before/after boxplots in R with canvasXpress"
+description: "Show paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress()."
+author: "Isaac Neuhaus"
+date: "2026-09-26"
+categories: [R, canvasXpress, ggpubr, visualization]
+image: "thumbnail.png"
+---
+
+When the same subjects are measured twice — before/after a treatment, baseline vs follow-up — a
+**paired boxplot** with a line connecting each subject across the two timepoints tells the story a
+plain boxplot can't. This post builds one in R by wrapping a
+[ggpubr](https://rpkgs.datanovia.com/ggpubr/) `ggpaired` plot with
+[canvasXpress](https://canvasxpress.org), so it becomes interactive and reproducible without
+re-specifying anything.
+
+## Install
+
+```{r}
+#| eval: false
+install.packages(c("canvasXpress", "ggpubr"))
+```
+
+## A paired dataset
+
+Long format, two rows per subject — one per timepoint. Swap in your own repeated-measures table.
+
+```{r}
+#| message: false
+library(ggplot2)
+library(ggpubr)
+
+set.seed(7)
+n  <- 25
+df <- data.frame(
+  id    = rep(paste0("P", seq_len(n)), 2),
+  time  = rep(c("Baseline", "Week 12"), each = n),
+  value = c(rnorm(n, 8, 1.2),                       # baseline
+            rnorm(n, 8, 1.2) + rnorm(n, -1.2, 0.8)) # follow-up (a drop)
+)
+```
+
+## Build it with ggpaired, then wrap it
+
+`ggpaired` draws the two boxes and the per-subject connecting lines; `stat_compare_means` adds a
+paired test. Then hand the whole thing to `canvasXpress()`:
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+g <- ggpaired(
+  df, x = "time", y = "value", id = "id",
+  color = "time", line.color = "gray", line.size = 0.3
+) +
+  stat_compare_means(paired = TRUE, method = "t.test")
+
+canvasXpress(g)
+```
+
+Each grey line is one subject moving from Baseline to Week 12, the boxes summarize each timepoint,
+and the paired t-test labels the comparison. It's interactive — hover a line to follow a subject —
+and the figure is one portable spec you can reproduce from R, Python or JavaScript.
+
+## Why paired, not two independent boxes
+
+A side-by-side boxplot hides *who* changed. The connecting lines make within-subject change visible:
+a treatment can lower the group median while a handful of subjects still rise — exactly the pattern
+you want to catch before drawing conclusions.
+
+## Next
+
+- [Use ggplot2 & ggpubr plots directly with canvasXpress](../ggplot-direct/)
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
