@@ -17,6 +17,14 @@ website:
         href: https://github.com/neuhausi/canvasXpress
       - icon: rss
         href: r.xml
+  page-footer:
+    center:
+      - text: "Syndicated on R-bloggers"
+        href: https://www.r-bloggers.com
+      - text: "About"
+        href: about.qmd
+      - text: "canvasXpress"
+        href: https://canvasxpress.org
 
 format:
   html:
