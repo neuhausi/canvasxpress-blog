@@ -45,6 +45,7 @@ columns to `xAxis`.
 ```{python}
 from canvasxpress.canvas import CanvasXpress
 from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
 
 data = {
     "y": {"vars": ["Time", "Time-Censor"], "smps": subj,
@@ -63,7 +64,8 @@ config = {
 }
 
 cx = CanvasXpress(render_to="km", data=data, config=config, width=650, height=500)
-CXNoteBook(cx).render()
+for part in CXNoteBook(cx).render():
+    display(part)
 ```
 
 Hover any step for the time and survival probability; the tick marks are censored subjects.

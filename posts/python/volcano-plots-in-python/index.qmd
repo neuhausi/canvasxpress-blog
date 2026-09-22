@@ -55,6 +55,7 @@ annotations (`z`).
 ```{python}
 from canvasxpress.canvas import CanvasXpress
 from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
 
 data = {
     "y": {"vars": ["logFC", "-log-pVal"], "smps": genes,
@@ -81,7 +82,8 @@ config = {
 }
 
 cx = CanvasXpress(render_to="volcano", data=data, config=config, width=650, height=500)
-CXNoteBook(cx).render()
+for part in CXNoteBook(cx).render():
+    display(part)
 ```
 
 The chart is interactive — hover a point for its gene and values, drag to zoom, filter by regulation

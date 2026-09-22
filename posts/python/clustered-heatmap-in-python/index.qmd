@@ -51,6 +51,7 @@ columns. `samplesClustered` / `variablesClustered` turn on hierarchical clusteri
 ```{python}
 from canvasxpress.canvas import CanvasXpress
 from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
 
 data = {
     "y": {"vars": genes, "smps": samps, "data": expr.values.tolist()},
@@ -66,7 +67,8 @@ config = {
 }
 
 cx = CanvasXpress(render_to="heatmap", data=data, config=config, width=650, height=550)
-CXNoteBook(cx).render()
+for part in CXNoteBook(cx).render():
+    display(part)
 ```
 
 Rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples
