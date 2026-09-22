@@ -10,7 +10,505 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization in R with canvasXpress.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Tue, 22 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 24 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Clustered heatmaps in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/clustered-heatmap-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this post we build one in R with <a href="https://canvasxpress.org">canvasXpress</a> — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure.</p>
+<section id="an-expression-matrix-with-sample-metadata" class="level2">
+<h2 class="anchored" data-anchor-id="an-expression-matrix-with-sample-metadata">An expression matrix with sample metadata</h2>
+<p>Swap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations — the output of any normalization/DE pipeline works.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-4">ng    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>                       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># genes (rows)</span></span>
+<span id="cb1-5">ns    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>                       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># samples (columns)</span></span>
+<span id="cb1-6">genes <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Gene"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(ng))</span>
+<span id="cb1-7">samps <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"S"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(ns))</span>
+<span id="cb1-8">cond  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tumor"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normal"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> ns <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb1-9"></span>
+<span id="cb1-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Two gene blocks, up in one condition each</span></span>
+<span id="cb1-11">m <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(ng <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> ns), ng, ns, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(genes, samps))</span>
+<span id="cb1-12">m[ <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, cond <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tumor"</span>]  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> m[ <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, cond <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tumor"</span>]  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb1-13">m[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, cond <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normal"</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> m[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, cond <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normal"</span>] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span></code></pre></div>
+</div>
+<p>canvasXpress takes the matrix as <code>data</code> and a <strong>sample annotation</strong> table (rows = samples) that becomes an annotation track over the columns.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">smpAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Condition =</span> cond, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> samps, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p><code>samplesClustered</code> and <code>variablesClustered</code> turn on hierarchical clustering (with dendrograms) on columns and rows; <code>colorSpectrum</code> sets the diverging palette.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb3-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data     =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(m),</span>
+<span id="cb3-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> smpAnnot,</span>
+<span id="cb3-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Heatmap"</span>,</span>
+<span id="cb3-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">samplesClustered  =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb3-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">variablesClustered =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb3-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colorSpectrum =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"navy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"firebrick3"</span>),</span>
+<span id="cb3-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showSmpDendrogram =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb3-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showVarDendrogram =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb3-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Clustered expression heatmap"</span>,</span>
+<span id="cb3-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>,</span>
+<span id="cb3-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">550</span></span>
+<span id="cb3-13">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-4a76076b1b1481d3deb3" style="width:100%;height:550px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4a76076b1b1481d3deb3">{"x":{"data":{"y":{"vars":["Gene1","Gene2","Gene3","Gene4","Gene5","Gene6","Gene7","Gene8","Gene9","Gene10","Gene11","Gene12","Gene13","Gene14","Gene15","Gene16","Gene17","Gene18","Gene19","Gene20","Gene21","Gene22","Gene23","Gene24","Gene25","Gene26","Gene27","Gene28","Gene29","Gene30","Gene31","Gene32","Gene33","Gene34","Gene35","Gene36","Gene37","Gene38","Gene39","Gene40"],"smps":["S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","S14","S15","S16","S17","S18","S19","S20","S21","S22","S23","S24","S25","S26","S27","S28","S29","S30"],"data":[[1.374,1.835,1.431,1.494,2.425,2.409,2.707,2.398,3.308,-0.5923,3.074,1.566,1.643,1.263,0.7846,-0.3411,-2.433,1.078,0.4893,-0.01128,-1.087,2.006,-0.9406,0.7372,-0.7951,1.135,0.4705,0.7721,-0.09954,-0.7094],[2.184,1.747,1.865,3.343,1.761,3.689,3.034,1.592,3.497,3.314,3.896,3.773,0.8532,2.291,1.977,1.502,-0.3405,-1.199,-0.7789,0.6197,-1.826,-2.071,0.6347,2.321,-0.01996,1.112,0.2782,-0.1408,-0.4399,0.8714],[1.164,2.697,3.178,1.785,3.058,3.587,2.223,3.324,2.815,1.364,1.397,1.982,1.483,1.115,2.701,0.5283,0.713,0.2166,1.744,-1.281,0.9953,3.056,-0.06249,0.3489,-2.514,-0.8708,-0.9779,0.3931,-0.7185,0.1051],[3.595,2.557,0.4764,1.82,2.886,1.669,1.121,1.299,0.1302,1.57,1.609,2.853,1.638,2.208,1.413,0.5422,-0.659,0.1431,-0.07839,-0.1243,-0.01186,-0.2614,0.1828,-1.134,2.211,0.2107,-0.9266,0.2242,-0.5546,-0.1869],[2.33,1.311,2.594,1.9,1.381,-0.2852,3.163,1.419,2.482,1.831,1.584,2.205,4.351,1.952,1.393,-0.1367,-0.0364,-1.066,-0.9756,0.1757,-0.5996,-0.4544,1.104,0.4213,-1.489,0.0694,1.92,0.02354,1.245,-3.213],[1.18,1.293,2.333,2.713,4.206,4.498,-0.0001649,0.9989,2.456,2.612,1.624,-1.008,4.447,0.3155,3.097,-1.137,-1.593,-0.4286,0.07066,1.693,-0.1779,0.1576,1.752,-0.9246,-1.161,-1.663,0.8813,-0.623,-1.259,-1.276],[2.487,2.365,3.063,1.926,1.745,2.667,1.455,1.332,1.647,2.678,1.633,0.6339,1.833,1.856,1.752,-1.497,0.8478,-0.6562,-1.519,0.6421,-0.426,0.9334,-0.9538,-1.007,1.458,0.8108,0.7421,1.262,-0.2154,0.7629],[2.738,2.769,1.696,1.962,0.5755,2.541,1.744,2.945,2.17,2.568,1.704,1.576,0.9563,3.18,1.84,-0.2234,-1.85,0.9594,0.8638,1.282,0.9967,0.3028,1.644,-0.1895,-2.19,-1.912,0.1476,-0.4058,-2.472,-0.4068],[2.576,1.888,2.37,1.318,1.856,1.987,1.834,2.434,1.136,1.427,3.442,2.237,0.02707,2.681,1.374,2.002,-0.3237,1.556,0.5016,0.1405,0.7277,-1.956,-0.8667,0.9339,0.7391,-1.247,0.4854,0.6668,-0.6742,-1.208],[1.695,2.881,2.267,1.676,2.208,2.51,3.02,3.005,2.679,0.6367,1.302,-0.3427,2.515,2.143,2.9,0.2217,-0.2552,-1.041,-0.3548,-1.113,-1.727,0.3535,0.2664,0.3439,-0.344,0.9982,0.1519,0.1646,-0.5013,-0.4393],[3.512,2.398,1.457,2.06,4.308,1.836,2.136,1.61,1.673,1.611,1.612,2.962,0.9094,0.8077,1.006,0.1644,0.06092,0.9306,-0.4884,-0.3397,0.3534,0.4504,0.2224,0.814,0.4559,-0.5409,0.042,1.782,1.542,-0.3756],[2.39,1.388,3.208,1.411,2.106,2.421,2.407,2.376,0.4309,2.278,2.653,1.396,4.285,3.169,2.849,0.3326,-0.8235,-0.07545,0.9363,-1.665,0.7268,0.6596,-0.2769,0.9153,0.8781,-0.2164,0.2234,0.7112,-0.962,-0.5014],[1.379,2.341,3.16,2.531,2.457,1.6,1.93,2.244,1.633,1.177,3.125,1.247,1.114,2.079,2.806,-0.3852,1.83,-1.967,-1.062,0.9289,0.6683,-1.031,1.394,-0.1719,-0.9585,-1.622,-1.01,-0.3377,-0.8722,0.4966],[-0.2147,0.8706,2.7,0.4816,1.923,0.6298,1.752,0.5737,3.364,1.931,1.228,0.4444,2.111,1.548,1.532,-1.399,-1.43,-0.7559,-0.9838,1.417,-2.424,-2.371,-0.6589,-2.402,-0.7058,-1.451,2.401,-0.009149,-1.398,1.521],[3.125,3.433,3.587,2.307,1.666,2.988,2.696,3.778,1.666,0.8323,1.492,0.5461,5.81,3.642,2.848,2.676,0.2541,0.4611,0.4242,-0.06272,-0.2354,-0.3246,0.6605,0.7959,-2.997,0.3509,0.802,-0.1253,0.1798,0.9881],[1.955,3.98,2.558,0.4636,1.965,3.52,3.146,2.134,2.733,1.992,2.524,2.056,0.8911,1.23,2.987,-0.4237,-2.94,0.1451,-0.4513,-0.9809,1.98,-0.9443,-0.01326,2.169,-0.9611,-0.1745,-0.2512,-2.091,1.154,1.246],[1.984,1.633,0.7234,1.699,2.788,1.691,-0.4031,2.766,2.947,2.129,3.018,2.509,2.308,2.303,2.576,-0.2986,0.002416,-2.442,0.9251,1.087,0.7968,-0.7659,-0.9315,0.05838,0.3802,-0.5914,1.213,1.697,-1.199,-0.3299],[2.944,0.9559,1.427,1.472,4.075,0.7467,2.573,2.955,2.004,1.854,1.749,-0.09788,0.8931,3.282,4.025,-1.792,0.5097,0.5803,-0.1986,0.1393,-1.709,-0.9538,1.215,-1.355,0.5051,-1.334,-0.6273,1.064,-0.4257,0.8443],[2.821,2.57,0.7754,1.348,3.027,2.642,2.375,1.949,1.648,1.836,0.57,0.9956,2.348,2.602,0.03765,-0.248,-1.085,0.6551,1.195,-0.3863,-1.664,-0.398,-2.088,-0.3676,2.027,-1.097,1.711,-0.7666,1.366,-0.9811],[2.594,1.865,1.527,1.943,3.208,1.955,1.575,1.694,1.47,3.764,3.709,2.536,1.127,1.693,0.8351,-0.2473,0.7048,-0.3045,0.4955,1.124,0.4911,-0.3112,-0.5262,-0.9345,0.06463,2.036,-0.3944,0.382,-0.6843,-0.1392],[0.919,2.402,-0.6204,-1.914,-1.231,-1.733,0.951,0.8937,0.7396,0.7626,1.435,-0.453,0.0773,-0.4184,-1.377,1.744,2.331,1.292,-0.2452,1.24,1.826,2.796,0.4586,1.958,2.464,1.674,-0.3215,2.242,2.686,4.185],[0.7821,-0.03924,0.04212,1.177,0.9839,0.002132,-0.3892,-1.047,-1.063,1.111,-0.7104,2.165,-0.2969,0.3551,0.1677,0.2131,2.976,3.972,0.6646,3.149,2.961,2.986,2.194,2.676,2.075,2.774,3.364,0.8672,2.39,1.987],[0.07456,0.6897,-0.9109,-1.665,0.2199,-0.6303,-0.2843,1.971,0.2462,-0.9232,-0.06507,1.246,-1.183,0.5135,1.585,3.785,1.157,1.91,3.283,1.158,2.294,1.205,2.264,2.866,1.513,2.785,3.132,3.49,0.6946,1.695],[-1.989,0.028,0.158,-0.4635,-1.467,-0.341,0.8574,-0.3836,-0.2895,0.1643,-1.759,0.5955,0.01129,0.01861,1.678,3.764,1.029,1.986,2.691,2.391,2.081,1.691,0.8813,2.235,2.749,2.763,1.226,1.752,3.217,1.416],[0.6198,-0.7433,-0.6546,-1.116,0.521,-1.157,1.72,1.654,-2.265,1.155,0.5697,0.004884,0.9916,1.318,0.4883,2.69,0.2285,0.8765,1.033,2.891,2.184,2.361,2.651,1.066,2.464,2.295,0.5896,2.184,2.795,2.771],[-0.05613,0.1888,1.767,-0.7508,-0.1588,1.803,0.2701,1.512,-1.409,-0.05652,1.612,0.2794,1.594,-0.06583,0.8787,0.8993,1.678,0.6559,0.6542,0.6647,2.166,3.399,0.9671,2.813,2.129,0.7476,0.1655,2.405,1.512,4.106],[-0.1558,-1.805,0.7167,2.087,1.465,-0.3311,-0.4222,0.08297,0.916,-2.129,-1.637,-0.7059,-1.373,-0.7003,-0.1449,2.715,0.6612,0.4768,3.034,2.398,0.7304,1.944,2.659,3.348,1.185,0.9905,1.731,1.006,1.096,2.412],[-1.471,1.466,0.9102,0.0174,-0.7661,-1.606,-1.189,0.5672,-0.1913,0.3448,-0.7796,0.628,-0.2496,0.5373,0.469,1.754,2.688,1.578,1.188,1.888,4.349,0.3011,2.238,4.252,1.96,2.751,0.1661,0.9146,1.61,1.739],[-0.4782,0.1533,0.3842,-1.286,-0.4302,0.1972,-0.331,-1.025,0.8033,-1.905,-0.6412,1.48,1.159,-2.202,0.3762,1.68,2.071,3.361,3.802,2.676,0.588,2.232,2.715,1.506,2.781,0.6916,1.186,1.951,2.814,4.074],[0.4179,2.173,1.682,-1.641,-0.9261,0.2632,-0.9398,0.323,1.887,-0.8112,-0.6811,1.083,-1.114,0.392,-0.761,3.363,4.19,3.754,3.772,1.211,1.983,1.881,1.062,2.474,2.676,2.528,2.164,2.576,1.436,1.221],[1.359,0.4755,-0.6357,0.4502,-0.1771,-0.9858,-0.2589,1.044,1.474,1.324,-2.033,-0.8132,-2.529,0.497,-0.2933,0.7721,0.8423,3.568,0.5453,1.913,1.456,3.772,2.095,3.194,1.517,1.466,2.856,2.074,0.1258,3.132],[-0.1028,-0.7099,-0.4616,-0.01856,0.402,-2.889,0.3944,0.09908,0.6773,0.6156,0.501,-1.619,-0.9359,-0.2249,-0.1348,1.489,3.182,3.297,1.154,3.382,3.8,2.343,1.537,1.884,1.331,1.602,1.18,2.706,1.857,1.579],[0.3877,0.6107,1.432,-0.3181,-0.7317,-0.6405,-0.8519,-0.4541,0.38,1.092,-1.532,-0.1097,-0.9672,-1.117,1.394,1.269,1.473,1.762,0.7495,2.168,3.011,1.377,0.5311,2.525,2.513,1.21,1.876,2.335,2.772,0.9783],[-0.05381,-0.9341,-0.6507,-0.9294,0.8304,0.5705,2.649,-0.6558,-0.1928,0.3066,-0.025,0.4409,0.04749,-0.395,-1.037,2.02,0.5434,0.7758,2.667,2.823,1.436,1.56,2.153,2.214,3.049,1.77,2.255,2.545,0.8409,3.218],[-1.377,-1.254,-0.2074,-1.487,-1.208,-0.05972,0.156,-0.03592,1.578,-0.1102,0.593,1.351,-0.4037,1.55,-2.114,0.4271,2.573,1.672,0.7092,1.779,2.205,1.495,3.774,1.866,2.121,2.877,3.719,0.5971,1.762,0.2002],[-0.415,0.2914,-0.3928,-1.075,-1.048,-0.09818,1.13,1.069,0.5962,-0.9243,-0.1982,-1.319,0.2315,-0.7435,0.7683,1.297,0.5666,-0.4125,-0.035,0.9706,3.165,2.186,1.352,2.169,1.687,2.454,1.041,2.677,0.7778,1.692],[-0.3943,-0.4433,-0.32,1,1.441,0.5608,-2.289,-0.484,-1.174,1.593,0.892,0.3644,-0.4224,-2.332,-0.8162,2.716,0.9448,1.686,4.021,1.989,4.236,2.176,1.8,2.965,1.119,1.768,0.3957,1.21,2.117,2.016],[-0.05931,0.001105,-0.2791,-0.6213,-1.016,-1.186,0.741,-0.121,-0.1556,0.04501,-0.02572,0.2335,0.3741,0.8122,-0.4361,2.465,1.267,3.66,3.006,0.775,2.302,2.916,2.689,2.409,1.581,2.87,0.1544,1.534,1.868,1.558],[1.1,0.07434,0.4942,-1.384,0.412,1.097,-1.316,-1.294,-1.919,-0.7151,-0.6477,1.194,-0.366,-0.5013,0.9047,1.026,2.211,2.131,2.817,-0.5961,0.9575,2.32,2.036,1.534,0.5172,3.656,2.556,1.895,1.966,0.362],[0.7632,-0.5895,-0.1773,1.869,-0.3811,-0.005344,0.9198,0.4943,-0.1953,0.8652,0.6464,-0.02791,1.19,-0.5109,-0.7631,2.559,1.001,3.096,1.336,3.169,1.016,1.633,3.944,-0.2398,1.303,1.994,1.94,0.3521,1.378,1.359]]},"x":{"Condition":["Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Tumor","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal","Normal"]},"z":null},"config":{"graphType":"Heatmap","isR":true,"samplesClustered":true,"variablesClustered":true,"colorSpectrum":["navy","white","firebrick3"],"showSmpDendrogram":true,"showVarDendrogram":true,"title":"Clustered expression heatmap"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>The rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render.</p>
+</section>
+<section id="scaling-up" class="level2">
+<h2 class="anchored" data-anchor-id="scaling-up">Scaling up</h2>
+<p>The same call handles much larger matrices — hundreds of genes by dozens to hundreds of samples — clustering and rendering the full matrix interactively in the browser, not a static image. Point size and labels adapt automatically.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li><a href="../kaplan-meier-in-r/">Kaplan–Meier survival curves in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>heatmap</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/clustered-heatmap-in-r/</guid>
+  <pubDate>Thu, 24 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/clustered-heatmap-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+<item>
+  <title>Kaplan–Meier survival curves in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/kaplan-meier-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. In this post we build one in R with <a href="https://canvasxpress.org">canvasXpress</a>. canvasXpress computes the survival steps for you — you hand it a <strong>time</strong> column and a <strong>censoring</strong> column, and it does the rest — and the result is an interactive figure that serializes to one portable, reproducible spec.</p>
+<section id="a-survival-table" class="level2">
+<h2 class="anchored" data-anchor-id="a-survival-table">A survival table</h2>
+<p>Swap this simulated block for your own data: you need, per subject, a follow-up <strong>time</strong>, a <strong>censoring indicator</strong> (1 = censored, 0 = event), and the grouping variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-4">n    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span></span>
+<span id="cb1-5">arm  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control"</span>), n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">replace =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb1-6">base <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(arm <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>)      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># treatment survives longer</span></span>
+<span id="cb1-7">time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rexp</span>(n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> base), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-8">cens <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rbinom</span>(n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)                        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1 = censored, 0 = event</span></span>
+<span id="cb1-9">subj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Subj"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n))</span></code></pre></div>
+</div>
+<p>canvasXpress reads two columns for a Kaplan–Meier plot — the time and its matching censor flag — plus a per-subject annotation carrying the group.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb2-2">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>        <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> time,</span>
+<span id="cb2-3">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time-Censor"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> cens,</span>
+<span id="cb2-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names     =</span> subj,</span>
+<span id="cb2-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names   =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb2-6">)</span>
+<span id="cb2-7"></span>
+<span id="cb2-8">varAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Arm =</span> arm, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> subj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p>The key is <code>graphType = "KaplanMeier"</code> and passing <strong>both</strong> columns to <code>xAxis</code> (time first, then the censor column). <code>colorBy</code> stratifies the curves.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb3-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data     =</span> y,</span>
+<span id="cb3-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">varAnnot =</span> varAnnot,</span>
+<span id="cb3-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"KaplanMeier"</span>,</span>
+<span id="cb3-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxis    =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time-Censor"</span>),</span>
+<span id="cb3-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colorBy  =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Arm"</span>,</span>
+<span id="cb3-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title    =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Overall survival by treatment arm"</span>,</span>
+<span id="cb3-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxisTitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time (weeks)"</span>,</span>
+<span id="cb3-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">yAxisTitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Probability of survival"</span>,</span>
+<span id="cb3-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">invertCensored =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># draw censoring ticks</span></span>
+<span id="cb3-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showKMConfidenceIntervals =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb3-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>,</span>
+<span id="cb3-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb3-14">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-b2f9e4180126f91fe927" style="width:100%;height:500px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b2f9e4180126f91fe927">{"x":{"data":{"y":{"vars":["Subj1","Subj2","Subj3","Subj4","Subj5","Subj6","Subj7","Subj8","Subj9","Subj10","Subj11","Subj12","Subj13","Subj14","Subj15","Subj16","Subj17","Subj18","Subj19","Subj20","Subj21","Subj22","Subj23","Subj24","Subj25","Subj26","Subj27","Subj28","Subj29","Subj30","Subj31","Subj32","Subj33","Subj34","Subj35","Subj36","Subj37","Subj38","Subj39","Subj40","Subj41","Subj42","Subj43","Subj44","Subj45","Subj46","Subj47","Subj48","Subj49","Subj50","Subj51","Subj52","Subj53","Subj54","Subj55","Subj56","Subj57","Subj58","Subj59","Subj60","Subj61","Subj62","Subj63","Subj64","Subj65","Subj66","Subj67","Subj68","Subj69","Subj70","Subj71","Subj72","Subj73","Subj74","Subj75","Subj76","Subj77","Subj78","Subj79","Subj80","Subj81","Subj82","Subj83","Subj84","Subj85","Subj86","Subj87","Subj88","Subj89","Subj90","Subj91","Subj92","Subj93","Subj94","Subj95","Subj96","Subj97","Subj98","Subj99","Subj100","Subj101","Subj102","Subj103","Subj104","Subj105","Subj106","Subj107","Subj108","Subj109","Subj110","Subj111","Subj112","Subj113","Subj114","Subj115","Subj116","Subj117","Subj118","Subj119","Subj120","Subj121","Subj122","Subj123","Subj124","Subj125","Subj126","Subj127","Subj128","Subj129","Subj130","Subj131","Subj132","Subj133","Subj134","Subj135","Subj136","Subj137","Subj138","Subj139","Subj140","Subj141","Subj142","Subj143","Subj144","Subj145","Subj146","Subj147","Subj148","Subj149","Subj150","Subj151","Subj152","Subj153","Subj154","Subj155","Subj156","Subj157","Subj158","Subj159","Subj160","Subj161","Subj162","Subj163","Subj164","Subj165","Subj166","Subj167","Subj168","Subj169","Subj170","Subj171","Subj172","Subj173","Subj174","Subj175","Subj176","Subj177","Subj178","Subj179","Subj180","Subj181","Subj182","Subj183","Subj184","Subj185","Subj186","Subj187","Subj188","Subj189","Subj190","Subj191","Subj192","Subj193","Subj194","Subj195","Subj196","Subj197","Subj198","Subj199","Subj200"],"smps":["Time","Time-Censor"],"data":[[45.8,0],[62.9,1],[110.1,0],[2.2,0],[5,1],[85.2,1],[43.1,0],[26.2,0],[2.8,1],[8.5,1],[17.9,0],[14.1,0],[44.6,0],[102.6,1],[58.9,1],[0.8,0],[7.1,0],[130.4,0],[54.6,1],[5.5,1],[71.5,0],[15.8,0],[75.2,0],[22.8,0],[22.7,1],[6.6,0],[36.2,0],[9.4,0],[5.9,0],[82.9,1],[31.4,0],[21.1,0],[61.8,0],[90,1],[71.1,1],[13.2,0],[32.2,1],[34.5,0],[16.2,0],[68.3,0],[84.4,0],[20.4,0],[14.4,0],[69.7,1],[113.9,1],[77,0],[28.9,0],[73.4,1],[42.7,0],[3.3,1],[1.3,0],[89.7,0],[39.2,0],[65,0],[86.6,0],[88.6,1],[9.1,1],[106.6,0],[84.6,1],[20.8,1],[155.8,1],[38.1,0],[71.9,0],[25.1,1],[87,0],[51.8,1],[60.6,0],[116,0],[27.3,0],[17.6,1],[30.5,0],[30,0],[15,0],[19.8,0],[56.6,0],[52.6,1],[21.7,0],[45.9,0],[31.5,0],[8.1,0],[92.6,0],[45.9,0],[48.1,0],[7.3,0],[73.8,1],[14.1,1],[46.2,0],[32.5,0],[27,1],[29.5,0],[3.4,0],[4.5,0],[41.1,0],[27,0],[48,0],[10.4,1],[40.4,0],[88.7,1],[16.2,0],[23.9,1],[39.8,0],[6.1,0],[55,1],[61.6,0],[7.4,1],[65.1,0],[9.7,1],[26.5,0],[130.9,0],[92.1,0],[6.4,0],[65.2,0],[19.2,0],[37.6,1],[44,1],[62.8,0],[12.7,1],[112,0],[24.9,0],[17.9,0],[47,0],[22.5,1],[275.2,0],[14.9,0],[19.8,0],[35.1,1],[24.7,0],[36.3,1],[15.6,0],[38.7,0],[63,0],[91.9,0],[42.8,0],[79,0],[97.8,0],[34.9,1],[2,1],[3,0],[110.4,0],[36.2,0],[19.2,0],[206.5,0],[43.3,0],[34.8,0],[0.1,1],[8.8,0],[30,0],[55.4,1],[69.6,0],[2.9,0],[10.3,0],[104.9,1],[190.4,0],[2.7,1],[41.7,0],[29.5,1],[4.5,1],[40.5,1],[11,0],[89.8,0],[62.3,0],[31.2,0],[97.8,0],[16.3,1],[0.3,1],[114.3,1],[253.3,0],[235.3,0],[6.8,1],[51.6,0],[59.6,0],[41.5,0],[126.3,0],[19,0],[19.6,1],[38.9,0],[14.8,0],[0.2,1],[18.2,1],[26,0],[75.4,1],[17.5,0],[5,0],[62.1,0],[16.5,0],[39.5,1],[16.7,0],[65.2,1],[56.5,0],[74.7,1],[31.6,0],[16.8,0],[219.5,1],[84.4,0],[41.6,0],[71,0],[14.6,0],[51.4,0],[13.7,0],[117.8,0]]},"x":null,"z":{"Arm":["Treatment","Control","Treatment","Treatment","Control","Treatment","Treatment","Treatment","Control","Control","Treatment","Treatment","Treatment","Treatment","Treatment","Control","Control","Control","Control","Treatment","Treatment","Treatment","Treatment","Treatment","Treatment","Treatment","Control","Treatment","Treatment","Control","Control","Control","Treatment","Control","Treatment","Treatment","Control","Treatment","Control","Control","Control","Control","Treatment","Control","Control","Control","Control","Control","Treatment","Treatment","Control","Treatment","Control","Control","Treatment","Treatment","Control","Control","Control","Treatment","Treatment","Control","Control","Control","Control","Control","Control","Treatment","Control","Control","Control","Control","Treatment","Treatment","Treatment","Control","Control","Treatment","Treatment","Control","Control","Control","Treatment","Treatment","Treatment","Control","Treatment","Control","Treatment","Control","Treatment","Treatment","Control","Control","Treatment","Treatment","Treatment","Control","Control","Treatment","Control","Control","Control","Treatment","Treatment","Treatment","Treatment","Control","Treatment","Treatment","Treatment","Treatment","Treatment","Control","Control","Control","Control","Treatment","Control","Control","Control","Control","Treatment","Treatment","Control","Treatment","Treatment","Control","Control","Treatment","Treatment","Treatment","Control","Treatment","Control","Treatment","Control","Control","Control","Treatment","Control","Treatment","Treatment","Control","Treatment","Control","Control","Control","Treatment","Treatment","Control","Treatment","Treatment","Treatment","Treatment","Control","Control","Control","Control","Control","Treatment","Treatment","Treatment","Control","Treatment","Treatment","Control","Treatment","Treatment","Control","Treatment","Treatment","Control","Treatment","Treatment","Control","Control","Control","Control","Treatment","Control","Treatment","Treatment","Treatment","Treatment","Treatment","Control","Treatment","Control","Treatment","Treatment","Control","Treatment","Control","Control","Control","Treatment","Control","Treatment","Treatment"]}},"config":{"graphType":"KaplanMeier","isR":true,"xAxis":["Time","Time-Censor"],"colorBy":"Arm","title":"Overall survival by treatment arm","xAxisTitle":"Time (weeks)","yAxisTitle":"Probability of survival","invertCensored":true,"showKMConfidenceIntervals":false},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Hover any step for the time and survival probability; the tick marks are censored subjects. Because canvasXpress derives the survival curve from the raw table, you never precompute the steps — and the same spec re-renders the identical curve from Python or JavaScript.</p>
+</section>
+<section id="a-common-gotcha" class="level2">
+<h2 class="anchored" data-anchor-id="a-common-gotcha">A common gotcha</h2>
+<p>The survival transform only fires with <code>graphType = "KaplanMeier"</code>. If you use a bare <code>"Scatter2D"</code> you’ll get a raw scatter of the censor values instead — survival probability is <em>computed</em> by the engine, it is not a column in your data.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package &amp; issues: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>survival</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/kaplan-meier-in-r/</guid>
+  <pubDate>Wed, 23 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/kaplan-meier-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
 <item>
   <title>Interactive volcano plots in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
