@@ -1,5 +1,5 @@
 ---
-title: "R"
+title: "CanvasXpress in R"
 subtitle: "Hands-on R recipes for interactive, reproducible scientific visualization with canvasXpress."
 listing:
   id: r-listing

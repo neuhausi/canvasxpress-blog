@@ -1,5 +1,5 @@
 ---
-title: "Python"
+title: "CanvasXpress in Python"
 subtitle: "Hands-on Python recipes for interactive, reproducible scientific visualization with canvasxpress."
 listing:
   id: python-listing
