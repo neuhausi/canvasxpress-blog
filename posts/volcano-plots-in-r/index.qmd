@@ -1,0 +1,110 @@
+---
+title: "Interactive volcano plots in R with canvasXpress"
+description: "Build a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere."
+author: "Isaac Neuhaus"
+date: "2026-09-22"
+categories: [R, canvasXpress, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+A volcano plot is the workhorse of differential-expression analysis: log fold change on x,
+statistical significance on y, and the interesting genes pushed out to the top corners. In
+this post we build one in R with [canvasXpress](https://canvasxpress.org) — interactive
+(zoom, hover, filter), and, importantly, **reproducible**: the whole figure is a single
+portable specification you can store, validate and re-render from R, Python or JavaScript.
+
+## Install
+
+```{r}
+#| eval: false
+install.packages("canvasXpress")
+```
+
+## A differential-expression table
+
+For a self-contained example we simulate 1,000 genes. Swap this block for your own results
+table (e.g. the output of `limma::topTable()` or `DESeq2::results()`) — you need a log fold
+change and a significance value per gene.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(1)
+n       <- 1000
+genes   <- paste0("Gene", seq_len(n))
+logFC   <- rnorm(n, 0, 0.8)
+negLogP <- -log10(runif(n)^1.5)   # stand-in for -log10(p-value)
+
+# Classify each gene by effect size + significance
+group <- ifelse(logFC >  1 & negLogP > 2, "Increased",
+         ifelse(logFC < -1 & negLogP > 2, "Decreased", "NoChange"))
+```
+
+canvasXpress expects a numeric matrix/data frame of values (genes in rows) plus an optional
+**variable annotation** table carrying per-gene attributes — here the regulation call and the
+fold change we'll use for point size.
+
+```{r}
+y <- data.frame(
+  "logFC"     = logFC,
+  "-log-pVal" = negLogP,
+  row.names   = genes,
+  check.names = FALSE
+)
+
+varAnnot <- data.frame(
+  Group = group,
+  FC    = round(2^abs(logFC), 2),
+  row.names   = genes,
+  check.names = FALSE
+)
+```
+
+## The plot
+
+```{r}
+canvasXpress(
+  data     = y,
+  varAnnot = varAnnot,
+  graphType = "Scatter2D",
+  xAxis    = list("logFC"),
+  yAxis    = list("-log-pVal"),
+  colorBy  = "Group",
+  colorKey = list(Group = list(
+    Increased = "rgba(197,27,38,0.75)",
+    Decreased = "rgba(33,102,172,0.75)",
+    NoChange  = "rgba(150,150,150,0.35)"
+  )),
+  sizeBy   = "FC",
+  sizes    = c(3, 6, 9, 12, 15),
+  title    = "Publication-ready volcano plot",
+  xAxisTitle = "log2 fold change",
+  yAxisTitle = "-log10 p-value",
+  showDecorations = TRUE,
+  decorations = list(line = list(
+    list(color = "rgba(120,120,120,0.8)", width = 1, x =  1),
+    list(color = "rgba(120,120,120,0.8)", width = 1, x = -1),
+    list(color = "rgba(120,120,120,0.8)", width = 1, y = 1.301)
+  )),
+  width  = 650,
+  height = 500
+)
+```
+
+The chart is interactive: hover a point for its gene and values, drag to zoom, or use the
+toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and the p = 0.05
+cutoffs.
+
+## Why "reproducible"
+
+Everything above serializes to one JSON specification — the `data` and the `config`. That
+spec is portable: the identical figure renders from the Python (`canvasxpress`) and
+JavaScript packages, and it can be validated against a published schema and re-rendered later,
+so a figure in a paper can be regenerated and audited rather than just looked at.
+
+## Where to go next
+
+- Gallery of examples: <https://canvasxpress.org/examples.html>
+- From your object (survival tables, expression matrices, single-cell): <https://canvasxpress.org/migrate.html>
+- Package & issues: <https://github.com/neuhausi/canvasXpress>

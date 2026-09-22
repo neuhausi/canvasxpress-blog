@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "CanvasXpress in R"
+  description: "Interactive, reproducible scientific visualization in R with canvasXpress."
+  site-url: "https://neuhausi.github.io/canvasxpress-blog"
+  navbar:
+    right:
+      - text: "Posts"
+        href: index.qmd
+      - about.qmd
+      - icon: github
+        href: https://github.com/neuhausi/canvasXpress
+      - icon: rss
+        href: index.xml
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    css: styles.css
+
+execute:
+  freeze: auto

@@ -1,0 +1,16 @@
+---
+title: "About"
+---
+
+This blog covers interactive, reproducible scientific visualization in **R** with
+[canvasXpress](https://canvasxpress.org) — the R interface to the CanvasXpress engine.
+
+The idea in one line: a figure is a **portable JSON specification** (`data` + `config`). The
+same spec renders identically from R, Python and JavaScript, and can be stored, validated,
+compared and reproduced — so a plot behaves like code.
+
+- Package (CRAN): `install.packages("canvasXpress")`
+- Source & issues: [github.com/neuhausi/canvasXpress](https://github.com/neuhausi/canvasXpress)
+- Gallery and docs: [canvasxpress.org](https://canvasxpress.org)
+
+Posts here are hands-on R recipes: paste one, swap in your data.

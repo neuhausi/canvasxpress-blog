@@ -1,0 +1,7 @@
+# Options applied to every post
+freeze: true
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-overflow: wrap
