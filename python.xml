@@ -5,10 +5,10 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>CanvasXpress in R</title>
+<title>CanvasXpress Recipes</title>
 <link>https://neuhausi.github.io/canvasxpress-blog/python.html</link>
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/python.xml" rel="self" type="application/rss+xml"/>
-<description>Interactive, reproducible scientific visualization in R with canvasXpress.</description>
+<description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
 <lastBuildDate>Thu, 24 Sep 2026 04:00:00 GMT</lastBuildDate>
 <item>
