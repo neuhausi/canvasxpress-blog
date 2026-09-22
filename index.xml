@@ -10,7 +10,1376 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization in R with canvasXpress.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Thu, 24 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 26 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Paired before/after boxplots in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>When the same subjects are measured twice — before/after a treatment, baseline vs follow-up — a <strong>paired boxplot</strong> with a line connecting each subject across the two timepoints tells the story a plain boxplot can’t. This post builds one in R by wrapping a <a href="https://rpkgs.datanovia.com/ggpubr/">ggpubr</a> <code>ggpaired</code> plot with <a href="https://canvasxpress.org">canvasXpress</a>, so it becomes interactive and reproducible without re-specifying anything.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"canvasXpress"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggpubr"</span>))</span></code></pre></div>
+</div>
+</section>
+<section id="a-paired-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="a-paired-dataset">A paired dataset</h2>
+<p>Long format, two rows per subject — one per timepoint. Swap in your own repeated-measures table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggpubr)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>)</span>
+<span id="cb2-5">n  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span></span>
+<span id="cb2-6">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb2-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">id    =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"P"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n)), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">time  =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Baseline"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Week 12"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> n),</span>
+<span id="cb2-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>),                       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># baseline</span></span>
+<span id="cb2-10">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># follow-up (a drop)</span></span>
+<span id="cb2-11">)</span></code></pre></div>
+</div>
+</section>
+<section id="build-it-with-ggpaired-then-wrap-it" class="level2">
+<h2 class="anchored" data-anchor-id="build-it-with-ggpaired-then-wrap-it">Build it with ggpaired, then wrap it</h2>
+<p><code>ggpaired</code> draws the two boxes and the per-subject connecting lines; <code>stat_compare_means</code> adds a paired test. Then hand the whole thing to <code>canvasXpress()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggpaired</span>(</span>
+<span id="cb3-4">  df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">id =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>,</span>
+<span id="cb3-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">line.color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gray"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">line.size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span></span>
+<span id="cb3-6">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stat_compare_means</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">paired =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"t.test"</span>)</span>
+<span id="cb3-8"></span>
+<span id="cb3-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(g)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-aa56dee1de73a15107a4" style="width:100%;height:433px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-aa56dee1de73a15107a4">{"x":{
+  "renderTo": "canvas",
+  "data": [
+    ["Id", "id", "time", "value"],
+    ["1", "P1", "Baseline", "10.7446965936086"],
+    ["2", "P2", "Baseline", "6.56387398133318"],
+    ["3", "P3", "Baseline", "7.16684898747745"],
+    ["4", "P4", "Baseline", "7.50524845863584"],
+    ["5", "P5", "Baseline", "6.83519199065662"],
+    ["6", "P6", "Baseline", "6.86326406572627"],
+    ["7", "P7", "Baseline", "8.89776720834866"],
+    ["8", "P8", "Baseline", "7.85965372893542"],
+    ["9", "P9", "Baseline", "8.18318915153868"],
+    ["10", "P10", "Baseline", "10.6279737287953"],
+    ["11", "P11", "Baseline", "8.42838347639483"],
+    ["12", "P12", "Baseline", "11.2601021397569"],
+    ["13", "P13", "Baseline", "10.7377423111875"],
+    ["14", "P14", "Baseline", "8.38882464816622"],
+    ["15", "P15", "Baseline", "10.2752804801719"],
+    ["16", "P16", "Baseline", "8.56121661358604"],
+    ["17", "P17", "Baseline", "6.92743913229747"],
+    ["18", "P18", "Baseline", "7.63120604055537"],
+    ["19", "P19", "Baseline", "7.99421309327892"],
+    ["20", "P20", "Baseline", "9.18579697939993"],
+    ["21", "P21", "Baseline", "9.00770043154889"],
+    ["22", "P22", "Baseline", "8.8464101970866"],
+    ["23", "P23", "Baseline", "9.56715766497403"],
+    ["24", "P24", "Baseline", "6.33440454008858"],
+    ["25", "P25", "Baseline", "9.52750023710628"],
+    ["26", "P1", "Week 12", "6.81083744662969"],
+    ["27", "P2", "Week 12", "7.69660139111791"],
+    ["28", "P3", "Week 12", "7.80381646819178"],
+    ["29", "P4", "Week 12", "6.98606692118486"],
+    ["30", "P5", "Week 12", "7.0477154638883"],
+    ["31", "P6", "Week 12", "6.13980761188402"],
+    ["32", "P7", "Week 12", "6.40815806832089"],
+    ["33", "P8", "Week 12", "7.18738368010787"],
+    ["34", "P9", "Week 12", "6.83863303897584"],
+    ["35", "P10", "Week 12", "5.57548534508707"],
+    ["36", "P11", "Week 12", "6.18654612754614"],
+    ["37", "P12", "Week 12", "8.12434035631655"],
+    ["38", "P13", "Week 12", "5.90878327719184"],
+    ["39", "P14", "Week 12", "7.19310048516094"],
+    ["40", "P15", "Week 12", "7.43316919991118"],
+    ["41", "P16", "Week 12", "9.14966047258566"],
+    ["42", "P17", "Week 12", "6.57614286130307"],
+    ["43", "P18", "Week 12", "7.38025963798868"],
+    ["44", "P19", "Week 12", "6.23468359501349"],
+    ["45", "P20", "Week 12", "6.89128388751875"],
+    ["46", "P21", "Week 12", "6.6642697929628"],
+    ["47", "P22", "Week 12", "7.68253972250201"],
+    ["48", "P23", "Week 12", "7.01696066720233"],
+    ["49", "P24", "Week 12", "6.22730279615318"],
+    ["50", "P25", "Week 12", "6.60567272487921"]
+  ],
+  "aes": {
+    "x": "time",
+    "y": "value"
+  },
+  "mappings": {
+    "x": true,
+    "y": false
+  },
+  "scales": {
+    "colors": ["#F8766D", "#00BFC4"],
+    "sizes": 6
+  },
+  "coords": [],
+  "theme": {
+    "axis.line.arrow": "FALSE",
+    "axis.line.arrow.fill": "black",
+    "axis.line.colour": "black",
+    "axis.line.linewidth": "0.5",
+    "axis.minor.ticks.length": "0.75",
+    "axis.text.colour": "black",
+    "axis.text.fontweight": null,
+    "axis.text.fontwidth": null,
+    "axis.text.italic": null,
+    "axis.text.r.fontweight": null,
+    "axis.text.r.fontwidth": null,
+    "axis.text.r.hjust": "0.5",
+    "axis.text.r.italic": null,
+    "axis.text.r.margin": 2.4,
+    "axis.text.x.fontweight": null,
+    "axis.text.x.fontwidth": null,
+    "axis.text.x.italic": null,
+    "axis.text.x.margin": 2.4,
+    "axis.text.x.vjust": "1",
+    "axis.text.x.top.fontweight": null,
+    "axis.text.x.top.fontwidth": null,
+    "axis.text.x.top.italic": null,
+    "axis.text.x.top.margin": 2.4,
+    "axis.text.x.top.vjust": "0",
+    "axis.text.y.fontweight": null,
+    "axis.text.y.fontwidth": null,
+    "axis.text.y.hjust": "1",
+    "axis.text.y.italic": null,
+    "axis.text.y.margin": 2.4,
+    "axis.text.y.right.fontweight": null,
+    "axis.text.y.right.fontwidth": null,
+    "axis.text.y.right.hjust": "0",
+    "axis.text.y.right.italic": null,
+    "axis.text.y.right.margin": 2.4,
+    "axis.ticks.arrow": "FALSE",
+    "axis.ticks.arrow.fill": "black",
+    "axis.ticks.colour": "black",
+    "axis.ticks.length": "0.5",
+    "axis.title.x.fontweight": null,
+    "axis.title.x.fontwidth": null,
+    "axis.title.x.italic": null,
+    "axis.title.x.margin": 3,
+    "axis.title.x.vjust": "1",
+    "axis.title.x.top.fontweight": null,
+    "axis.title.x.top.fontwidth": null,
+    "axis.title.x.top.italic": null,
+    "axis.title.x.top.margin": 3,
+    "axis.title.x.top.vjust": "0",
+    "axis.title.y.angle": "90",
+    "axis.title.y.fontweight": null,
+    "axis.title.y.fontwidth": null,
+    "axis.title.y.italic": null,
+    "axis.title.y.margin": 3,
+    "axis.title.y.vjust": "1",
+    "axis.title.y.right.angle": "-90",
+    "axis.title.y.right.fontweight": null,
+    "axis.title.y.right.fontwidth": null,
+    "axis.title.y.right.italic": null,
+    "axis.title.y.right.margin": 3,
+    "axis.title.y.right.vjust": "1",
+    "geom.accent": "#3366FF",
+    "geom.bordertype": "1",
+    "geom.borderwidth": "0.545454545454545",
+    "geom.family": "",
+    "geom.fontsize": "4.21751764217518",
+    "geom.ink": "black",
+    "geom.linetype": "1",
+    "geom.linewidth": "0.545454545454545",
+    "geom.paper": "white",
+    "geom.pointshape": "19",
+    "geom.pointsize": "1.63636363636364",
+    "legend.background.colour": null,
+    "legend.box.background": "element_blank",
+    "legend.box.margin": "margin",
+    "legend.box.spacing": "2",
+    "legend.justification": "center",
+    "legend.key": "element_blank",
+    "legend.key.size": "1.2lines",
+    "legend.position": "top",
+    "legend.spacing": "2",
+    "legend.text.fontweight": null,
+    "legend.text.fontwidth": null,
+    "legend.text.italic": null,
+    "legend.text.size": 9,
+    "legend.ticks.length": "0.2",
+    "legend.title.fontweight": null,
+    "legend.title.fontwidth": null,
+    "legend.title.hjust": "0",
+    "legend.title.italic": null,
+    "line.arrow": "FALSE",
+    "line.arrow.fill": "black",
+    "line.colour": "black",
+    "line.lineend": "butt",
+    "line.linejoin": "round",
+    "line.linetype": "1",
+    "line.linewidth": "0.545454545454545",
+    "margins": "margin",
+    "panel.background.colour": null,
+    "panel.background.fill": "white",
+    "panel.border": "element_blank",
+    "panel.grid.arrow": "FALSE",
+    "panel.grid.arrow.fill": "#EBEBEBFF",
+    "panel.grid.colour": "#EBEBEBFF",
+    "panel.grid.major": "element_blank",
+    "panel.grid.minor": "element_blank",
+    "panel.ontop": "FALSE",
+    "plot.background.colour": "white",
+    "plot.caption.fontweight": null,
+    "plot.caption.fontwidth": null,
+    "plot.caption.hjust": "1",
+    "plot.caption.italic": null,
+    "plot.caption.margin": 6,
+    "plot.caption.size": 9,
+    "plot.caption.vjust": "1",
+    "plot.caption.position": "panel",
+    "plot.margin": "margin",
+    "plot.subtitle.fontweight": null,
+    "plot.subtitle.fontwidth": null,
+    "plot.subtitle.hjust": "0",
+    "plot.subtitle.italic": null,
+    "plot.subtitle.margin": 6,
+    "plot.subtitle.vjust": "1",
+    "plot.tag.fontweight": null,
+    "plot.tag.fontwidth": null,
+    "plot.tag.hjust": "0.5",
+    "plot.tag.italic": null,
+    "plot.tag.size": 13,
+    "plot.tag.vjust": "0.5",
+    "plot.tag.position": "topleft",
+    "plot.title.fontweight": null,
+    "plot.title.fontwidth": null,
+    "plot.title.hjust": "0",
+    "plot.title.italic": null,
+    "plot.title.margin": 6,
+    "plot.title.size": 13,
+    "plot.title.vjust": "1",
+    "plot.title.position": "panel",
+    "point.colour": "black",
+    "point.fill": "white",
+    "point.shape": "19",
+    "point.size": "1.63636363636364",
+    "point.stroke": "0.545454545454545",
+    "polygon.colour": "black",
+    "polygon.fill": "white",
+    "polygon.linejoin": "round",
+    "polygon.linetype": "1",
+    "polygon.linewidth": "0.545454545454545",
+    "rect.colour": "black",
+    "rect.fill": "white",
+    "rect.linejoin": "round",
+    "rect.linetype": "1",
+    "rect.linewidth": "0.545454545454545",
+    "spacing": "6",
+    "strip.background.colour": "black",
+    "strip.background.fill": "#F2F2F2",
+    "strip.background.linewidth": "0.7",
+    "strip.clip": "on",
+    "strip.placement": "inside",
+    "strip.switch.pad.grid": "3",
+    "strip.switch.pad.wrap": "3",
+    "strip.text.colour": "#1A1A1AFF",
+    "strip.text.fontweight": null,
+    "strip.text.fontwidth": null,
+    "strip.text.italic": null,
+    "strip.text.margin": 4.8,
+    "strip.text.size": 9,
+    "strip.text.y.angle": "-90",
+    "strip.text.y.fontweight": null,
+    "strip.text.y.fontwidth": null,
+    "strip.text.y.italic": null,
+    "strip.text.y.left.angle": "90",
+    "strip.text.y.left.fontweight": null,
+    "strip.text.y.left.fontwidth": null,
+    "strip.text.y.left.italic": null,
+    "text.angle": "0",
+    "text.colour": "black",
+    "text.debug": "FALSE",
+    "text.face": "plain",
+    "text.family": "",
+    "text.fontweight": null,
+    "text.fontwidth": null,
+    "text.hjust": "0.5",
+    "text.italic": null,
+    "text.lineheight": "0.9",
+    "text.margin": 0,
+    "text.size": "12",
+    "text.vjust": "0.5",
+    "title.fontweight": null,
+    "title.fontwidth": null,
+    "title.italic": null
+  },
+  "labels": {
+    "xAxisTitle": "Condition",
+    "yAxisTitle": "Value"
+  },
+  "facet": {},
+  "order": {
+    "time": ["Baseline", "Week 12"],
+    "xLabels": ["Baseline", "Week 12"],
+    "yLabels": ["6", "8", "10", null]
+  },
+  "layers": [
+    {
+      "color": "time",
+      "fill": "white",
+      "width": 0.5,
+      "outliers": true,
+      "outlier_gp": {
+        "colour": {},
+        "fill": {},
+        "shape": {},
+        "size": {},
+        "stroke": 0.5,
+        "alpha": {}
+      },
+      "whisker_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "staple_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "median_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "box_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "notch": false,
+      "notchwidth": 0.5,
+      "staplewidth": 0,
+      "varwidth": false,
+      "na.rm": false,
+      "data": [
+        ["Id", "id", "time", "value"],
+        ["1", "P1", "Baseline", "10.7446965936086"],
+        ["2", "P2", "Baseline", "6.56387398133318"],
+        ["3", "P3", "Baseline", "7.16684898747745"],
+        ["4", "P4", "Baseline", "7.50524845863584"],
+        ["5", "P5", "Baseline", "6.83519199065662"],
+        ["6", "P6", "Baseline", "6.86326406572627"],
+        ["7", "P7", "Baseline", "8.89776720834866"],
+        ["8", "P8", "Baseline", "7.85965372893542"],
+        ["9", "P9", "Baseline", "8.18318915153868"],
+        ["10", "P10", "Baseline", "10.6279737287953"],
+        ["11", "P11", "Baseline", "8.42838347639483"],
+        ["12", "P12", "Baseline", "11.2601021397569"],
+        ["13", "P13", "Baseline", "10.7377423111875"],
+        ["14", "P14", "Baseline", "8.38882464816622"],
+        ["15", "P15", "Baseline", "10.2752804801719"],
+        ["16", "P16", "Baseline", "8.56121661358604"],
+        ["17", "P17", "Baseline", "6.92743913229747"],
+        ["18", "P18", "Baseline", "7.63120604055537"],
+        ["19", "P19", "Baseline", "7.99421309327892"],
+        ["20", "P20", "Baseline", "9.18579697939993"],
+        ["21", "P21", "Baseline", "9.00770043154889"],
+        ["22", "P22", "Baseline", "8.8464101970866"],
+        ["23", "P23", "Baseline", "9.56715766497403"],
+        ["24", "P24", "Baseline", "6.33440454008858"],
+        ["25", "P25", "Baseline", "9.52750023710628"],
+        ["26", "P1", "Week 12", "6.81083744662969"],
+        ["27", "P2", "Week 12", "7.69660139111791"],
+        ["28", "P3", "Week 12", "7.80381646819178"],
+        ["29", "P4", "Week 12", "6.98606692118486"],
+        ["30", "P5", "Week 12", "7.0477154638883"],
+        ["31", "P6", "Week 12", "6.13980761188402"],
+        ["32", "P7", "Week 12", "6.40815806832089"],
+        ["33", "P8", "Week 12", "7.18738368010787"],
+        ["34", "P9", "Week 12", "6.83863303897584"],
+        ["35", "P10", "Week 12", "5.57548534508707"],
+        ["36", "P11", "Week 12", "6.18654612754614"],
+        ["37", "P12", "Week 12", "8.12434035631655"],
+        ["38", "P13", "Week 12", "5.90878327719184"],
+        ["39", "P14", "Week 12", "7.19310048516094"],
+        ["40", "P15", "Week 12", "7.43316919991118"],
+        ["41", "P16", "Week 12", "9.14966047258566"],
+        ["42", "P17", "Week 12", "6.57614286130307"],
+        ["43", "P18", "Week 12", "7.38025963798868"],
+        ["44", "P19", "Week 12", "6.23468359501349"],
+        ["45", "P20", "Week 12", "6.89128388751875"],
+        ["46", "P21", "Week 12", "6.6642697929628"],
+        ["47", "P22", "Week 12", "7.68253972250201"],
+        ["48", "P23", "Week 12", "7.01696066720233"],
+        ["49", "P24", "Week 12", "6.22730279615318"],
+        ["50", "P25", "Week 12", "6.60567272487921"]
+      ],
+      "shape": 19,
+      "stat": "StatBoxplot",
+      "geom": "GeomBoxplot"
+    },
+    {
+      "group": "id",
+      "color": "gray",
+      "linewidth": 0.3,
+      "linetype": "solid",
+      "lineend": "butt",
+      "linejoin": "round",
+      "linemitre": 10,
+      "na.rm": false,
+      "data": {
+        "x": [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+        "y": [10.7447, 6.8108, 10.628, 5.5755, 8.4284, 6.1865, 11.2601, 8.1243, 10.7377, 5.9088, 8.3888, 7.1931, 10.2753, 7.4332, 8.5612, 9.1497, 6.9274, 6.5761, 7.6312, 7.3803, 7.9942, 6.2347, 6.5639, 7.6966, 9.1858, 6.8913, 9.0077, 6.6643, 8.8464, 7.6825, 9.5672, 7.017, 6.3344, 6.2273, 9.5275, 6.6057, 7.1668, 7.8038, 7.5052, 6.9861, 6.8352, 7.0477, 6.8633, 6.1398, 8.8978, 6.4082, 7.8597, 7.1874, 8.1832, 6.8386],
+        "label": [],
+        "color": ["gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray"],
+        "fill": [],
+        "size": [],
+        "shape": [],
+        "panel": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+      "stat": "StatIdentity",
+      "geom": "GeomLine"
+    },
+    {
+      "color": "time",
+      "size": 1.2,
+      "na.rm": false,
+      "data": {
+        "x": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        "y": [10.7447, 6.5639, 7.1668, 7.5052, 6.8352, 6.8633, 8.8978, 7.8597, 8.1832, 10.628, 8.4284, 11.2601, 10.7377, 8.3888, 10.2753, 8.5612, 6.9274, 7.6312, 7.9942, 9.1858, 9.0077, 8.8464, 9.5672, 6.3344, 9.5275, 6.8108, 7.6966, 7.8038, 6.9861, 7.0477, 6.1398, 6.4082, 7.1874, 6.8386, 5.5755, 6.1865, 8.1243, 5.9088, 7.1931, 7.4332, 9.1497, 6.5761, 7.3803, 6.2347, 6.8913, 6.6643, 7.6825, 7.017, 6.2273, 6.6057],
+        "label": [],
+        "color": ["#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#F8766D", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4", "#00BFC4"],
+        "fill": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+        "size": ["1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2", "1.2"],
+        "shape": ["19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19", "19"],
+        "panel": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+      "shape": 19,
+      "stat": "StatIdentity",
+      "geom": "GeomPoint"
+    },
+    {
+      "vjust": 0,
+      "label.x.npc": "left",
+      "label.y.npc": "top",
+      "label.sep": ", ",
+      "method": "t.test",
+      "method.args": [],
+      "paired": true,
+      "symnum.args": [],
+      "hide.ns": false,
+      "na.rm": false,
+      "color": "black",
+      "data": {
+        "x": 1,
+        "y": 11.2601,
+        "label": "T-test, p = 6.2e-05",
+        "panel": 1,
+        "color": "black"
+      },
+      "stat": "StatCompareMeans",
+      "geom": "GeomText"
+    }
+  ],
+  "geoms": ["GeomBoxplot", "GeomLine", "GeomPoint", "GeomText"],
+  "meta": {
+    "id": false,
+    "time": true,
+    "value": false
+  },
+  "isGGPlot": true,
+  "config": [],
+  "isR": true,
+  "decompiled": "ggplot(dat, aes(x = time, y = value)) +\n  geom_boxplot(aes(colour = time), stat = 'boxplot', fill = 'white', width = 0.5, outliers = TRUE, outlier_gp = list(colour = NULL, fill = NULL, shape = NULL, size = NULL, stroke = 0.5,      alpha = NULL), whisker_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), staple_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), median_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), box_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), notch = FALSE, notchwidth = 0.5, staplewidth = 0, varwidth = FALSE) +\n  geom_line(aes(group = id), colour = 'gray', linewidth = 0.3, linetype = 'solid', lineend = 'butt', linejoin = 'round', linemitre = 10) +\n  geom_point(aes(colour = time), size = 1.2) +\n  geom_text(stat = 'compare_means', vjust = 0, label.x.npc = 'left', label.y.npc = 'top', label.sep = ', ', method = 't.test', method.args = list(), paired = TRUE, symnum.args = list(), hide.ns = FALSE) +\n  labs(y = 'Value', x = 'Condition') +\n  theme_*() +  # complete theme (58 elements); original theme_*()/element_*() calls are lost"
+},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Each grey line is one subject moving from Baseline to Week 12, the boxes summarize each timepoint, and the paired t-test labels the comparison. It’s interactive — hover a line to follow a subject — and the figure is one portable spec you can reproduce from R, Python or JavaScript.</p>
+</section>
+<section id="why-paired-not-two-independent-boxes" class="level2">
+<h2 class="anchored" data-anchor-id="why-paired-not-two-independent-boxes">Why paired, not two independent boxes</h2>
+<p>A side-by-side boxplot hides <em>who</em> changed. The connecting lines make within-subject change visible: a treatment can lower the group median while a handful of subjects still rise — exactly the pattern you want to catch before drawing conclusions.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../ggplot-direct/">Use ggplot2 &amp; ggpubr plots directly with canvasXpress</a></li>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>ggpubr</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/</guid>
+  <pubDate>Sat, 26 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/thumbnail.png" medium="image" type="image/png" height="115" width="144"/>
+</item>
+<item>
+  <title>Use your ggplot2 (and ggpubr) plots directly with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/ggplot-direct/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>If you already build plots with <strong>ggplot2</strong> or <strong>ggpubr</strong>, you don’t need to learn a new plotting API to make them interactive. <a href="https://canvasxpress.org">canvasXpress</a> accepts a <strong>ggplot object directly</strong>: pass it to <code>canvasXpress()</code> and it renders an interactive, reproducible version of the same figure — you keep your existing code.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"canvasXpress"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ggpubr"</span>))</span></code></pre></div>
+</div>
+</section>
+<section id="wrap-a-plot-you-already-have" class="level2">
+<h2 class="anchored" data-anchor-id="wrap-a-plot-you-already-have">Wrap a plot you already have</h2>
+<p>Here’s an ordinary <code>ggpubr</code> boxplot with <strong>pairwise comparisons</strong> (<code>geom_pwc</code>) — the significance brackets that show a test between each pair of groups. Build it exactly as you normally would:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggpubr)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">g <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggboxplot</span>(iris, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Species"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sepal.Width"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Species"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_pwc</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"t_test"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p.format"</span>)</span></code></pre></div>
+</div>
+<p>Now make it interactive — <strong>one call, the same object</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(g)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-816c9b0e3a797dc49aae" style="width:100%;height:433px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-816c9b0e3a797dc49aae">{"x":{
+  "renderTo": "canvas",
+  "data": [
+    ["Id", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"],
+    ["1", "5.1", "3.5", "1.4", "0.2", "setosa"],
+    ["2", "4.9", "3", "1.4", "0.2", "setosa"],
+    ["3", "4.7", "3.2", "1.3", "0.2", "setosa"],
+    ["4", "4.6", "3.1", "1.5", "0.2", "setosa"],
+    ["5", "5", "3.6", "1.4", "0.2", "setosa"],
+    ["6", "5.4", "3.9", "1.7", "0.4", "setosa"],
+    ["7", "4.6", "3.4", "1.4", "0.3", "setosa"],
+    ["8", "5", "3.4", "1.5", "0.2", "setosa"],
+    ["9", "4.4", "2.9", "1.4", "0.2", "setosa"],
+    ["10", "4.9", "3.1", "1.5", "0.1", "setosa"],
+    ["11", "5.4", "3.7", "1.5", "0.2", "setosa"],
+    ["12", "4.8", "3.4", "1.6", "0.2", "setosa"],
+    ["13", "4.8", "3", "1.4", "0.1", "setosa"],
+    ["14", "4.3", "3", "1.1", "0.1", "setosa"],
+    ["15", "5.8", "4", "1.2", "0.2", "setosa"],
+    ["16", "5.7", "4.4", "1.5", "0.4", "setosa"],
+    ["17", "5.4", "3.9", "1.3", "0.4", "setosa"],
+    ["18", "5.1", "3.5", "1.4", "0.3", "setosa"],
+    ["19", "5.7", "3.8", "1.7", "0.3", "setosa"],
+    ["20", "5.1", "3.8", "1.5", "0.3", "setosa"],
+    ["21", "5.4", "3.4", "1.7", "0.2", "setosa"],
+    ["22", "5.1", "3.7", "1.5", "0.4", "setosa"],
+    ["23", "4.6", "3.6", "1", "0.2", "setosa"],
+    ["24", "5.1", "3.3", "1.7", "0.5", "setosa"],
+    ["25", "4.8", "3.4", "1.9", "0.2", "setosa"],
+    ["26", "5", "3", "1.6", "0.2", "setosa"],
+    ["27", "5", "3.4", "1.6", "0.4", "setosa"],
+    ["28", "5.2", "3.5", "1.5", "0.2", "setosa"],
+    ["29", "5.2", "3.4", "1.4", "0.2", "setosa"],
+    ["30", "4.7", "3.2", "1.6", "0.2", "setosa"],
+    ["31", "4.8", "3.1", "1.6", "0.2", "setosa"],
+    ["32", "5.4", "3.4", "1.5", "0.4", "setosa"],
+    ["33", "5.2", "4.1", "1.5", "0.1", "setosa"],
+    ["34", "5.5", "4.2", "1.4", "0.2", "setosa"],
+    ["35", "4.9", "3.1", "1.5", "0.2", "setosa"],
+    ["36", "5", "3.2", "1.2", "0.2", "setosa"],
+    ["37", "5.5", "3.5", "1.3", "0.2", "setosa"],
+    ["38", "4.9", "3.6", "1.4", "0.1", "setosa"],
+    ["39", "4.4", "3", "1.3", "0.2", "setosa"],
+    ["40", "5.1", "3.4", "1.5", "0.2", "setosa"],
+    ["41", "5", "3.5", "1.3", "0.3", "setosa"],
+    ["42", "4.5", "2.3", "1.3", "0.3", "setosa"],
+    ["43", "4.4", "3.2", "1.3", "0.2", "setosa"],
+    ["44", "5", "3.5", "1.6", "0.6", "setosa"],
+    ["45", "5.1", "3.8", "1.9", "0.4", "setosa"],
+    ["46", "4.8", "3", "1.4", "0.3", "setosa"],
+    ["47", "5.1", "3.8", "1.6", "0.2", "setosa"],
+    ["48", "4.6", "3.2", "1.4", "0.2", "setosa"],
+    ["49", "5.3", "3.7", "1.5", "0.2", "setosa"],
+    ["50", "5", "3.3", "1.4", "0.2", "setosa"],
+    ["51", "7", "3.2", "4.7", "1.4", "versicolor"],
+    ["52", "6.4", "3.2", "4.5", "1.5", "versicolor"],
+    ["53", "6.9", "3.1", "4.9", "1.5", "versicolor"],
+    ["54", "5.5", "2.3", "4", "1.3", "versicolor"],
+    ["55", "6.5", "2.8", "4.6", "1.5", "versicolor"],
+    ["56", "5.7", "2.8", "4.5", "1.3", "versicolor"],
+    ["57", "6.3", "3.3", "4.7", "1.6", "versicolor"],
+    ["58", "4.9", "2.4", "3.3", "1", "versicolor"],
+    ["59", "6.6", "2.9", "4.6", "1.3", "versicolor"],
+    ["60", "5.2", "2.7", "3.9", "1.4", "versicolor"],
+    ["61", "5", "2", "3.5", "1", "versicolor"],
+    ["62", "5.9", "3", "4.2", "1.5", "versicolor"],
+    ["63", "6", "2.2", "4", "1", "versicolor"],
+    ["64", "6.1", "2.9", "4.7", "1.4", "versicolor"],
+    ["65", "5.6", "2.9", "3.6", "1.3", "versicolor"],
+    ["66", "6.7", "3.1", "4.4", "1.4", "versicolor"],
+    ["67", "5.6", "3", "4.5", "1.5", "versicolor"],
+    ["68", "5.8", "2.7", "4.1", "1", "versicolor"],
+    ["69", "6.2", "2.2", "4.5", "1.5", "versicolor"],
+    ["70", "5.6", "2.5", "3.9", "1.1", "versicolor"],
+    ["71", "5.9", "3.2", "4.8", "1.8", "versicolor"],
+    ["72", "6.1", "2.8", "4", "1.3", "versicolor"],
+    ["73", "6.3", "2.5", "4.9", "1.5", "versicolor"],
+    ["74", "6.1", "2.8", "4.7", "1.2", "versicolor"],
+    ["75", "6.4", "2.9", "4.3", "1.3", "versicolor"],
+    ["76", "6.6", "3", "4.4", "1.4", "versicolor"],
+    ["77", "6.8", "2.8", "4.8", "1.4", "versicolor"],
+    ["78", "6.7", "3", "5", "1.7", "versicolor"],
+    ["79", "6", "2.9", "4.5", "1.5", "versicolor"],
+    ["80", "5.7", "2.6", "3.5", "1", "versicolor"],
+    ["81", "5.5", "2.4", "3.8", "1.1", "versicolor"],
+    ["82", "5.5", "2.4", "3.7", "1", "versicolor"],
+    ["83", "5.8", "2.7", "3.9", "1.2", "versicolor"],
+    ["84", "6", "2.7", "5.1", "1.6", "versicolor"],
+    ["85", "5.4", "3", "4.5", "1.5", "versicolor"],
+    ["86", "6", "3.4", "4.5", "1.6", "versicolor"],
+    ["87", "6.7", "3.1", "4.7", "1.5", "versicolor"],
+    ["88", "6.3", "2.3", "4.4", "1.3", "versicolor"],
+    ["89", "5.6", "3", "4.1", "1.3", "versicolor"],
+    ["90", "5.5", "2.5", "4", "1.3", "versicolor"],
+    ["91", "5.5", "2.6", "4.4", "1.2", "versicolor"],
+    ["92", "6.1", "3", "4.6", "1.4", "versicolor"],
+    ["93", "5.8", "2.6", "4", "1.2", "versicolor"],
+    ["94", "5", "2.3", "3.3", "1", "versicolor"],
+    ["95", "5.6", "2.7", "4.2", "1.3", "versicolor"],
+    ["96", "5.7", "3", "4.2", "1.2", "versicolor"],
+    ["97", "5.7", "2.9", "4.2", "1.3", "versicolor"],
+    ["98", "6.2", "2.9", "4.3", "1.3", "versicolor"],
+    ["99", "5.1", "2.5", "3", "1.1", "versicolor"],
+    ["100", "5.7", "2.8", "4.1", "1.3", "versicolor"],
+    ["101", "6.3", "3.3", "6", "2.5", "virginica"],
+    ["102", "5.8", "2.7", "5.1", "1.9", "virginica"],
+    ["103", "7.1", "3", "5.9", "2.1", "virginica"],
+    ["104", "6.3", "2.9", "5.6", "1.8", "virginica"],
+    ["105", "6.5", "3", "5.8", "2.2", "virginica"],
+    ["106", "7.6", "3", "6.6", "2.1", "virginica"],
+    ["107", "4.9", "2.5", "4.5", "1.7", "virginica"],
+    ["108", "7.3", "2.9", "6.3", "1.8", "virginica"],
+    ["109", "6.7", "2.5", "5.8", "1.8", "virginica"],
+    ["110", "7.2", "3.6", "6.1", "2.5", "virginica"],
+    ["111", "6.5", "3.2", "5.1", "2", "virginica"],
+    ["112", "6.4", "2.7", "5.3", "1.9", "virginica"],
+    ["113", "6.8", "3", "5.5", "2.1", "virginica"],
+    ["114", "5.7", "2.5", "5", "2", "virginica"],
+    ["115", "5.8", "2.8", "5.1", "2.4", "virginica"],
+    ["116", "6.4", "3.2", "5.3", "2.3", "virginica"],
+    ["117", "6.5", "3", "5.5", "1.8", "virginica"],
+    ["118", "7.7", "3.8", "6.7", "2.2", "virginica"],
+    ["119", "7.7", "2.6", "6.9", "2.3", "virginica"],
+    ["120", "6", "2.2", "5", "1.5", "virginica"],
+    ["121", "6.9", "3.2", "5.7", "2.3", "virginica"],
+    ["122", "5.6", "2.8", "4.9", "2", "virginica"],
+    ["123", "7.7", "2.8", "6.7", "2", "virginica"],
+    ["124", "6.3", "2.7", "4.9", "1.8", "virginica"],
+    ["125", "6.7", "3.3", "5.7", "2.1", "virginica"],
+    ["126", "7.2", "3.2", "6", "1.8", "virginica"],
+    ["127", "6.2", "2.8", "4.8", "1.8", "virginica"],
+    ["128", "6.1", "3", "4.9", "1.8", "virginica"],
+    ["129", "6.4", "2.8", "5.6", "2.1", "virginica"],
+    ["130", "7.2", "3", "5.8", "1.6", "virginica"],
+    ["131", "7.4", "2.8", "6.1", "1.9", "virginica"],
+    ["132", "7.9", "3.8", "6.4", "2", "virginica"],
+    ["133", "6.4", "2.8", "5.6", "2.2", "virginica"],
+    ["134", "6.3", "2.8", "5.1", "1.5", "virginica"],
+    ["135", "6.1", "2.6", "5.6", "1.4", "virginica"],
+    ["136", "7.7", "3", "6.1", "2.3", "virginica"],
+    ["137", "6.3", "3.4", "5.6", "2.4", "virginica"],
+    ["138", "6.4", "3.1", "5.5", "1.8", "virginica"],
+    ["139", "6", "3", "4.8", "1.8", "virginica"],
+    ["140", "6.9", "3.1", "5.4", "2.1", "virginica"],
+    ["141", "6.7", "3.1", "5.6", "2.4", "virginica"],
+    ["142", "6.9", "3.1", "5.1", "2.3", "virginica"],
+    ["143", "5.8", "2.7", "5.1", "1.9", "virginica"],
+    ["144", "6.8", "3.2", "5.9", "2.3", "virginica"],
+    ["145", "6.7", "3.3", "5.7", "2.5", "virginica"],
+    ["146", "6.7", "3", "5.2", "2.3", "virginica"],
+    ["147", "6.3", "2.5", "5", "1.9", "virginica"],
+    ["148", "6.5", "3", "5.2", "2", "virginica"],
+    ["149", "6.2", "3.4", "5.4", "2.3", "virginica"],
+    ["150", "5.9", "3", "5.1", "1.8", "virginica"]
+  ],
+  "aes": {
+    "x": "Species",
+    "y": "Sepal.Width"
+  },
+  "mappings": {
+    "x": true,
+    "y": false
+  },
+  "scales": {
+    "colors": ["#F8766D", "#00BA38", "#619CFF"],
+    "sizes": 6
+  },
+  "coords": [],
+  "theme": {
+    "axis.line.arrow": "FALSE",
+    "axis.line.arrow.fill": "black",
+    "axis.line.colour": "black",
+    "axis.line.linewidth": "0.5",
+    "axis.minor.ticks.length": "0.75",
+    "axis.text.colour": "black",
+    "axis.text.fontweight": null,
+    "axis.text.fontwidth": null,
+    "axis.text.italic": null,
+    "axis.text.r.fontweight": null,
+    "axis.text.r.fontwidth": null,
+    "axis.text.r.hjust": "0.5",
+    "axis.text.r.italic": null,
+    "axis.text.r.margin": 2.4,
+    "axis.text.x.fontweight": null,
+    "axis.text.x.fontwidth": null,
+    "axis.text.x.italic": null,
+    "axis.text.x.margin": 2.4,
+    "axis.text.x.vjust": "1",
+    "axis.text.x.top.fontweight": null,
+    "axis.text.x.top.fontwidth": null,
+    "axis.text.x.top.italic": null,
+    "axis.text.x.top.margin": 2.4,
+    "axis.text.x.top.vjust": "0",
+    "axis.text.y.fontweight": null,
+    "axis.text.y.fontwidth": null,
+    "axis.text.y.hjust": "1",
+    "axis.text.y.italic": null,
+    "axis.text.y.margin": 2.4,
+    "axis.text.y.right.fontweight": null,
+    "axis.text.y.right.fontwidth": null,
+    "axis.text.y.right.hjust": "0",
+    "axis.text.y.right.italic": null,
+    "axis.text.y.right.margin": 2.4,
+    "axis.ticks.arrow": "FALSE",
+    "axis.ticks.arrow.fill": "black",
+    "axis.ticks.colour": "black",
+    "axis.ticks.length": "0.5",
+    "axis.title.x.fontweight": null,
+    "axis.title.x.fontwidth": null,
+    "axis.title.x.italic": null,
+    "axis.title.x.margin": 3,
+    "axis.title.x.vjust": "1",
+    "axis.title.x.top.fontweight": null,
+    "axis.title.x.top.fontwidth": null,
+    "axis.title.x.top.italic": null,
+    "axis.title.x.top.margin": 3,
+    "axis.title.x.top.vjust": "0",
+    "axis.title.y.angle": "90",
+    "axis.title.y.fontweight": null,
+    "axis.title.y.fontwidth": null,
+    "axis.title.y.italic": null,
+    "axis.title.y.margin": 3,
+    "axis.title.y.vjust": "1",
+    "axis.title.y.right.angle": "-90",
+    "axis.title.y.right.fontweight": null,
+    "axis.title.y.right.fontwidth": null,
+    "axis.title.y.right.italic": null,
+    "axis.title.y.right.margin": 3,
+    "axis.title.y.right.vjust": "1",
+    "geom.accent": "#3366FF",
+    "geom.bordertype": "1",
+    "geom.borderwidth": "0.545454545454545",
+    "geom.family": "",
+    "geom.fontsize": "4.21751764217518",
+    "geom.ink": "black",
+    "geom.linetype": "1",
+    "geom.linewidth": "0.545454545454545",
+    "geom.paper": "white",
+    "geom.pointshape": "19",
+    "geom.pointsize": "1.63636363636364",
+    "legend.background.colour": null,
+    "legend.box.background": "element_blank",
+    "legend.box.margin": "margin",
+    "legend.box.spacing": "2",
+    "legend.justification": "center",
+    "legend.key": "element_blank",
+    "legend.key.size": "1.2lines",
+    "legend.position": "top",
+    "legend.spacing": "2",
+    "legend.text.fontweight": null,
+    "legend.text.fontwidth": null,
+    "legend.text.italic": null,
+    "legend.text.size": 9,
+    "legend.ticks.length": "0.2",
+    "legend.title.fontweight": null,
+    "legend.title.fontwidth": null,
+    "legend.title.hjust": "0",
+    "legend.title.italic": null,
+    "line.arrow": "FALSE",
+    "line.arrow.fill": "black",
+    "line.colour": "black",
+    "line.lineend": "butt",
+    "line.linejoin": "round",
+    "line.linetype": "1",
+    "line.linewidth": "0.545454545454545",
+    "margins": "margin",
+    "panel.background.colour": null,
+    "panel.background.fill": "white",
+    "panel.border": "element_blank",
+    "panel.grid.arrow": "FALSE",
+    "panel.grid.arrow.fill": "#EBEBEBFF",
+    "panel.grid.colour": "#EBEBEBFF",
+    "panel.grid.major": "element_blank",
+    "panel.grid.minor": "element_blank",
+    "panel.ontop": "FALSE",
+    "plot.background.colour": "white",
+    "plot.caption.fontweight": null,
+    "plot.caption.fontwidth": null,
+    "plot.caption.hjust": "1",
+    "plot.caption.italic": null,
+    "plot.caption.margin": 6,
+    "plot.caption.size": 9,
+    "plot.caption.vjust": "1",
+    "plot.caption.position": "panel",
+    "plot.margin": "margin",
+    "plot.subtitle.fontweight": null,
+    "plot.subtitle.fontwidth": null,
+    "plot.subtitle.hjust": "0",
+    "plot.subtitle.italic": null,
+    "plot.subtitle.margin": 6,
+    "plot.subtitle.vjust": "1",
+    "plot.tag.fontweight": null,
+    "plot.tag.fontwidth": null,
+    "plot.tag.hjust": "0.5",
+    "plot.tag.italic": null,
+    "plot.tag.size": 13,
+    "plot.tag.vjust": "0.5",
+    "plot.tag.position": "topleft",
+    "plot.title.fontweight": null,
+    "plot.title.fontwidth": null,
+    "plot.title.hjust": "0",
+    "plot.title.italic": null,
+    "plot.title.margin": 6,
+    "plot.title.size": 13,
+    "plot.title.vjust": "1",
+    "plot.title.position": "panel",
+    "point.colour": "black",
+    "point.fill": "white",
+    "point.shape": "19",
+    "point.size": "1.63636363636364",
+    "point.stroke": "0.545454545454545",
+    "polygon.colour": "black",
+    "polygon.fill": "white",
+    "polygon.linejoin": "round",
+    "polygon.linetype": "1",
+    "polygon.linewidth": "0.545454545454545",
+    "rect.colour": "black",
+    "rect.fill": "white",
+    "rect.linejoin": "round",
+    "rect.linetype": "1",
+    "rect.linewidth": "0.545454545454545",
+    "spacing": "6",
+    "strip.background.colour": "black",
+    "strip.background.fill": "#F2F2F2",
+    "strip.background.linewidth": "0.7",
+    "strip.clip": "on",
+    "strip.placement": "inside",
+    "strip.switch.pad.grid": "3",
+    "strip.switch.pad.wrap": "3",
+    "strip.text.colour": "#1A1A1AFF",
+    "strip.text.fontweight": null,
+    "strip.text.fontwidth": null,
+    "strip.text.italic": null,
+    "strip.text.margin": 4.8,
+    "strip.text.size": 9,
+    "strip.text.y.angle": "-90",
+    "strip.text.y.fontweight": null,
+    "strip.text.y.fontwidth": null,
+    "strip.text.y.italic": null,
+    "strip.text.y.left.angle": "90",
+    "strip.text.y.left.fontweight": null,
+    "strip.text.y.left.fontwidth": null,
+    "strip.text.y.left.italic": null,
+    "text.angle": "0",
+    "text.colour": "black",
+    "text.debug": "FALSE",
+    "text.face": "plain",
+    "text.family": "",
+    "text.fontweight": null,
+    "text.fontwidth": null,
+    "text.hjust": "0.5",
+    "text.italic": null,
+    "text.lineheight": "0.9",
+    "text.margin": 0,
+    "text.size": "12",
+    "text.vjust": "0.5",
+    "title.fontweight": null,
+    "title.fontwidth": null,
+    "title.italic": null
+  },
+  "labels": [],
+  "facet": {},
+  "order": {
+    "Species": ["setosa", "versicolor", "virginica"],
+    "xLabels": ["setosa", "versicolor", "virginica"],
+    "yLabels": ["2", "3", "4", "5"]
+  },
+  "layers": [
+    {
+      "fill": "Species",
+      "color": "black",
+      "linetype": "solid",
+      "width": 0.7,
+      "outliers": true,
+      "outlier_gp": {
+        "colour": {},
+        "fill": {},
+        "shape": 19,
+        "size": {},
+        "stroke": 0.5,
+        "alpha": {}
+      },
+      "whisker_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "staple_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "median_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "box_gp": {
+        "colour": {},
+        "linetype": {},
+        "linewidth": {}
+      },
+      "notch": false,
+      "notchwidth": 0.5,
+      "staplewidth": 0,
+      "varwidth": false,
+      "na.rm": false,
+      "position": "dodge",
+      "data": [
+        ["Id", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"],
+        ["1", "5.1", "3.5", "1.4", "0.2", "setosa"],
+        ["2", "4.9", "3", "1.4", "0.2", "setosa"],
+        ["3", "4.7", "3.2", "1.3", "0.2", "setosa"],
+        ["4", "4.6", "3.1", "1.5", "0.2", "setosa"],
+        ["5", "5", "3.6", "1.4", "0.2", "setosa"],
+        ["6", "5.4", "3.9", "1.7", "0.4", "setosa"],
+        ["7", "4.6", "3.4", "1.4", "0.3", "setosa"],
+        ["8", "5", "3.4", "1.5", "0.2", "setosa"],
+        ["9", "4.4", "2.9", "1.4", "0.2", "setosa"],
+        ["10", "4.9", "3.1", "1.5", "0.1", "setosa"],
+        ["11", "5.4", "3.7", "1.5", "0.2", "setosa"],
+        ["12", "4.8", "3.4", "1.6", "0.2", "setosa"],
+        ["13", "4.8", "3", "1.4", "0.1", "setosa"],
+        ["14", "4.3", "3", "1.1", "0.1", "setosa"],
+        ["15", "5.8", "4", "1.2", "0.2", "setosa"],
+        ["16", "5.7", "4.4", "1.5", "0.4", "setosa"],
+        ["17", "5.4", "3.9", "1.3", "0.4", "setosa"],
+        ["18", "5.1", "3.5", "1.4", "0.3", "setosa"],
+        ["19", "5.7", "3.8", "1.7", "0.3", "setosa"],
+        ["20", "5.1", "3.8", "1.5", "0.3", "setosa"],
+        ["21", "5.4", "3.4", "1.7", "0.2", "setosa"],
+        ["22", "5.1", "3.7", "1.5", "0.4", "setosa"],
+        ["23", "4.6", "3.6", "1", "0.2", "setosa"],
+        ["24", "5.1", "3.3", "1.7", "0.5", "setosa"],
+        ["25", "4.8", "3.4", "1.9", "0.2", "setosa"],
+        ["26", "5", "3", "1.6", "0.2", "setosa"],
+        ["27", "5", "3.4", "1.6", "0.4", "setosa"],
+        ["28", "5.2", "3.5", "1.5", "0.2", "setosa"],
+        ["29", "5.2", "3.4", "1.4", "0.2", "setosa"],
+        ["30", "4.7", "3.2", "1.6", "0.2", "setosa"],
+        ["31", "4.8", "3.1", "1.6", "0.2", "setosa"],
+        ["32", "5.4", "3.4", "1.5", "0.4", "setosa"],
+        ["33", "5.2", "4.1", "1.5", "0.1", "setosa"],
+        ["34", "5.5", "4.2", "1.4", "0.2", "setosa"],
+        ["35", "4.9", "3.1", "1.5", "0.2", "setosa"],
+        ["36", "5", "3.2", "1.2", "0.2", "setosa"],
+        ["37", "5.5", "3.5", "1.3", "0.2", "setosa"],
+        ["38", "4.9", "3.6", "1.4", "0.1", "setosa"],
+        ["39", "4.4", "3", "1.3", "0.2", "setosa"],
+        ["40", "5.1", "3.4", "1.5", "0.2", "setosa"],
+        ["41", "5", "3.5", "1.3", "0.3", "setosa"],
+        ["42", "4.5", "2.3", "1.3", "0.3", "setosa"],
+        ["43", "4.4", "3.2", "1.3", "0.2", "setosa"],
+        ["44", "5", "3.5", "1.6", "0.6", "setosa"],
+        ["45", "5.1", "3.8", "1.9", "0.4", "setosa"],
+        ["46", "4.8", "3", "1.4", "0.3", "setosa"],
+        ["47", "5.1", "3.8", "1.6", "0.2", "setosa"],
+        ["48", "4.6", "3.2", "1.4", "0.2", "setosa"],
+        ["49", "5.3", "3.7", "1.5", "0.2", "setosa"],
+        ["50", "5", "3.3", "1.4", "0.2", "setosa"],
+        ["51", "7", "3.2", "4.7", "1.4", "versicolor"],
+        ["52", "6.4", "3.2", "4.5", "1.5", "versicolor"],
+        ["53", "6.9", "3.1", "4.9", "1.5", "versicolor"],
+        ["54", "5.5", "2.3", "4", "1.3", "versicolor"],
+        ["55", "6.5", "2.8", "4.6", "1.5", "versicolor"],
+        ["56", "5.7", "2.8", "4.5", "1.3", "versicolor"],
+        ["57", "6.3", "3.3", "4.7", "1.6", "versicolor"],
+        ["58", "4.9", "2.4", "3.3", "1", "versicolor"],
+        ["59", "6.6", "2.9", "4.6", "1.3", "versicolor"],
+        ["60", "5.2", "2.7", "3.9", "1.4", "versicolor"],
+        ["61", "5", "2", "3.5", "1", "versicolor"],
+        ["62", "5.9", "3", "4.2", "1.5", "versicolor"],
+        ["63", "6", "2.2", "4", "1", "versicolor"],
+        ["64", "6.1", "2.9", "4.7", "1.4", "versicolor"],
+        ["65", "5.6", "2.9", "3.6", "1.3", "versicolor"],
+        ["66", "6.7", "3.1", "4.4", "1.4", "versicolor"],
+        ["67", "5.6", "3", "4.5", "1.5", "versicolor"],
+        ["68", "5.8", "2.7", "4.1", "1", "versicolor"],
+        ["69", "6.2", "2.2", "4.5", "1.5", "versicolor"],
+        ["70", "5.6", "2.5", "3.9", "1.1", "versicolor"],
+        ["71", "5.9", "3.2", "4.8", "1.8", "versicolor"],
+        ["72", "6.1", "2.8", "4", "1.3", "versicolor"],
+        ["73", "6.3", "2.5", "4.9", "1.5", "versicolor"],
+        ["74", "6.1", "2.8", "4.7", "1.2", "versicolor"],
+        ["75", "6.4", "2.9", "4.3", "1.3", "versicolor"],
+        ["76", "6.6", "3", "4.4", "1.4", "versicolor"],
+        ["77", "6.8", "2.8", "4.8", "1.4", "versicolor"],
+        ["78", "6.7", "3", "5", "1.7", "versicolor"],
+        ["79", "6", "2.9", "4.5", "1.5", "versicolor"],
+        ["80", "5.7", "2.6", "3.5", "1", "versicolor"],
+        ["81", "5.5", "2.4", "3.8", "1.1", "versicolor"],
+        ["82", "5.5", "2.4", "3.7", "1", "versicolor"],
+        ["83", "5.8", "2.7", "3.9", "1.2", "versicolor"],
+        ["84", "6", "2.7", "5.1", "1.6", "versicolor"],
+        ["85", "5.4", "3", "4.5", "1.5", "versicolor"],
+        ["86", "6", "3.4", "4.5", "1.6", "versicolor"],
+        ["87", "6.7", "3.1", "4.7", "1.5", "versicolor"],
+        ["88", "6.3", "2.3", "4.4", "1.3", "versicolor"],
+        ["89", "5.6", "3", "4.1", "1.3", "versicolor"],
+        ["90", "5.5", "2.5", "4", "1.3", "versicolor"],
+        ["91", "5.5", "2.6", "4.4", "1.2", "versicolor"],
+        ["92", "6.1", "3", "4.6", "1.4", "versicolor"],
+        ["93", "5.8", "2.6", "4", "1.2", "versicolor"],
+        ["94", "5", "2.3", "3.3", "1", "versicolor"],
+        ["95", "5.6", "2.7", "4.2", "1.3", "versicolor"],
+        ["96", "5.7", "3", "4.2", "1.2", "versicolor"],
+        ["97", "5.7", "2.9", "4.2", "1.3", "versicolor"],
+        ["98", "6.2", "2.9", "4.3", "1.3", "versicolor"],
+        ["99", "5.1", "2.5", "3", "1.1", "versicolor"],
+        ["100", "5.7", "2.8", "4.1", "1.3", "versicolor"],
+        ["101", "6.3", "3.3", "6", "2.5", "virginica"],
+        ["102", "5.8", "2.7", "5.1", "1.9", "virginica"],
+        ["103", "7.1", "3", "5.9", "2.1", "virginica"],
+        ["104", "6.3", "2.9", "5.6", "1.8", "virginica"],
+        ["105", "6.5", "3", "5.8", "2.2", "virginica"],
+        ["106", "7.6", "3", "6.6", "2.1", "virginica"],
+        ["107", "4.9", "2.5", "4.5", "1.7", "virginica"],
+        ["108", "7.3", "2.9", "6.3", "1.8", "virginica"],
+        ["109", "6.7", "2.5", "5.8", "1.8", "virginica"],
+        ["110", "7.2", "3.6", "6.1", "2.5", "virginica"],
+        ["111", "6.5", "3.2", "5.1", "2", "virginica"],
+        ["112", "6.4", "2.7", "5.3", "1.9", "virginica"],
+        ["113", "6.8", "3", "5.5", "2.1", "virginica"],
+        ["114", "5.7", "2.5", "5", "2", "virginica"],
+        ["115", "5.8", "2.8", "5.1", "2.4", "virginica"],
+        ["116", "6.4", "3.2", "5.3", "2.3", "virginica"],
+        ["117", "6.5", "3", "5.5", "1.8", "virginica"],
+        ["118", "7.7", "3.8", "6.7", "2.2", "virginica"],
+        ["119", "7.7", "2.6", "6.9", "2.3", "virginica"],
+        ["120", "6", "2.2", "5", "1.5", "virginica"],
+        ["121", "6.9", "3.2", "5.7", "2.3", "virginica"],
+        ["122", "5.6", "2.8", "4.9", "2", "virginica"],
+        ["123", "7.7", "2.8", "6.7", "2", "virginica"],
+        ["124", "6.3", "2.7", "4.9", "1.8", "virginica"],
+        ["125", "6.7", "3.3", "5.7", "2.1", "virginica"],
+        ["126", "7.2", "3.2", "6", "1.8", "virginica"],
+        ["127", "6.2", "2.8", "4.8", "1.8", "virginica"],
+        ["128", "6.1", "3", "4.9", "1.8", "virginica"],
+        ["129", "6.4", "2.8", "5.6", "2.1", "virginica"],
+        ["130", "7.2", "3", "5.8", "1.6", "virginica"],
+        ["131", "7.4", "2.8", "6.1", "1.9", "virginica"],
+        ["132", "7.9", "3.8", "6.4", "2", "virginica"],
+        ["133", "6.4", "2.8", "5.6", "2.2", "virginica"],
+        ["134", "6.3", "2.8", "5.1", "1.5", "virginica"],
+        ["135", "6.1", "2.6", "5.6", "1.4", "virginica"],
+        ["136", "7.7", "3", "6.1", "2.3", "virginica"],
+        ["137", "6.3", "3.4", "5.6", "2.4", "virginica"],
+        ["138", "6.4", "3.1", "5.5", "1.8", "virginica"],
+        ["139", "6", "3", "4.8", "1.8", "virginica"],
+        ["140", "6.9", "3.1", "5.4", "2.1", "virginica"],
+        ["141", "6.7", "3.1", "5.6", "2.4", "virginica"],
+        ["142", "6.9", "3.1", "5.1", "2.3", "virginica"],
+        ["143", "5.8", "2.7", "5.1", "1.9", "virginica"],
+        ["144", "6.8", "3.2", "5.9", "2.3", "virginica"],
+        ["145", "6.7", "3.3", "5.7", "2.5", "virginica"],
+        ["146", "6.7", "3", "5.2", "2.3", "virginica"],
+        ["147", "6.3", "2.5", "5", "1.9", "virginica"],
+        ["148", "6.5", "3", "5.2", "2", "virginica"],
+        ["149", "6.2", "3.4", "5.4", "2.3", "virginica"],
+        ["150", "5.9", "3", "5.1", "1.8", "virginica"]
+      ],
+      "shape": 19,
+      "stat": "StatBoxplot",
+      "geom": "GeomBoxplot"
+    },
+    {
+      "size": 0.3,
+      "label.size": 3.88,
+      "family": "",
+      "hjust": 0.5,
+      "vjust": 0,
+      "remove.bracket": false,
+      "parse": false,
+      "method": "t_test",
+      "method.args": [],
+      "stat.label": "p.format",
+      "group.by": "x.var",
+      "dodge": 0.8,
+      "bracket.nudge.y": 0.05,
+      "bracket.shorten": 0,
+      "bracket.group.by": "x.var",
+      "step.increase": 0.12,
+      "tip.length": 0.03,
+      "na.rm": false,
+      "p.adjust.method": "holm",
+      "p.adjust.by": "group",
+      "symnum.args": {
+        "cutpoints": [0, 0.0001, 0.001, 0.01, 0.05, "Inf"],
+        "symbols": ["****", "***", "**", "*", "ns"]
+      },
+      "hide.ns": false,
+      "color": "black",
+      "shape": 19,
+      "x": [1, 1, 2, 1, 1, 2, 2, 3, 3],
+      "y": [4.448, 4.736, 5.024, 4.52, 4.808, 5.096, 4.52, 4.808, 5.096],
+      "xmin": [1, 1, 2, 1, 1, 2, 1, 1, 2],
+      "xmax": [2, 3, 3, 2, 3, 3, 2, 3, 3],
+      "col": ["black", "black", "black", "black", "black", "black", "black", "black", "black"],
+      "label": ["<0.0001", "<0.0001", "0.0018", "<0.0001", "<0.0001", "0.0018", "<0.0001", "<0.0001", "0.0018"],
+      "panel": ["1", "1", "1", "1", "1", "1", "1", "1", "1"],
+      "stat": "StatPwc",
+      "geom": "GeomPwc"
+    }
+  ],
+  "geoms": ["GeomBoxplot", "GeomPwc"],
+  "meta": {
+    "Sepal.Length": false,
+    "Sepal.Width": false,
+    "Petal.Length": false,
+    "Petal.Width": false,
+    "Species": true
+  },
+  "isGGPlot": true,
+  "config": [],
+  "isR": true,
+  "decompiled": "ggplot(dat, aes(x = Species, y = Sepal.Width)) +\n  geom_boxplot(aes(fill = Species), stat = 'boxplot', colour = 'black', linetype = 'solid', width = 0.7, outliers = TRUE, outlier_gp = list(colour = NULL, fill = NULL, shape = 19, size = NULL, stroke = 0.5,      alpha = NULL), whisker_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), staple_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), median_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), box_gp = list(colour = NULL, linetype = NULL, linewidth = NULL), notch = FALSE, notchwidth = 0.5, staplewidth = 0, varwidth = FALSE, position = 'dodge') +\n  geom_pwc(stat = 'pwc', size = 0.3, label.size = 3.88, family = '', hjust = 0.5, vjust = 0, method = 't_test', method.args = list(), stat.label = 'p.format', group.by = 'x.var', dodge = 0.8, bracket.nudge.y = 0.05, bracket.shorten = 0, bracket.group.by = 'x.var', step.increase = 0.12, tip.length = 0.03, p.adjust.method = 'holm', p.adjust.by = 'group', symnum.args = list(cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c('****',  '***', '**', '*', 'ns')), hide.ns = FALSE, remove.bracket = FALSE, parse = FALSE) +\n  theme_*() +  # complete theme (58 elements); original theme_*()/element_*() calls are lost"
+},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>That’s the whole idea: no re-specification. canvasXpress reads the ggplot object — its data, aesthetics, layers, scales and the <code>geom_pwc</code> brackets — and renders it. Hover the points, drag to zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you can store and reproduce from R, Python or JavaScript.</p>
+</section>
+<section id="what-transfers" class="level2">
+<h2 class="anchored" data-anchor-id="what-transfers">What transfers</h2>
+<ul>
+<li><strong>Geoms and layers</strong> — points, boxes, lines, and stats like <code>geom_pwc</code> / <code>stat_compare_means</code>.</li>
+<li><strong>Aesthetic mappings</strong> — <code>x</code>, <code>y</code>, <code>fill</code>, <code>color</code>, grouping.</li>
+<li><strong>Scales, labels and facets</strong> from the ggplot object.</li>
+</ul>
+</section>
+<section id="when-to-reach-for-the-native-api-instead" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-reach-for-the-native-api-instead">When to reach for the native API instead</h2>
+<p>Wrapping a ggplot is ideal for reusing plots you already have. When you’re building a figure fresh — or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive annotations) — call <code>canvasXpress()</code> on your data directly with a <code>graphType</code>. See the other posts for that style.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../paired-boxplots/">Paired before/after boxplots in R</a></li>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>ggplot2</category>
+  <category>ggpubr</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/ggplot-direct/</guid>
+  <pubDate>Fri, 25 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/ggplot-direct/thumbnail.png" medium="image" type="image/png" height="115" width="144"/>
+</item>
 <item>
   <title>Clustered heatmaps in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
