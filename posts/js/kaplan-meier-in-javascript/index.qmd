@@ -1,0 +1,107 @@
+---
+title: "Kaplan–Meier survival curves in JavaScript with CanvasXpress"
+description: "Turn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript."
+author: "Isaac Neuhaus"
+date: "2026-09-21"
+categories: [JavaScript, CanvasXpress, survival, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time,
+usually split by a group like treatment arm. CanvasXpress computes the survival steps for you — you
+give it a **time** column and a **censoring** column — so in the browser it's just a `data` object
+and a `config`. The result is interactive and reproducible.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Subjects are the variables (rows); each row holds `[Time, Time-Censor]` (1 = censored, 0 = event).
+The arm rides along as a variable annotation. The key is `graphType: "KaplanMeier"` and passing
+**both** columns to `xAxis`.
+
+```html
+<canvas id="km" width="650" height="500"></canvas>
+<script>
+  var subj = [], rows = [], arm = [];
+  for (var i = 0; i < 200; i++) {
+    var a = Math.random() < 0.5 ? "Treatment" : "Control";
+    var base = a === "Treatment" ? 60 : 40;                 // treatment survives longer
+    var time = Math.round(-base * Math.log(Math.random()) * 10) / 10;  // exponential
+    var cens = Math.random() < 0.3 ? 1 : 0;                 // 1 = censored, 0 = event
+    subj.push("Subj" + (i + 1));
+    rows.push([time, cens]);
+    arm.push(a);
+  }
+
+  var data = {
+    y: { vars: subj, smps: ["Time", "Time-Censor"], data: rows },
+    z: { Arm: arm }
+  };
+
+  var config = {
+    graphType: "KaplanMeier",
+    xAxis: ["Time", "Time-Censor"],
+    colorBy: "Arm",
+    title: "Overall survival by treatment arm",
+    xAxisTitle: "Time (weeks)", yAxisTitle: "Probability of survival",
+    invertCensored: true,                 // draw censoring ticks
+    showKMConfidenceIntervals: false
+  };
+
+  new CanvasXpress("km", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="kmLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var subj = [], rows = [], arm = [];
+    for (var i = 0; i < 200; i++) {
+      var a = Math.random() < 0.5 ? "Treatment" : "Control";
+      var base = a === "Treatment" ? 60 : 40;
+      var time = Math.round(-base * Math.log(Math.random()) * 10) / 10;
+      var cens = Math.random() < 0.3 ? 1 : 0;
+      subj.push("Subj" + (i + 1));
+      rows.push([time, cens]);
+      arm.push(a);
+    }
+    new CanvasXpress("kmLive",
+      { y: { vars: subj, smps: ["Time", "Time-Censor"], data: rows }, z: { Arm: arm } },
+      { graphType: "KaplanMeier", xAxis: ["Time", "Time-Censor"], colorBy: "Arm",
+        title: "Overall survival by treatment arm",
+        xAxisTitle: "Time (weeks)", yAxisTitle: "Probability of survival",
+        invertCensored: true, showKMConfidenceIntervals: false });
+  }
+  draw();
+})();
+</script>
+```
+
+Hover any step for the time and survival probability; the tick marks are censored subjects.
+CanvasXpress derives the survival curve from the raw table, so you never precompute the steps — and
+the same spec re-renders the identical curve from R or Python.
+
+## A common gotcha
+
+The survival transform only fires with `graphType: "KaplanMeier"`. A bare `"Scatter2D"` gives a raw
+scatter of the censor values instead — survival probability is *computed* by the engine, not a
+column in your data.
+
+## Next
+
+- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

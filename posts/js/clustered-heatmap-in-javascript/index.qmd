@@ -1,0 +1,119 @@
+---
+title: "Clustered heatmaps in JavaScript with CanvasXpress"
+description: "Build an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-09-20"
+categories: [JavaScript, CanvasXpress, heatmap, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered
+by similarity, dendrograms on the margins, and sample metadata alongside. CanvasXpress clusters
+inside the render, so in the browser you pass a plain matrix and get an interactive, reproducible
+figure.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Genes are the variables (rows), samples the columns; the matrix goes in as `data`, and the sample
+annotation becomes a track over the columns. `samplesClustered` / `variablesClustered` turn on
+hierarchical clustering with dendrograms.
+
+```html
+<canvas id="heatmap" width="650" height="550"></canvas>
+<script>
+  // standard normal via Box–Muller
+  function gauss() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];
+  for (var j = 0; j < ns; j++) { samps.push("S" + (j + 1)); cond.push(j < ns / 2 ? "Tumor" : "Normal"); }
+  for (var i = 0; i < ng; i++) {
+    genes.push("Gene" + (i + 1));
+    var row = [];
+    for (var k = 0; k < ns; k++) {
+      var val = gauss();
+      if (i < 20 && cond[k] === "Tumor")   val += 2;        // first block up in Tumor
+      if (i >= 20 && cond[k] === "Normal") val += 2;        // second block up in Normal
+      row.push(Math.round(val * 1000) / 1000);
+    }
+    matrix.push(row);
+  }
+
+  var data = {
+    y: { vars: genes, smps: samps, data: matrix },
+    x: { Condition: cond }
+  };
+
+  var config = {
+    graphType: "Heatmap",
+    samplesClustered: true, variablesClustered: true,
+    colorSpectrum: ["navy", "white", "firebrick3"],
+    showSmpDendrogram: true, showVarDendrogram: true,
+    title: "Clustered expression heatmap"
+  };
+
+  new CanvasXpress("heatmap", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="heatmapLive" width="650" height="550"></canvas>
+<script>
+(function () {
+  function gauss() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];
+    for (var j = 0; j < ns; j++) { samps.push("S" + (j + 1)); cond.push(j < ns / 2 ? "Tumor" : "Normal"); }
+    for (var i = 0; i < ng; i++) {
+      genes.push("Gene" + (i + 1));
+      var row = [];
+      for (var k = 0; k < ns; k++) {
+        var val = gauss();
+        if (i < 20 && cond[k] === "Tumor")   val += 2;
+        if (i >= 20 && cond[k] === "Normal") val += 2;
+        row.push(Math.round(val * 1000) / 1000);
+      }
+      matrix.push(row);
+    }
+    new CanvasXpress("heatmapLive",
+      { y: { vars: genes, smps: samps, data: matrix }, x: { Condition: cond } },
+      { graphType: "Heatmap", samplesClustered: true, variablesClustered: true,
+        colorSpectrum: ["navy", "white", "firebrick3"],
+        showSmpDendrogram: true, showVarDendrogram: true,
+        title: "Clustered expression heatmap" });
+  }
+  draw();
+})();
+</script>
+```
+
+Rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples
+separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one
+portable spec you can store, validate and re-render from R or Python.
+
+## Next
+
+- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
+- [Kaplan–Meier survival curves in JavaScript](../kaplan-meier-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
