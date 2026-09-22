@@ -2,7 +2,7 @@
   {
     "objectID": "r.html",
     "href": "r.html",
-    "title": "R",
+    "title": "CanvasXpress in R",
     "section": "",
     "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
@@ -331,7 +331,7 @@
   {
     "objectID": "python.html",
     "href": "python.html",
-    "title": "Python",
+    "title": "CanvasXpress in Python",
     "section": "",
     "text": "Every post here is runnable Python. This page’s feed (python.xml) is the one syndicated to Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
