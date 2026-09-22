@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "R",
+    "section": "",
+    "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CanvasXpress in R",
+    "section": "",
+    "text": "Browse everything below, or jump to a topic: R. Each topic has its own feed — the R feed is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html",
+    "href": "posts/r/volcano-plots-in-r/index.html",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "",
+    "text": "A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed out to the top corners. In this post we build one in R with canvasXpress — interactive (zoom, hover, filter), and, importantly, reproducible: the whole figure is a single portable specification you can store, validate and re-render from R, Python or JavaScript."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#install",
+    "href": "posts/r/volcano-plots-in-r/index.html#install",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Install",
+    "text": "Install\n\ninstall.packages(\"canvasXpress\")"
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
+    "href": "posts/r/volcano-plots-in-r/index.html#a-differential-expression-table",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "A differential-expression table",
+    "text": "A differential-expression table\nFor a self-contained example we simulate 1,000 genes. Swap this block for your own results table (e.g. the output of limma::topTable() or DESeq2::results()) — you need a log fold change and a significance value per gene.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn       &lt;- 1000\ngenes   &lt;- paste0(\"Gene\", seq_len(n))\nlogFC   &lt;- rnorm(n, 0, 0.8)\nnegLogP &lt;- -log10(runif(n)^1.5)   # stand-in for -log10(p-value)\n\n# Classify each gene by effect size + significance\ngroup &lt;- ifelse(logFC &gt;  1 & negLogP &gt; 2, \"Increased\",\n         ifelse(logFC &lt; -1 & negLogP &gt; 2, \"Decreased\", \"NoChange\"))\n\ncanvasXpress expects a numeric matrix/data frame of values (genes in rows) plus an optional variable annotation table carrying per-gene attributes — here the regulation call and the fold change we’ll use for point size.\n\ny &lt;- data.frame(\n  \"logFC\"     = logFC,\n  \"-log-pVal\" = negLogP,\n  row.names   = genes,\n  check.names = FALSE\n)\n\nvarAnnot &lt;- data.frame(\n  Group = group,\n  FC    = round(2^abs(logFC), 2),\n  row.names   = genes,\n  check.names = FALSE\n)"
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#the-plot",
+    "href": "posts/r/volcano-plots-in-r/index.html#the-plot",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"Scatter2D\",\n  xAxis    = list(\"logFC\"),\n  yAxis    = list(\"-log-pVal\"),\n  colorBy  = \"Group\",\n  colorKey = list(Group = list(\n    Increased = \"rgba(197,27,38,0.75)\",\n    Decreased = \"rgba(33,102,172,0.75)\",\n    NoChange  = \"rgba(150,150,150,0.35)\"\n  )),\n  sizeBy   = \"FC\",\n  sizes    = c(3, 6, 9, 12, 15),\n  title    = \"Publication-ready volcano plot\",\n  xAxisTitle = \"log2 fold change\",\n  yAxisTitle = \"-log10 p-value\",\n  showDecorations = TRUE,\n  decorations = list(line = list(\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x =  1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, x = -1),\n    list(color = \"rgba(120,120,120,0.8)\", width = 1, y = 1.301)\n  )),\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nThe chart is interactive: hover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and the p = 0.05 cutoffs."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
+    "href": "posts/r/volcano-plots-in-r/index.html#why-reproducible",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nEverything above serializes to one JSON specification — the data and the config. That spec is portable: the identical figure renders from the Python (canvasxpress) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just looked at."
+  },
+  {
+    "objectID": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
+    "href": "posts/r/volcano-plots-in-r/index.html#where-to-go-next",
+    "title": "Interactive volcano plots in R with canvasXpress",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nGallery of examples: https://canvasxpress.org/examples.html\nFrom your object (survival tables, expression matrices, single-cell): https://canvasxpress.org/migrate.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This blog covers interactive, reproducible scientific visualization in R with canvasXpress — the R interface to the CanvasXpress engine.\nThe idea in one line: a figure is a portable JSON specification (data + config). The same spec renders identically from R, Python and JavaScript, and can be stored, validated, compared and reproduced — so a plot behaves like code.\n\nPackage (CRAN): install.packages(\"canvasXpress\")\nSource & issues: github.com/neuhausi/canvasXpress\nGallery and docs: canvasxpress.org\n\nPosts here are hands-on R recipes: paste one, swap in your data."
+  }
+]
