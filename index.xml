@@ -10,7 +10,7 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization in R with canvasXpress.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Sat, 26 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 22 Sep 2026 04:00:00 GMT</lastBuildDate>
 <item>
   <title>Paired before/after boxplots in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
@@ -646,7 +646,7 @@ font-style: inherit;">canvasXpress</span>(g)</span></code></pre></div>
   <category>ggpubr</category>
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/</guid>
-  <pubDate>Sat, 26 Sep 2026 04:00:00 GMT</pubDate>
+  <pubDate>Tue, 22 Sep 2026 04:00:00 GMT</pubDate>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/thumbnail.png" medium="image" type="image/png" height="115" width="144"/>
 </item>
 <item>
@@ -1377,7 +1377,7 @@ font-style: inherit;">canvasXpress</span>(g)</span></code></pre></div>
   <category>ggpubr</category>
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/ggplot-direct/</guid>
-  <pubDate>Fri, 25 Sep 2026 04:00:00 GMT</pubDate>
+  <pubDate>Mon, 21 Sep 2026 04:00:00 GMT</pubDate>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/ggplot-direct/thumbnail.png" medium="image" type="image/png" height="115" width="144"/>
 </item>
 <item>
@@ -1637,7 +1637,7 @@ font-style: inherit;">550</span></span>
   <category>bioinformatics</category>
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/clustered-heatmap-in-r/</guid>
-  <pubDate>Thu, 24 Sep 2026 04:00:00 GMT</pubDate>
+  <pubDate>Sun, 20 Sep 2026 04:00:00 GMT</pubDate>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/clustered-heatmap-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 <item>
@@ -1875,7 +1875,7 @@ font-style: inherit;">500</span></span>
   <category>bioinformatics</category>
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/kaplan-meier-in-r/</guid>
-  <pubDate>Wed, 23 Sep 2026 04:00:00 GMT</pubDate>
+  <pubDate>Sat, 19 Sep 2026 04:00:00 GMT</pubDate>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/kaplan-meier-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 <item>
@@ -2246,7 +2246,7 @@ font-style: inherit;">500</span></span>
   <category>bioinformatics</category>
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/volcano-plots-in-r/</guid>
-  <pubDate>Tue, 22 Sep 2026 04:00:00 GMT</pubDate>
+  <pubDate>Fri, 18 Sep 2026 04:00:00 GMT</pubDate>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/volcano-plots-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 </channel>
