@@ -1,0 +1,123 @@
+---
+title: "Interactive volcano plots in JavaScript with CanvasXpress"
+description: "Build a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec."
+author: "Isaac Neuhaus"
+date: "2026-09-22"
+categories: [JavaScript, CanvasXpress, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+A volcano plot puts log fold change on x, statistical significance on y, and pushes the interesting
+genes into the top corners. CanvasXpress is a **JavaScript** library at heart, so in the browser
+there's no wrapper at all — you give a `<canvas>` a `data` object and a `config`, and you get an
+interactive, reproducible figure. The same spec renders identically from R and Python too.
+
+## Load the library
+
+Drop one script tag (and the stylesheet) on your page. Here we pin to a released version on a CDN:
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Give the page a canvas, then build the `data` (a value matrix plus annotations) and a `config`, and
+call `new CanvasXpress(...)`:
+
+```html
+<canvas id="volcano" width="650" height="500"></canvas>
+<script>
+  // A differential-expression table: 1,000 genes with logFC and -log10(p)
+  var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+  for (var i = 0; i < 1000; i++) {
+    var f = (Math.random() * 2 - 1) * 2.2;                 // log fold change
+    var p = -Math.log(Math.random()) / Math.LN10 * 1.5;    // -log10(p) stand-in
+    genes.push("Gene" + (i + 1));
+    logFC.push(Math.round(f * 1000) / 1000);
+    negLogP.push(Math.round(p * 1000) / 1000);
+    group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
+    fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
+  }
+
+  var data = {
+    y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+    z: { Group: group, FC: fc }
+  };
+
+  var config = {
+    graphType: "Scatter2D",
+    title: "Publication-ready volcano plot",
+    xAxis: ["logFC"], yAxis: ["-log-pVal"],
+    xAxisTitle: "log2 fold change", yAxisTitle: "-log10 p-value",
+    colorBy: "Group",
+    colorKey: { Group: { Increased: "rgba(197,27,38,0.75)",
+                         Decreased: "rgba(33,102,172,0.75)",
+                         NoChange:  "rgba(150,150,150,0.35)" } },
+    sizeBy: "FC", sizes: [3, 6, 9, 12, 15],
+    showDecorations: true,
+    decorations: { line: [
+      { color: "rgba(120,120,120,0.8)", width: 1, x: 1 },
+      { color: "rgba(120,120,120,0.8)", width: 1, x: -1 },
+      { color: "rgba(120,120,120,0.8)", width: 1, y: 1.301 }
+    ] }
+  };
+
+  new CanvasXpress("volcano", data, config);
+</script>
+```
+
+## Live result
+
+Here's exactly that code, running on this page:
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="volcanoLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var genes = [], logFC = [], negLogP = [], group = [], fc = [];
+    for (var i = 0; i < 1000; i++) {
+      var f = (Math.random() * 2 - 1) * 2.2;
+      var p = -Math.log(Math.random()) / Math.LN10 * 1.5;
+      genes.push("Gene" + (i + 1));
+      logFC.push(Math.round(f * 1000) / 1000);
+      negLogP.push(Math.round(p * 1000) / 1000);
+      group.push(f > 1 && p > 2 ? "Increased" : f < -1 && p > 2 ? "Decreased" : "NoChange");
+      fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);
+    }
+    new CanvasXpress("volcanoLive",
+      { y: { vars: ["logFC", "-log-pVal"], smps: genes, data: [logFC, negLogP] },
+        z: { Group: group, FC: fc } },
+      { graphType: "Scatter2D", title: "Publication-ready volcano plot",
+        xAxis: ["logFC"], yAxis: ["-log-pVal"],
+        xAxisTitle: "log2 fold change", yAxisTitle: "-log10 p-value",
+        colorBy: "Group",
+        colorKey: { Group: { Increased: "rgba(197,27,38,0.75)", Decreased: "rgba(33,102,172,0.75)", NoChange: "rgba(150,150,150,0.35)" } },
+        sizeBy: "FC", sizes: [3, 6, 9, 12, 15], showDecorations: true,
+        decorations: { line: [ { color: "rgba(120,120,120,0.8)", width: 1, x: 1 }, { color: "rgba(120,120,120,0.8)", width: 1, x: -1 }, { color: "rgba(120,120,120,0.8)", width: 1, y: 1.301 } ] } });
+  }
+  draw();
+})();
+</script>
+```
+
+Hover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation
+group. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs.
+
+## Why "reproducible"
+
+The `data` and `config` above **are** the figure — one portable JSON specification. Save it and the
+identical plot renders from the R (`canvasXpress`) and Python (`canvasxpress`) packages, and it can
+be validated against a published schema and re-rendered later, so a figure can be regenerated and
+audited rather than just viewed.
+
+## Next
+
+- Gallery of examples: <https://canvasxpress.org/examples.html>
+- Documentation: <https://canvasxpress.org/documentation.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>
