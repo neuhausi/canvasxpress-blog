@@ -1,0 +1,88 @@
+---
+title: "Violin and half (split) violin plots in R with canvasXpress"
+description: "Show a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R."
+author: "Isaac Neuhaus"
+date: "2026-09-25"
+categories: [R, canvasXpress, violin, visualization]
+image: "thumbnail.png"
+---
+
+A violin plot shows the **full shape of a distribution** — where the density is thick or thin —
+instead of collapsing it to a box's quartiles. And when you want to compare two conditions at the
+same position, a **split (half) violin** puts one condition on each half. Here we build both in R
+with [canvasXpress](https://canvasxpress.org): interactive, and reproducible because the figure is
+one portable spec.
+
+## The data
+
+A measurement across a few dose groups and two conditions. Swap in your own long-format table.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(1)
+doses <- c("Low", "Medium", "High"); conds <- c("Control", "Treated")
+value <- c(); Dose <- c(); Condition <- c()
+for (d in doses) for (co in conds) {
+  mu <- if (d == "Low") 6 else if (d == "Medium") 8 else 10
+  if (co == "Treated") mu <- mu + 1.5
+  value <- c(value, round(rnorm(40, mu, 1.2), 2))
+  Dose <- c(Dose, rep(d, 40)); Condition <- c(Condition, rep(co, 40))
+}
+```
+
+In canvasXpress terms a violin is a `Boxplot` graph with the violin turned on: one measured variable
+× N observations, with the grouping columns as `smpAnnot`.
+
+```{r}
+ids <- paste0("o", seq_along(value))
+y <- data.frame(matrix(value, nrow = 1, dimnames = list("value", ids)), check.names = FALSE)
+smpAnnot <- data.frame(Dose = Dose, Condition = Condition, row.names = ids, check.names = FALSE)
+```
+
+## A full violin per group
+
+`showViolinBoxplot = TRUE` draws the violin (with a small boxplot inside); `violinScale = "area"`
+makes equal-area violins.
+
+```{r}
+canvasXpress(
+  data = y, smpAnnot = smpAnnot, graphType = "Boxplot",
+  showViolinBoxplot = TRUE, violinScale = "area",
+  groupingFactors = list("Dose"), xAxis = list("value"),
+  smpTitle = "Dose", title = "Distribution of value by dose",
+  width = 650, height = 500
+)
+```
+
+## A split (half) violin comparing two conditions
+
+Group by **both** factors, colour by the condition, and set `violinSide = "split"` — the two
+conditions share each dose position, one on each half. This reads far better than two full violins
+side by side.
+
+```{r}
+canvasXpress(
+  data = y, smpAnnot = smpAnnot, graphType = "Boxplot",
+  showViolinBoxplot = TRUE, violinScale = "area",
+  groupingFactors = list("Dose", "Condition"), colorBy = "Condition",
+  violinSide = "split", violinTrim = FALSE, xAxis = list("value"),
+  smpTitle = "Dose", title = "Control vs Treated — split violin by dose",
+  width = 650, height = 500
+)
+```
+
+Hover to read the density and summary stats. `violinSide` can also be `"lt"` or `"rb"` for a
+one-sided half violin (handy for a raincloud when paired with `violinPointsSide`).
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec that renders the identical violins
+from Python or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- [Paired before/after boxplots in R](../paired-boxplots/)
+- Gallery: <https://canvasxpress.org/examples.html>

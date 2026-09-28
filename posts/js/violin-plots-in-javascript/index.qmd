@@ -1,0 +1,132 @@
+---
+title: "Violin and half (split) violin plots in JavaScript with CanvasXpress"
+description: "Show a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser."
+author: "Isaac Neuhaus"
+date: "2026-09-27"
+categories: [JavaScript, CanvasXpress, violin, visualization]
+image: "thumbnail.png"
+---
+
+A violin plot shows the **full shape of a distribution** instead of collapsing it to a box's
+quartiles. And a **split (half) violin** puts one condition on each half so you can compare two
+groups at the same position. CanvasXpress is a JavaScript library at heart, so in the browser it's
+just a `data` object and a `config`.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+A violin is a `Boxplot` graph with the violin turned on. One measured variable (`value`) × N
+observations, with the grouping columns as sample annotations (`x`). For the split violin, group by
+both factors, colour by condition, and set `violinSide: "split"`.
+
+```html
+<canvas id="violin" width="650" height="500"></canvas>
+<canvas id="violinSplit" width="650" height="500"></canvas>
+<script>
+  // standard normal via Box–Muller
+  function gauss() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  var doses = ["Low", "Medium", "High"], conds = ["Control", "Treated"];
+  var mus = { Low: 6, Medium: 8, High: 10 };
+  var value = [], Dose = [], Condition = [];
+  doses.forEach(function (d) {
+    conds.forEach(function (co) {
+      var mu = mus[d] + (co === "Treated" ? 1.5 : 0);
+      for (var i = 0; i < 40; i++) {
+        value.push(Math.round((mu + 1.2 * gauss()) * 100) / 100);
+        Dose.push(d); Condition.push(co);
+      }
+    });
+  });
+  var ids = value.map(function (_, i) { return "o" + (i + 1); });
+
+  var data = { y: { vars: ["value"], smps: ids, data: [value] },
+               x: { Dose: Dose, Condition: Condition } };
+
+  // full violin
+  new CanvasXpress("violin", data, {
+    graphType: "Boxplot", showViolinBoxplot: true, violinScale: "area",
+    groupingFactors: ["Dose"], xAxis: ["value"], smpTitle: "Dose",
+    title: "Distribution of value by dose"
+  });
+
+  // split (half) violin comparing conditions
+  new CanvasXpress("violinSplit", data, {
+    graphType: "Boxplot", showViolinBoxplot: true, violinScale: "area",
+    groupingFactors: ["Dose", "Condition"], colorBy: "Condition",
+    violinSide: "split", violinTrim: false, xAxis: ["value"], smpTitle: "Dose",
+    title: "Control vs Treated — split violin by dose"
+  });
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="violinLive" width="650" height="500"></canvas>
+<canvas id="violinSplitLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function gauss() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var doses = ["Low", "Medium", "High"], conds = ["Control", "Treated"];
+    var mus = { Low: 6, Medium: 8, High: 10 };
+    var value = [], Dose = [], Condition = [];
+    doses.forEach(function (d) {
+      conds.forEach(function (co) {
+        var mu = mus[d] + (co === "Treated" ? 1.5 : 0);
+        for (var i = 0; i < 40; i++) {
+          value.push(Math.round((mu + 1.2 * gauss()) * 100) / 100);
+          Dose.push(d); Condition.push(co);
+        }
+      });
+    });
+    var ids = value.map(function (_, i) { return "o" + (i + 1); });
+    var data = { y: { vars: ["value"], smps: ids, data: [value] },
+                 x: { Dose: Dose, Condition: Condition } };
+    new CanvasXpress("violinLive", data, {
+      graphType: "Boxplot", showViolinBoxplot: true, violinScale: "area",
+      groupingFactors: ["Dose"], xAxis: ["value"], smpTitle: "Dose",
+      title: "Distribution of value by dose" });
+    new CanvasXpress("violinSplitLive", data, {
+      graphType: "Boxplot", showViolinBoxplot: true, violinScale: "area",
+      groupingFactors: ["Dose", "Condition"], colorBy: "Condition",
+      violinSide: "split", violinTrim: false, xAxis: ["value"], smpTitle: "Dose",
+      title: "Control vs Treated — split violin by dose" });
+  }
+  draw();
+})();
+</script>
+```
+
+Hover to read the density and summary stats. `violinSide` can also be `"lt"` or `"rb"` for a
+one-sided half violin.
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec that renders the same from R, Python,
+or a web page.
+
+## Next
+
+- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>

@@ -1,0 +1,94 @@
+---
+title: "Violin and half (split) violin plots in Python with canvasxpress"
+description: "Show a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python."
+author: "Isaac Neuhaus"
+date: "2026-09-26"
+categories: [Python, canvasxpress, violin, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A violin plot shows the **full shape of a distribution** instead of collapsing it to a box's
+quartiles. And when you want to compare two conditions at the same position, a **split (half)
+violin** puts one condition on each half. Here we build both in Python with
+[canvasxpress](https://pypi.org/project/canvasxpress/) — interactive and reproducible.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The data
+
+A measurement across a few dose groups and two conditions. Swap in your own long-format table.
+
+```{python}
+import numpy as np
+
+rng = np.random.default_rng(1)
+doses = ["Low", "Medium", "High"]
+conds = ["Control", "Treated"]
+
+value, Dose, Condition = [], [], []
+for d in doses:
+    for co in conds:
+        mu = {"Low": 6, "Medium": 8, "High": 10}[d] + (1.5 if co == "Treated" else 0)
+        value += list(np.round(rng.normal(mu, 1.2, 40), 2))
+        Dose += [d] * 40
+        Condition += [co] * 40
+```
+
+In canvasXpress terms a violin is a `Boxplot` graph with the violin turned on: one measured variable
+× N observations, with the grouping columns as sample annotations (`x`).
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+ids = [f"o{i+1}" for i in range(len(value))]
+data = {"y": {"vars": ["value"], "smps": ids, "data": [value]},
+        "x": {"Dose": Dose, "Condition": Condition}}
+```
+
+## A full violin per group
+
+```{python}
+cx = CanvasXpress(render_to="violin", data=data, config={
+    "graphType": "Boxplot", "showViolinBoxplot": True, "violinScale": "area",
+    "groupingFactors": ["Dose"], "xAxis": ["value"], "smpTitle": "Dose",
+    "title": "Distribution of value by dose",
+}, width=650, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+## A split (half) violin comparing two conditions
+
+Group by **both** factors, colour by condition, and set `violinSide = "split"` — the two conditions
+share each dose position, one on each half.
+
+```{python}
+cx = CanvasXpress(render_to="violinSplit", data=data, config={
+    "graphType": "Boxplot", "showViolinBoxplot": True, "violinScale": "area",
+    "groupingFactors": ["Dose", "Condition"], "colorBy": "Condition",
+    "violinSide": "split", "violinTrim": False, "xAxis": ["value"], "smpTitle": "Dose",
+    "title": "Control vs Treated — split violin by dose",
+}, width=650, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Hover to read the density and summary stats. `violinSide` can also be `"lt"` or `"rb"` for a
+one-sided half violin.
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec that renders the identical violins
+from R or JavaScript.
+
+## Next
+
+- [Interactive volcano plots in Python](../volcano-plots-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
