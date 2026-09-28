@@ -10,7 +10,424 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/python.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Thu, 24 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 27 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Sankey / alluvial diagrams in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/sankey-diagrams-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A Sankey (or alluvial) diagram shows how a quantity <strong>flows through a sequence of categorical stages</strong> — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — interactive and reproducible.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>canvasXpress builds a Sankey from a table where <strong>each row is one path</strong> through the stages, plus a frequency/weight. Swap this simulated clinical flow for your own counts.</p>
+<div id="e29bcdc4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> random</span>
+<span id="cb2-2">random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">cohorts  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort B"</span>]</span>
+<span id="cb2-5">treats   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Drug 1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Drug 2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Placebo"</span>]</span>
+<span id="cb2-6">outcomes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Stable"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Progression"</span>]</span>
+<span id="cb2-7"></span>
+<span id="cb2-8">Cohort, Treatment, Outcome, Freq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [], [], [], []</span>
+<span id="cb2-9"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> co <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> cohorts:</span>
+<span id="cb2-10">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> tr <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> treats:</span>
+<span id="cb2-11">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> ou <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> outcomes:</span>
+<span id="cb2-12">            base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> ou <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> ou <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Stable"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span></span>
+<span id="cb2-13">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> tr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Placebo"</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> ou <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span>:</span>
+<span id="cb2-14">                base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>                                   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># placebo responds less</span></span>
+<span id="cb2-15">            Cohort.append(co)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> Treatment.append(tr)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> Outcome.append(ou)</span>
+<span id="cb2-16">            Freq.append(base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>))</span></code></pre></div>
+</div>
+<p>The value (<code>Freq</code>) is the single measured variable; the stage columns are sample annotations (<code>x</code>).</p>
+<div id="dfe556ab" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">ids <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"r</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(Freq))]</span>
+<span id="cb3-6">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Freq"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: ids, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [Freq]},</span>
+<span id="cb3-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort"</span>: Cohort, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>: Treatment, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outcome"</span>: Outcome},</span>
+<span id="cb3-9">}</span>
+<span id="cb3-10"></span>
+<span id="cb3-11">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sankey"</span>,</span>
+<span id="cb3-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sankeyAxes"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outcome"</span>],</span>
+<span id="cb3-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Freq"</span>],</span>
+<span id="cb3-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outcome"</span>,</span>
+<span id="cb3-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sankeyType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"proportional"</span>,</span>
+<span id="cb3-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphOrientation"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"horizontal"</span>,</span>
+<span id="cb3-18">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Patient flow: cohort to treatment to outcome"</span>,</span>
+<span id="cb3-19">}</span>
+<span id="cb3-20"></span>
+<span id="cb3-21">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sankey"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb3-22"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb3-23">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="sankey" width="700" height="500"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("sankey");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart sankey removed for re-rendering.");
+  } else {
+    console.log("Chart sankey ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart sankey could not be cleaned for re-rendering:", error);
+}
+
+var chart_sankey = new CanvasXpress({"renderTo": "sankey", "data": {"y": {"vars": ["Freq"], "smps": ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18"], "data": [[44, 27, 23, 43, 40, 29, 27, 37, 21, 43, 40, 15, 52, 38, 15, 26, 33, 22]]}, "x": {"Cohort": ["Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort A", "Cohort B", "Cohort B", "Cohort B", "Cohort B", "Cohort B", "Cohort B", "Cohort B", "Cohort B", "Cohort B"], "Treatment": ["Drug 1", "Drug 1", "Drug 1", "Drug 2", "Drug 2", "Drug 2", "Placebo", "Placebo", "Placebo", "Drug 1", "Drug 1", "Drug 1", "Drug 2", "Drug 2", "Drug 2", "Placebo", "Placebo", "Placebo"], "Outcome": ["Response", "Stable", "Progression", "Response", "Stable", "Progression", "Response", "Stable", "Progression", "Response", "Stable", "Progression", "Response", "Stable", "Progression", "Response", "Stable", "Progression"]}, "z": null}, "config": {"graphType": "Sankey", "sankeyAxes": ["Cohort", "Treatment", "Outcome"], "xAxis": ["Freq"], "colorBy": "Outcome", "sankeyType": "proportional", "graphOrientation": "horizontal", "title": "Patient flow: cohort to treatment to outcome"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Hover any stream to see the count; the widths are proportional to the frequency, so you can read the flow at a glance. <code>sankeyType</code> can also be <code>"aligned"</code> (classic alluvial) or <code>"equal"</code>.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The <code>data</code>+<code>config</code> <strong>is</strong> the figure — one portable JSON spec. The same spec renders the identical Sankey from R or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-python/">Interactive volcano plots in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>sankey</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/sankey-diagrams-in-python/</guid>
+  <pubDate>Sun, 27 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/sankey-diagrams-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
 <item>
   <title>Clustered heatmaps in Python with canvasxpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>

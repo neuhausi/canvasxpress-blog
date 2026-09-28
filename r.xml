@@ -10,7 +10,321 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/r.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Tue, 22 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 26 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Sankey / alluvial diagrams in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/sankey-diagrams-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A Sankey (or alluvial) diagram shows how a quantity <strong>flows through a sequence of categorical stages</strong> — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in R with <a href="https://canvasxpress.org">canvasXpress</a> — interactive, and reproducible because the whole figure is one portable spec.</p>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>canvasXpress builds a Sankey from a <strong>tidy table where each row is one path</strong> through the stages, plus a frequency/weight. Swap this simulated clinical flow for your own counts.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-4">cohort <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(); treat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(); outcome <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(); freq <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>()</span>
+<span id="cb1-5"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (co <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort B"</span>))</span>
+<span id="cb1-6"> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (tr <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Drug 1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Drug 2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Placebo"</span>))</span>
+<span id="cb1-7">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (ou <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Stable"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Progression"</span>)) {</span>
+<span id="cb1-8">    base <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (ou <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (ou <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Stable"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span></span>
+<span id="cb1-9">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (tr <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Placebo"</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;&amp;</span> ou <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Response"</span>) base <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># placebo responds less</span></span>
+<span id="cb1-10">    cohort  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(cohort, co); treat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(treat, tr); outcome <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(outcome, ou)</span>
+<span id="cb1-11">    freq    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(freq, base <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb1-12">  }</span></code></pre></div>
+</div>
+<p>The value (<code>Freq</code>) is the single measured variable; the stage columns are sample annotations. In canvasXpress terms: one variable × N path-rows, with the categorical stages as <code>smpAnnot</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">ids <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"r"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_along</span>(freq))</span>
+<span id="cb2-2">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(freq, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Freq"</span>, ids)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb2-3">smpAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Cohort =</span> cohort, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Treatment =</span> treat, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Outcome =</span> outcome,</span>
+<span id="cb2-4">                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> ids, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p><code>graphType = "Sankey"</code> with <code>sankeyAxes</code> listing the stages in order, <code>xAxis</code> naming the value, and <code>colorBy</code> coloring the streams.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb3-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data     =</span> y,</span>
+<span id="cb3-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> smpAnnot,</span>
+<span id="cb3-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sankey"</span>,</span>
+<span id="cb3-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sankeyAxes =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cohort"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treatment"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outcome"</span>),</span>
+<span id="cb3-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxis      =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Freq"</span>),</span>
+<span id="cb3-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colorBy    =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Outcome"</span>,</span>
+<span id="cb3-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sankeyType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"proportional"</span>,</span>
+<span id="cb3-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphOrientation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"horizontal"</span>,</span>
+<span id="cb3-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Patient flow: cohort → treatment → outcome"</span>,</span>
+<span id="cb3-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>,</span>
+<span id="cb3-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb3-13">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-4906484ed42468d86de4" style="width:100%;height:464px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4906484ed42468d86de4">{"x":{"data":{"y":{"vars":["Freq"],"smps":["r1","r2","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","r13","r14","r15","r16","r17","r18"],"data":[[48,28,21,40,26,27,18,35,28,41,35,17,40,29,19,21,30,28]]},"x":{"Cohort":["Cohort A","Cohort A","Cohort A","Cohort A","Cohort A","Cohort A","Cohort A","Cohort A","Cohort A","Cohort B","Cohort B","Cohort B","Cohort B","Cohort B","Cohort B","Cohort B","Cohort B","Cohort B"],"Treatment":["Drug 1","Drug 1","Drug 1","Drug 2","Drug 2","Drug 2","Placebo","Placebo","Placebo","Drug 1","Drug 1","Drug 1","Drug 2","Drug 2","Drug 2","Placebo","Placebo","Placebo"],"Outcome":["Response","Stable","Progression","Response","Stable","Progression","Response","Stable","Progression","Response","Stable","Progression","Response","Stable","Progression","Response","Stable","Progression"]},"z":null},"config":{"graphType":"Sankey","isR":true,"sankeyAxes":["Cohort","Treatment","Outcome"],"xAxis":["Freq"],"colorBy":"Outcome","sankeyType":"proportional","graphOrientation":"horizontal","title":"Patient flow: cohort → treatment → outcome"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Hover any stream to see the count; the widths are proportional to the frequency, so you can read the flow at a glance — e.g.&nbsp;how much of each cohort ends in Response vs Progression, and how Placebo differs. <code>sankeyType</code> can also be <code>"aligned"</code> (classic alluvial) or <code>"equal"</code>.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The <code>data</code>+<code>config</code> <strong>is</strong> the figure — one portable JSON spec. The same spec renders the identical Sankey from Python or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>sankey</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/sankey-diagrams-in-r/</guid>
+  <pubDate>Sat, 26 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/sankey-diagrams-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
 <item>
   <title>Paired before/after boxplots in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
