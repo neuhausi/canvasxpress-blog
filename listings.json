@@ -3,6 +3,7 @@
     "listing": "/r.html",
     "items": [
       "/posts/r/sankey-diagrams-in-r/index.html",
+      "/posts/r/violin-plots-in-r/index.html",
       "/posts/r/paired-boxplots/index.html",
       "/posts/r/ggplot-direct/index.html",
       "/posts/r/clustered-heatmap-in-r/index.html",
@@ -15,7 +16,10 @@
     "items": [
       "/posts/js/sankey-diagrams-in-javascript/index.html",
       "/posts/python/sankey-diagrams-in-python/index.html",
+      "/posts/js/violin-plots-in-javascript/index.html",
+      "/posts/python/violin-plots-in-python/index.html",
       "/posts/r/sankey-diagrams-in-r/index.html",
+      "/posts/r/violin-plots-in-r/index.html",
       "/posts/python/clustered-heatmap-in-python/index.html",
       "/posts/python/kaplan-meier-in-python/index.html",
       "/posts/python/volcano-plots-in-python/index.html",
@@ -33,6 +37,7 @@
     "listing": "/js.html",
     "items": [
       "/posts/js/sankey-diagrams-in-javascript/index.html",
+      "/posts/js/violin-plots-in-javascript/index.html",
       "/posts/js/volcano-plots-in-javascript/index.html",
       "/posts/js/kaplan-meier-in-javascript/index.html",
       "/posts/js/clustered-heatmap-in-javascript/index.html"
@@ -42,6 +47,7 @@
     "listing": "/python.html",
     "items": [
       "/posts/python/sankey-diagrams-in-python/index.html",
+      "/posts/python/violin-plots-in-python/index.html",
       "/posts/python/clustered-heatmap-in-python/index.html",
       "/posts/python/kaplan-meier-in-python/index.html",
       "/posts/python/volcano-plots-in-python/index.html"

@@ -4,21 +4,21 @@
     "href": "r.html",
     "title": "CanvasXpress in R",
     "section": "",
-    "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "CanvasXpress Recipes",
     "section": "",
-    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "js.html",
     "href": "js.html",
     "title": "CanvasXpress in JavaScript",
     "section": "",
-    "text": "Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like Echo JS and JavaScript Weekly; this page also has its own feed (js.xml).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like Echo JS and JavaScript Weekly; this page also has its own feed (js.xml).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/r/volcano-plots-in-r/index.html",
@@ -63,74 +63,123 @@
     "text": "Where to go next\n\nGallery of examples: https://canvasxpress.org/examples.html\nFrom your object (survival tables, expression matrices, single-cell): https://canvasxpress.org/migrate.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html",
-    "href": "posts/r/clustered-heatmap-in-r/index.html",
-    "title": "Clustered heatmaps in R with canvasXpress",
+    "objectID": "posts/r/violin-plots-in-r/index.html",
+    "href": "posts/r/violin-plots-in-r/index.html",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
     "section": "",
-    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this post we build one in R with canvasXpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
+    "text": "A violin plot shows the full shape of a distribution — where the density is thick or thin — instead of collapsing it to a box’s quartiles. And when you want to compare two conditions at the same position, a split (half) violin puts one condition on each half. Here we build both in R with canvasXpress: interactive, and reproducible because the figure is one portable spec."
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "An expression matrix with sample metadata",
-    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations — the output of any normalization/DE pipeline works.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nng    &lt;- 40                       # genes (rows)\nns    &lt;- 30                       # samples (columns)\ngenes &lt;- paste0(\"Gene\", seq_len(ng))\nsamps &lt;- paste0(\"S\", seq_len(ns))\ncond  &lt;- rep(c(\"Tumor\", \"Normal\"), each = ns / 2)\n\n# Two gene blocks, up in one condition each\nm &lt;- matrix(rnorm(ng * ns), ng, ns, dimnames = list(genes, samps))\nm[ 1:20, cond == \"Tumor\"]  &lt;- m[ 1:20, cond == \"Tumor\"]  + 2\nm[21:40, cond == \"Normal\"] &lt;- m[21:40, cond == \"Normal\"] + 2\n\ncanvasXpress takes the matrix as data and a sample annotation table (rows = samples) that becomes an annotation track over the columns.\n\nsmpAnnot &lt;- data.frame(Condition = cond, row.names = samps, check.names = FALSE)"
+    "objectID": "posts/r/violin-plots-in-r/index.html#the-data",
+    "href": "posts/r/violin-plots-in-r/index.html#the-data",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
+    "section": "The data",
+    "text": "The data\nA measurement across a few dose groups and two conditions. Swap in your own long-format table.\n\nlibrary(canvasXpress)\n\nset.seed(1)\ndoses &lt;- c(\"Low\", \"Medium\", \"High\"); conds &lt;- c(\"Control\", \"Treated\")\nvalue &lt;- c(); Dose &lt;- c(); Condition &lt;- c()\nfor (d in doses) for (co in conds) {\n  mu &lt;- if (d == \"Low\") 6 else if (d == \"Medium\") 8 else 10\n  if (co == \"Treated\") mu &lt;- mu + 1.5\n  value &lt;- c(value, round(rnorm(40, mu, 1.2), 2))\n  Dose &lt;- c(Dose, rep(d, 40)); Condition &lt;- c(Condition, rep(co, 40))\n}\n\nIn canvasXpress terms a violin is a Boxplot graph with the violin turned on: one measured variable × N observations, with the grouping columns as smpAnnot.\n\nids &lt;- paste0(\"o\", seq_along(value))\ny &lt;- data.frame(matrix(value, nrow = 1, dimnames = list(\"value\", ids)), check.names = FALSE)\nsmpAnnot &lt;- data.frame(Dose = Dose, Condition = Condition, row.names = ids, check.names = FALSE)"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "The plot",
-    "text": "The plot\nsamplesClustered and variablesClustered turn on hierarchical clustering (with dendrograms) on columns and rows; colorSpectrum sets the diverging palette.\n\ncanvasXpress(\n  data     = as.data.frame(m),\n  smpAnnot = smpAnnot,\n  graphType = \"Heatmap\",\n  samplesClustered  = TRUE,\n  variablesClustered = TRUE,\n  colorSpectrum = list(\"navy\", \"white\", \"firebrick3\"),\n  showSmpDendrogram = TRUE,\n  showVarDendrogram = TRUE,\n  title = \"Clustered expression heatmap\",\n  width  = 650,\n  height = 550\n)\n\n\n\n\n\nThe rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render."
+    "objectID": "posts/r/violin-plots-in-r/index.html#a-full-violin-per-group",
+    "href": "posts/r/violin-plots-in-r/index.html#a-full-violin-per-group",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
+    "section": "A full violin per group",
+    "text": "A full violin per group\nshowViolinBoxplot = TRUE draws the violin (with a small boxplot inside); violinScale = \"area\" makes equal-area violins.\n\ncanvasXpress(\n  data = y, smpAnnot = smpAnnot, graphType = \"Boxplot\",\n  showViolinBoxplot = TRUE, violinScale = \"area\",\n  groupingFactors = list(\"Dose\"), xAxis = list(\"value\"),\n  smpTitle = \"Dose\", title = \"Distribution of value by dose\",\n  width = 650, height = 500\n)"
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
-    "title": "Clustered heatmaps in R with canvasXpress",
-    "section": "Scaling up",
-    "text": "Scaling up\nThe same call handles much larger matrices — hundreds of genes by dozens to hundreds of samples — clustering and rendering the full matrix interactively in the browser, not a static image. Point size and labels adapt automatically."
+    "objectID": "posts/r/violin-plots-in-r/index.html#a-split-half-violin-comparing-two-conditions",
+    "href": "posts/r/violin-plots-in-r/index.html#a-split-half-violin-comparing-two-conditions",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
+    "section": "A split (half) violin comparing two conditions",
+    "text": "A split (half) violin comparing two conditions\nGroup by both factors, colour by the condition, and set violinSide = \"split\" — the two conditions share each dose position, one on each half. This reads far better than two full violins side by side.\n\ncanvasXpress(\n  data = y, smpAnnot = smpAnnot, graphType = \"Boxplot\",\n  showViolinBoxplot = TRUE, violinScale = \"area\",\n  groupingFactors = list(\"Dose\", \"Condition\"), colorBy = \"Condition\",\n  violinSide = \"split\", violinTrim = FALSE, xAxis = list(\"value\"),\n  smpTitle = \"Dose\", title = \"Control vs Treated — split violin by dose\",\n  width = 650, height = 500\n)\n\n\n\n\n\nHover to read the density and summary stats. violinSide can also be \"lt\" or \"rb\" for a one-sided half violin (handy for a raincloud when paired with violinPointsSide)."
   },
   {
-    "objectID": "posts/r/clustered-heatmap-in-r/index.html#next",
-    "href": "posts/r/clustered-heatmap-in-r/index.html#next",
-    "title": "Clustered heatmaps in R with canvasXpress",
+    "objectID": "posts/r/violin-plots-in-r/index.html#why-reproducible",
+    "href": "posts/r/violin-plots-in-r/index.html#why-reproducible",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec that renders the identical violins from Python or JavaScript, and can be validated and re-rendered later."
+  },
+  {
+    "objectID": "posts/r/violin-plots-in-r/index.html#next",
+    "href": "posts/r/violin-plots-in-r/index.html#next",
+    "title": "Violin and half (split) violin plots in R with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in R\nKaplan–Meier survival curves in R\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nInteractive volcano plots in R\nPaired before/after boxplots in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html",
-    "href": "posts/r/kaplan-meier-in-r/index.html",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "objectID": "posts/r/ggplot-direct/index.html",
+    "href": "posts/r/ggplot-direct/index.html",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
     "section": "",
-    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. In this post we build one in R with canvasXpress. canvasXpress computes the survival steps for you — you hand it a time column and a censoring column, and it does the rest — and the result is an interactive figure that serializes to one portable, reproducible spec."
+    "text": "If you already build plots with ggplot2 or ggpubr, you don’t need to learn a new plotting API to make them interactive. canvasXpress accepts a ggplot object directly: pass it to canvasXpress() and it renders an interactive, reproducible version of the same figure — you keep your existing code."
   },
   {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
-    "href": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "A survival table",
-    "text": "A survival table\nSwap this simulated block for your own data: you need, per subject, a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn    &lt;- 200\narm  &lt;- sample(c(\"Treatment\", \"Control\"), n, replace = TRUE)\nbase &lt;- ifelse(arm == \"Treatment\", 60, 40)      # treatment survives longer\ntime &lt;- round(rexp(n, rate = 1 / base), 1)\ncens &lt;- rbinom(n, 1, 0.3)                        # 1 = censored, 0 = event\nsubj &lt;- paste0(\"Subj\", seq_len(n))\n\ncanvasXpress reads two columns for a Kaplan–Meier plot — the time and its matching censor flag — plus a per-subject annotation carrying the group.\n\ny &lt;- data.frame(\n  \"Time\"        = time,\n  \"Time-Censor\" = cens,\n  row.names     = subj,\n  check.names   = FALSE\n)\n\nvarAnnot &lt;- data.frame(Arm = arm, row.names = subj, check.names = FALSE)"
+    "objectID": "posts/r/ggplot-direct/index.html#install",
+    "href": "posts/r/ggplot-direct/index.html#install",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "Install",
+    "text": "Install\n\ninstall.packages(c(\"canvasXpress\", \"ggpubr\"))"
   },
   {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#the-plot",
-    "href": "posts/r/kaplan-meier-in-r/index.html#the-plot",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "The plot",
-    "text": "The plot\nThe key is graphType = \"KaplanMeier\" and passing both columns to xAxis (time first, then the censor column). colorBy stratifies the curves.\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"KaplanMeier\",\n  xAxis    = list(\"Time\", \"Time-Censor\"),\n  colorBy  = \"Arm\",\n  title    = \"Overall survival by treatment arm\",\n  xAxisTitle = \"Time (weeks)\",\n  yAxisTitle = \"Probability of survival\",\n  invertCensored = TRUE,     # draw censoring ticks\n  showKMConfidenceIntervals = FALSE,\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. Because canvasXpress derives the survival curve from the raw table, you never precompute the steps — and the same spec re-renders the identical curve from Python or JavaScript."
+    "objectID": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
+    "href": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "Wrap a plot you already have",
+    "text": "Wrap a plot you already have\nHere’s an ordinary ggpubr boxplot with pairwise comparisons (geom_pwc) — the significance brackets that show a test between each pair of groups. Build it exactly as you normally would:\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\ng &lt;- ggboxplot(iris, x = \"Species\", y = \"Sepal.Width\", fill = \"Species\") +\n  geom_pwc(method = \"t_test\", label = \"p.format\")\n\nNow make it interactive — one call, the same object:\n\nlibrary(canvasXpress)\n\ncanvasXpress(g)\n\n\n\n\n\nThat’s the whole idea: no re-specification. canvasXpress reads the ggplot object — its data, aesthetics, layers, scales and the geom_pwc brackets — and renders it. Hover the points, drag to zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you can store and reproduce from R, Python or JavaScript."
   },
   {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
-    "href": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
-    "section": "A common gotcha",
-    "text": "A common gotcha\nThe survival transform only fires with graphType = \"KaplanMeier\". If you use a bare \"Scatter2D\" you’ll get a raw scatter of the censor values instead — survival probability is computed by the engine, it is not a column in your data."
+    "objectID": "posts/r/ggplot-direct/index.html#what-transfers",
+    "href": "posts/r/ggplot-direct/index.html#what-transfers",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "What transfers",
+    "text": "What transfers\n\nGeoms and layers — points, boxes, lines, and stats like geom_pwc / stat_compare_means.\nAesthetic mappings — x, y, fill, color, grouping.\nScales, labels and facets from the ggplot object."
   },
   {
-    "objectID": "posts/r/kaplan-meier-in-r/index.html#next",
-    "href": "posts/r/kaplan-meier-in-r/index.html#next",
-    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "objectID": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
+    "href": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "section": "When to reach for the native API instead",
+    "text": "When to reach for the native API instead\nWrapping a ggplot is ideal for reusing plots you already have. When you’re building a figure fresh — or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive annotations) — call canvasXpress() on your data directly with a graphType. See the other posts for that style."
+  },
+  {
+    "objectID": "posts/r/ggplot-direct/index.html#next",
+    "href": "posts/r/ggplot-direct/index.html#next",
+    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+    "text": "Next\n\nPaired before/after boxplots in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "",
+    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. CanvasXpress clusters inside the render, so in the browser you pass a plain matrix and get an interactive, reproducible figure."
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Load the library",
+    "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "The markup and the spec",
+    "text": "The markup and the spec\nGenes are the variables (rows), samples the columns; the matrix goes in as data, and the sample annotation becomes a track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n&lt;canvas id=\"heatmap\" width=\"650\" height=\"550\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];\n  for (var j = 0; j &lt; ns; j++) { samps.push(\"S\" + (j + 1)); cond.push(j &lt; ns / 2 ? \"Tumor\" : \"Normal\"); }\n  for (var i = 0; i &lt; ng; i++) {\n    genes.push(\"Gene\" + (i + 1));\n    var row = [];\n    for (var k = 0; k &lt; ns; k++) {\n      var val = gauss();\n      if (i &lt; 20 && cond[k] === \"Tumor\")   val += 2;        // first block up in Tumor\n      if (i &gt;= 20 && cond[k] === \"Normal\") val += 2;        // second block up in Normal\n      row.push(Math.round(val * 1000) / 1000);\n    }\n    matrix.push(row);\n  }\n\n  var data = {\n    y: { vars: genes, smps: samps, data: matrix },\n    x: { Condition: cond }\n  };\n\n  var config = {\n    graphType: \"Heatmap\",\n    samplesClustered: true, variablesClustered: true,\n    colorSpectrum: [\"navy\", \"white\", \"firebrick3\"],\n    showSmpDendrogram: true, showVarDendrogram: true,\n    title: \"Clustered expression heatmap\"\n  };\n\n  new CanvasXpress(\"heatmap\", data, config);\n&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Live result",
+    "text": "Live result\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or Python."
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#next",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#next",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in JavaScript\nKaplan–Meier survival curves in JavaScript\nGallery: https://canvasxpress.org/examples.html"
   },
   {
     "objectID": "posts/js/sankey-diagrams-in-javascript/index.html",
@@ -294,6 +343,55 @@
     "text": "Next\n\nInteractive volcano plots in Python\nKaplan–Meier survival curves in Python\nGallery: https://canvasxpress.org/examples.html"
   },
   {
+    "objectID": "posts/python/violin-plots-in-python/index.html",
+    "href": "posts/python/violin-plots-in-python/index.html",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "",
+    "text": "A violin plot shows the full shape of a distribution instead of collapsing it to a box’s quartiles. And when you want to compare two conditions at the same position, a split (half) violin puts one condition on each half. Here we build both in Python with canvasxpress — interactive and reproducible."
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#install",
+    "href": "posts/python/violin-plots-in-python/index.html#install",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "Install",
+    "text": "Install\npip install canvasxpress"
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#the-data",
+    "href": "posts/python/violin-plots-in-python/index.html#the-data",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "The data",
+    "text": "The data\nA measurement across a few dose groups and two conditions. Swap in your own long-format table.\n\nimport numpy as np\n\nrng = np.random.default_rng(1)\ndoses = [\"Low\", \"Medium\", \"High\"]\nconds = [\"Control\", \"Treated\"]\n\nvalue, Dose, Condition = [], [], []\nfor d in doses:\n    for co in conds:\n        mu = {\"Low\": 6, \"Medium\": 8, \"High\": 10}[d] + (1.5 if co == \"Treated\" else 0)\n        value += list(np.round(rng.normal(mu, 1.2, 40), 2))\n        Dose += [d] * 40\n        Condition += [co] * 40\n\nIn canvasXpress terms a violin is a Boxplot graph with the violin turned on: one measured variable × N observations, with the grouping columns as sample annotations (x).\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\nids = [f\"o{i+1}\" for i in range(len(value))]\ndata = {\"y\": {\"vars\": [\"value\"], \"smps\": ids, \"data\": [value]},\n        \"x\": {\"Dose\": Dose, \"Condition\": Condition}}"
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#a-full-violin-per-group",
+    "href": "posts/python/violin-plots-in-python/index.html#a-full-violin-per-group",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "A full violin per group",
+    "text": "A full violin per group\n\ncx = CanvasXpress(render_to=\"violin\", data=data, config={\n    \"graphType\": \"Boxplot\", \"showViolinBoxplot\": True, \"violinScale\": \"area\",\n    \"groupingFactors\": [\"Dose\"], \"xAxis\": [\"value\"], \"smpTitle\": \"Dose\",\n    \"title\": \"Distribution of value by dose\",\n}, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)"
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#a-split-half-violin-comparing-two-conditions",
+    "href": "posts/python/violin-plots-in-python/index.html#a-split-half-violin-comparing-two-conditions",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "A split (half) violin comparing two conditions",
+    "text": "A split (half) violin comparing two conditions\nGroup by both factors, colour by condition, and set violinSide = \"split\" — the two conditions share each dose position, one on each half.\n\ncx = CanvasXpress(render_to=\"violinSplit\", data=data, config={\n    \"graphType\": \"Boxplot\", \"showViolinBoxplot\": True, \"violinScale\": \"area\",\n    \"groupingFactors\": [\"Dose\", \"Condition\"], \"colorBy\": \"Condition\",\n    \"violinSide\": \"split\", \"violinTrim\": False, \"xAxis\": [\"value\"], \"smpTitle\": \"Dose\",\n    \"title\": \"Control vs Treated — split violin by dose\",\n}, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nHover to read the density and summary stats. violinSide can also be \"lt\" or \"rb\" for a one-sided half violin."
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#why-reproducible",
+    "href": "posts/python/violin-plots-in-python/index.html#why-reproducible",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec that renders the identical violins from R or JavaScript."
+  },
+  {
+    "objectID": "posts/python/violin-plots-in-python/index.html#next",
+    "href": "posts/python/violin-plots-in-python/index.html#next",
+    "title": "Violin and half (split) violin plots in Python with canvasxpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in Python\nGallery: https://canvasxpress.org/examples.html"
+  },
+  {
     "objectID": "posts/python/sankey-diagrams-in-python/index.html",
     "href": "posts/python/sankey-diagrams-in-python/index.html",
     "title": "Sankey / alluvial diagrams in Python with canvasxpress",
@@ -413,81 +511,116 @@
     "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nDocumentation: https://canvasxpress.org/documentation.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html",
+    "href": "posts/js/violin-plots-in-javascript/index.html",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "",
-    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. CanvasXpress clusters inside the render, so in the browser you pass a plain matrix and get an interactive, reproducible figure."
+    "text": "A violin plot shows the full shape of a distribution instead of collapsing it to a box’s quartiles. And a split (half) violin puts one condition on each half so you can compare two groups at the same position. CanvasXpress is a JavaScript library at heart, so in the browser it’s just a data object and a config."
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
+    "href": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Load the library",
     "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "The markup and the spec",
-    "text": "The markup and the spec\nGenes are the variables (rows), samples the columns; the matrix goes in as data, and the sample annotation becomes a track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n&lt;canvas id=\"heatmap\" width=\"650\" height=\"550\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];\n  for (var j = 0; j &lt; ns; j++) { samps.push(\"S\" + (j + 1)); cond.push(j &lt; ns / 2 ? \"Tumor\" : \"Normal\"); }\n  for (var i = 0; i &lt; ng; i++) {\n    genes.push(\"Gene\" + (i + 1));\n    var row = [];\n    for (var k = 0; k &lt; ns; k++) {\n      var val = gauss();\n      if (i &lt; 20 && cond[k] === \"Tumor\")   val += 2;        // first block up in Tumor\n      if (i &gt;= 20 && cond[k] === \"Normal\") val += 2;        // second block up in Normal\n      row.push(Math.round(val * 1000) / 1000);\n    }\n    matrix.push(row);\n  }\n\n  var data = {\n    y: { vars: genes, smps: samps, data: matrix },\n    x: { Condition: cond }\n  };\n\n  var config = {\n    graphType: \"Heatmap\",\n    samplesClustered: true, variablesClustered: true,\n    colorSpectrum: [\"navy\", \"white\", \"firebrick3\"],\n    showSmpDendrogram: true, showVarDendrogram: true,\n    title: \"Clustered expression heatmap\"\n  };\n\n  new CanvasXpress(\"heatmap\", data, config);\n&lt;/script&gt;"
+    "text": "The markup and the spec\nA violin is a Boxplot graph with the violin turned on. One measured variable (value) × N observations, with the grouping columns as sample annotations (x). For the split violin, group by both factors, colour by condition, and set violinSide: \"split\".\n&lt;canvas id=\"violin\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;canvas id=\"violinSplit\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var doses = [\"Low\", \"Medium\", \"High\"], conds = [\"Control\", \"Treated\"];\n  var mus = { Low: 6, Medium: 8, High: 10 };\n  var value = [], Dose = [], Condition = [];\n  doses.forEach(function (d) {\n    conds.forEach(function (co) {\n      var mu = mus[d] + (co === \"Treated\" ? 1.5 : 0);\n      for (var i = 0; i &lt; 40; i++) {\n        value.push(Math.round((mu + 1.2 * gauss()) * 100) / 100);\n        Dose.push(d); Condition.push(co);\n      }\n    });\n  });\n  var ids = value.map(function (_, i) { return \"o\" + (i + 1); });\n\n  var data = { y: { vars: [\"value\"], smps: ids, data: [value] },\n               x: { Dose: Dose, Condition: Condition } };\n\n  // full violin\n  new CanvasXpress(\"violin\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\"], xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Distribution of value by dose\"\n  });\n\n  // split (half) violin comparing conditions\n  new CanvasXpress(\"violinSplit\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\", \"Condition\"], colorBy: \"Condition\",\n    violinSide: \"split\", violinTrim: false, xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Control vs Treated — split violin by dose\"\n  });\n&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#live-result",
+    "href": "posts/js/violin-plots-in-javascript/index.html#live-result",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Live result",
-    "text": "Live result\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or Python."
+    "text": "Live result\n\n\n\n\n\nHover to read the density and summary stats. violinSide can also be \"lt\" or \"rb\" for a one-sided half violin."
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#next",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#next",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
+    "href": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec that renders the same from R, Python, or a web page."
+  },
+  {
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#next",
+    "href": "posts/js/violin-plots-in-javascript/index.html#next",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in JavaScript\nKaplan–Meier survival curves in JavaScript\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html",
-    "href": "posts/r/ggplot-direct/index.html",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "objectID": "posts/r/kaplan-meier-in-r/index.html",
+    "href": "posts/r/kaplan-meier-in-r/index.html",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
     "section": "",
-    "text": "If you already build plots with ggplot2 or ggpubr, you don’t need to learn a new plotting API to make them interactive. canvasXpress accepts a ggplot object directly: pass it to canvasXpress() and it renders an interactive, reproducible version of the same figure — you keep your existing code."
+    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. In this post we build one in R with canvasXpress. canvasXpress computes the survival steps for you — you hand it a time column and a censoring column, and it does the rest — and the result is an interactive figure that serializes to one portable, reproducible spec."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#install",
-    "href": "posts/r/ggplot-direct/index.html#install",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "Install",
-    "text": "Install\n\ninstall.packages(c(\"canvasXpress\", \"ggpubr\"))"
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
+    "href": "posts/r/kaplan-meier-in-r/index.html#a-survival-table",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "A survival table",
+    "text": "A survival table\nSwap this simulated block for your own data: you need, per subject, a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nn    &lt;- 200\narm  &lt;- sample(c(\"Treatment\", \"Control\"), n, replace = TRUE)\nbase &lt;- ifelse(arm == \"Treatment\", 60, 40)      # treatment survives longer\ntime &lt;- round(rexp(n, rate = 1 / base), 1)\ncens &lt;- rbinom(n, 1, 0.3)                        # 1 = censored, 0 = event\nsubj &lt;- paste0(\"Subj\", seq_len(n))\n\ncanvasXpress reads two columns for a Kaplan–Meier plot — the time and its matching censor flag — plus a per-subject annotation carrying the group.\n\ny &lt;- data.frame(\n  \"Time\"        = time,\n  \"Time-Censor\" = cens,\n  row.names     = subj,\n  check.names   = FALSE\n)\n\nvarAnnot &lt;- data.frame(Arm = arm, row.names = subj, check.names = FALSE)"
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
-    "href": "posts/r/ggplot-direct/index.html#wrap-a-plot-you-already-have",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "Wrap a plot you already have",
-    "text": "Wrap a plot you already have\nHere’s an ordinary ggpubr boxplot with pairwise comparisons (geom_pwc) — the significance brackets that show a test between each pair of groups. Build it exactly as you normally would:\n\nlibrary(ggplot2)\nlibrary(ggpubr)\n\ng &lt;- ggboxplot(iris, x = \"Species\", y = \"Sepal.Width\", fill = \"Species\") +\n  geom_pwc(method = \"t_test\", label = \"p.format\")\n\nNow make it interactive — one call, the same object:\n\nlibrary(canvasXpress)\n\ncanvasXpress(g)\n\n\n\n\n\nThat’s the whole idea: no re-specification. canvasXpress reads the ggplot object — its data, aesthetics, layers, scales and the geom_pwc brackets — and renders it. Hover the points, drag to zoom, or open the toolbar to filter and re-style, and the result serializes to one portable spec you can store and reproduce from R, Python or JavaScript."
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#the-plot",
+    "href": "posts/r/kaplan-meier-in-r/index.html#the-plot",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\nThe key is graphType = \"KaplanMeier\" and passing both columns to xAxis (time first, then the censor column). colorBy stratifies the curves.\n\ncanvasXpress(\n  data     = y,\n  varAnnot = varAnnot,\n  graphType = \"KaplanMeier\",\n  xAxis    = list(\"Time\", \"Time-Censor\"),\n  colorBy  = \"Arm\",\n  title    = \"Overall survival by treatment arm\",\n  xAxisTitle = \"Time (weeks)\",\n  yAxisTitle = \"Probability of survival\",\n  invertCensored = TRUE,     # draw censoring ticks\n  showKMConfidenceIntervals = FALSE,\n  width  = 650,\n  height = 500\n)\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. Because canvasXpress derives the survival curve from the raw table, you never precompute the steps — and the same spec re-renders the identical curve from Python or JavaScript."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#what-transfers",
-    "href": "posts/r/ggplot-direct/index.html#what-transfers",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "What transfers",
-    "text": "What transfers\n\nGeoms and layers — points, boxes, lines, and stats like geom_pwc / stat_compare_means.\nAesthetic mappings — x, y, fill, color, grouping.\nScales, labels and facets from the ggplot object."
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
+    "href": "posts/r/kaplan-meier-in-r/index.html#a-common-gotcha",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
+    "section": "A common gotcha",
+    "text": "A common gotcha\nThe survival transform only fires with graphType = \"KaplanMeier\". If you use a bare \"Scatter2D\" you’ll get a raw scatter of the censor values instead — survival probability is computed by the engine, it is not a column in your data."
   },
   {
-    "objectID": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
-    "href": "posts/r/ggplot-direct/index.html#when-to-reach-for-the-native-api-instead",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
-    "section": "When to reach for the native API instead",
-    "text": "When to reach for the native API instead\nWrapping a ggplot is ideal for reusing plots you already have. When you’re building a figure fresh — or want fine control over CanvasXpress-specific features (clustering, dendrograms, interactive annotations) — call canvasXpress() on your data directly with a graphType. See the other posts for that style."
-  },
-  {
-    "objectID": "posts/r/ggplot-direct/index.html#next",
-    "href": "posts/r/ggplot-direct/index.html#next",
-    "title": "Use your ggplot2 (and ggpubr) plots directly with canvasXpress",
+    "objectID": "posts/r/kaplan-meier-in-r/index.html#next",
+    "href": "posts/r/kaplan-meier-in-r/index.html#next",
+    "title": "Kaplan–Meier survival curves in R with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nPaired before/after boxplots in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html\nPackage & issues: https://github.com/neuhausi/canvasXpress"
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html",
+    "href": "posts/r/clustered-heatmap-in-r/index.html",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "",
+    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. In this post we build one in R with canvasXpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#an-expression-matrix-with-sample-metadata",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "An expression matrix with sample metadata",
+    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations — the output of any normalization/DE pipeline works.\n\nlibrary(canvasXpress)\n\nset.seed(1)\nng    &lt;- 40                       # genes (rows)\nns    &lt;- 30                       # samples (columns)\ngenes &lt;- paste0(\"Gene\", seq_len(ng))\nsamps &lt;- paste0(\"S\", seq_len(ns))\ncond  &lt;- rep(c(\"Tumor\", \"Normal\"), each = ns / 2)\n\n# Two gene blocks, up in one condition each\nm &lt;- matrix(rnorm(ng * ns), ng, ns, dimnames = list(genes, samps))\nm[ 1:20, cond == \"Tumor\"]  &lt;- m[ 1:20, cond == \"Tumor\"]  + 2\nm[21:40, cond == \"Normal\"] &lt;- m[21:40, cond == \"Normal\"] + 2\n\ncanvasXpress takes the matrix as data and a sample annotation table (rows = samples) that becomes an annotation track over the columns.\n\nsmpAnnot &lt;- data.frame(Condition = cond, row.names = samps, check.names = FALSE)"
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#the-plot",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "The plot",
+    "text": "The plot\nsamplesClustered and variablesClustered turn on hierarchical clustering (with dendrograms) on columns and rows; colorSpectrum sets the diverging palette.\n\ncanvasXpress(\n  data     = as.data.frame(m),\n  smpAnnot = smpAnnot,\n  graphType = \"Heatmap\",\n  samplesClustered  = TRUE,\n  variablesClustered = TRUE,\n  colorSpectrum = list(\"navy\", \"white\", \"firebrick3\"),\n  showSmpDendrogram = TRUE,\n  showVarDendrogram = TRUE,\n  title = \"Clustered expression heatmap\",\n  width  = 650,\n  height = 550\n)\n\n\n\n\n\nThe rows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#scaling-up",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "Scaling up",
+    "text": "Scaling up\nThe same call handles much larger matrices — hundreds of genes by dozens to hundreds of samples — clustering and rendering the full matrix interactively in the browser, not a static image. Point size and labels adapt automatically."
+  },
+  {
+    "objectID": "posts/r/clustered-heatmap-in-r/index.html#next",
+    "href": "posts/r/clustered-heatmap-in-r/index.html#next",
+    "title": "Clustered heatmaps in R with canvasXpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in R\nKaplan–Meier survival curves in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
     "objectID": "posts/r/sankey-diagrams-in-r/index.html",
@@ -571,7 +704,7 @@
     "href": "python.html",
     "title": "CanvasXpress in Python",
     "section": "",
-    "text": "Every post here is runnable Python. This page’s feed (python.xml) is the one syndicated to Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable Python. This page’s feed (python.xml) is the one syndicated to Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",

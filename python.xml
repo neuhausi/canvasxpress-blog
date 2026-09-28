@@ -429,6 +429,583 @@ var chart_sankey = new CanvasXpress({"renderTo": "sankey", "data": {"y": {"vars"
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/sankey-diagrams-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 <item>
+  <title>Violin and half (split) violin plots in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/violin-plots-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A violin plot shows the <strong>full shape of a distribution</strong> instead of collapsing it to a box’s quartiles. And when you want to compare two conditions at the same position, a <strong>split (half) violin</strong> puts one condition on each half. Here we build both in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — interactive and reproducible.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The data</h2>
+<p>A measurement across a few dose groups and two conditions. Swap in your own long-format table.</p>
+<div id="74452c30" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-4">doses <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Low"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Medium"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"High"</span>]</span>
+<span id="cb2-5">conds <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treated"</span>]</span>
+<span id="cb2-6"></span>
+<span id="cb2-7">value, Dose, Condition <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [], [], []</span>
+<span id="cb2-8"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> doses:</span>
+<span id="cb2-9">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> co <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> conds:</span>
+<span id="cb2-10">        mu <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Low"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Medium"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"High"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>}[d] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> co <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treated"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb2-11">        value <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(np.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(rng.normal(mu, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>))</span>
+<span id="cb2-12">        Dose <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> [d] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span></span>
+<span id="cb2-13">        Condition <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> [co] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span></span></code></pre></div>
+</div>
+<p>In canvasXpress terms a violin is a <code>Boxplot</code> graph with the violin turned on: one measured variable × N observations, with the grouping columns as sample annotations (<code>x</code>).</p>
+<div id="82408076" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">ids <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"o</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(value))]</span>
+<span id="cb3-6">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: ids, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [value]},</span>
+<span id="cb3-7">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>: Dose, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>: Condition}}</span></code></pre></div>
+</div>
+</section>
+<section id="a-full-violin-per-group" class="level2">
+<h2 class="anchored" data-anchor-id="a-full-violin-per-group">A full violin per group</h2>
+<div id="fdb54479" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violin"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>{</span>
+<span id="cb4-2">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Boxplot"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showViolinBoxplot"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violinScale"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"area"</span>,</span>
+<span id="cb4-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"groupingFactors"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smpTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>,</span>
+<span id="cb4-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of value by dose"</span>,</span>
+<span id="cb4-5">}, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb4-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb4-7">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="violin" width="650" height="500"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("violin");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart violin removed for re-rendering.");
+  } else {
+    console.log("Chart violin ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart violin could not be cleaned for re-rendering:", error);
+}
+
+var chart_violin = new CanvasXpress({"renderTo": "violin", "data": {"y": {"vars": ["value"], "smps": ["o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9", "o10", "o11", "o12", "o13", "o14", "o15", "o16", "o17", "o18", "o19", "o20", "o21", "o22", "o23", "o24", "o25", "o26", "o27", "o28", "o29", "o30", "o31", "o32", "o33", "o34", "o35", "o36", "o37", "o38", "o39", "o40", "o41", "o42", "o43", "o44", "o45", "o46", "o47", "o48", "o49", "o50", "o51", "o52", "o53", "o54", "o55", "o56", "o57", "o58", "o59", "o60", "o61", "o62", "o63", "o64", "o65", "o66", "o67", "o68", "o69", "o70", "o71", "o72", "o73", "o74", "o75", "o76", "o77", "o78", "o79", "o80", "o81", "o82", "o83", "o84", "o85", "o86", "o87", "o88", "o89", "o90", "o91", "o92", "o93", "o94", "o95", "o96", "o97", "o98", "o99", "o100", "o101", "o102", "o103", "o104", "o105", "o106", "o107", "o108", "o109", "o110", "o111", "o112", "o113", "o114", "o115", "o116", "o117", "o118", "o119", "o120", "o121", "o122", "o123", "o124", "o125", "o126", "o127", "o128", "o129", "o130", "o131", "o132", "o133", "o134", "o135", "o136", "o137", "o138", "o139", "o140", "o141", "o142", "o143", "o144", "o145", "o146", "o147", "o148", "o149", "o150", "o151", "o152", "o153", "o154", "o155", "o156", "o157", "o158", "o159", "o160", "o161", "o162", "o163", "o164", "o165", "o166", "o167", "o168", "o169", "o170", "o171", "o172", "o173", "o174", "o175", "o176", "o177", "o178", "o179", "o180", "o181", "o182", "o183", "o184", "o185", "o186", "o187", "o188", "o189", "o190", "o191", "o192", "o193", "o194", "o195", "o196", "o197", "o198", "o199", "o200", "o201", "o202", "o203", "o204", "o205", "o206", "o207", "o208", "o209", "o210", "o211", "o212", "o213", "o214", "o215", "o216", "o217", "o218", "o219", "o220", "o221", "o222", "o223", "o224", "o225", "o226", "o227", "o228", "o229", "o230", "o231", "o232", "o233", "o234", "o235", "o236", "o237", "o238", "o239", "o240"], "data": [[6.41, 6.99, 6.4, 4.44, 7.09, 6.54, 5.36, 6.7, 6.44, 6.35, 6.03, 6.66, 5.12, 5.8, 5.42, 6.72, 6.05, 5.65, 5.06, 5.69, 6.01, 5.67, 7.55, 7.21, 2.75, 3.73, 5.79, 5.49, 6.26, 6.26, 8.54, 4.67, 5.55, 8.45, 6.78, 6.8, 5.38, 4.02, 6.2, 6.13, 6.03, 6.68, 7.41, 6.37, 7.38, 7.61, 7.54, 6.89, 8.21, 8.57, 7.89, 6.52, 8.38, 6.9, 8.55, 6.21, 8.6, 7.48, 6.0, 7.12, 7.56, 7.83, 6.32, 6.17, 7.74, 6.94, 7.78, 8.41, 5.52, 7.81, 8.97, 7.14, 6.53, 8.4, 7.8, 8.58, 7.09, 5.72, 7.37, 6.97, 8.93, 8.23, 6.04, 6.57, 9.06, 8.82, 7.23, 8.0, 8.53, 8.56, 9.05, 8.31, 7.89, 7.69, 9.27, 5.3, 7.83, 8.04, 6.29, 8.4, 7.22, 9.03, 7.85, 8.8, 9.46, 8.46, 6.95, 6.18, 10.1, 7.87, 7.17, 8.17, 7.77, 9.02, 8.04, 8.02, 7.14, 8.56, 6.76, 8.8, 11.33, 7.67, 6.54, 10.24, 12.56, 8.3, 8.0, 10.21, 8.49, 8.89, 9.08, 10.14, 9.01, 9.83, 9.29, 8.49, 9.12, 8.36, 9.51, 8.15, 8.19, 11.25, 9.44, 9.44, 10.11, 8.99, 9.23, 10.01, 9.84, 8.11, 10.5, 8.79, 8.23, 8.42, 9.03, 11.45, 8.09, 9.69, 6.93, 9.5, 11.08, 9.72, 9.24, 10.28, 10.84, 10.8, 12.37, 10.25, 9.29, 9.85, 9.91, 10.13, 9.96, 10.21, 7.99, 11.0, 9.31, 8.59, 10.77, 11.58, 10.59, 10.19, 8.88, 13.45, 11.06, 8.63, 9.06, 10.1, 8.13, 10.2, 9.45, 11.47, 11.15, 6.75, 10.05, 8.06, 11.33, 10.2, 10.66, 8.72, 13.69, 13.92, 10.22, 11.95, 10.69, 11.47, 9.98, 13.74, 10.34, 11.14, 12.1, 10.72, 11.21, 10.82, 11.34, 10.1, 10.97, 11.25, 11.1, 11.57, 11.15, 12.4, 11.11, 11.34, 10.7, 10.87, 9.98, 12.12, 10.13, 10.6, 11.93, 11.98, 11.02, 9.08, 12.0, 11.81, 9.81, 12.42, 10.66, 10.15]]}, "x": {"Dose": ["Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High"], "Condition": ["Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated"]}, "z": null}, "config": {"graphType": "Boxplot", "showViolinBoxplot": true, "violinScale": "area", "groupingFactors": ["Dose"], "xAxis": ["value"], "smpTitle": "Dose", "title": "Distribution of value by dose"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="a-split-half-violin-comparing-two-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="a-split-half-violin-comparing-two-conditions">A split (half) violin comparing two conditions</h2>
+<p>Group by <strong>both</strong> factors, colour by condition, and set <code>violinSide = "split"</code> — the two conditions share each dose position, one on each half.</p>
+<div id="bf5e059e" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violinSplit"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>{</span>
+<span id="cb5-2">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Boxplot"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showViolinBoxplot"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violinScale"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"area"</span>,</span>
+<span id="cb5-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"groupingFactors"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>,</span>
+<span id="cb5-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violinSide"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"split"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"violinTrim"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smpTitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>,</span>
+<span id="cb5-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control vs Treated — split violin by dose"</span>,</span>
+<span id="cb5-6">}, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb5-7"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb5-8">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="violinSplit" width="650" height="500"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("violinSplit");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart violinSplit removed for re-rendering.");
+  } else {
+    console.log("Chart violinSplit ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart violinSplit could not be cleaned for re-rendering:", error);
+}
+
+var chart_violinSplit = new CanvasXpress({"renderTo": "violinSplit", "data": {"y": {"vars": ["value"], "smps": ["o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9", "o10", "o11", "o12", "o13", "o14", "o15", "o16", "o17", "o18", "o19", "o20", "o21", "o22", "o23", "o24", "o25", "o26", "o27", "o28", "o29", "o30", "o31", "o32", "o33", "o34", "o35", "o36", "o37", "o38", "o39", "o40", "o41", "o42", "o43", "o44", "o45", "o46", "o47", "o48", "o49", "o50", "o51", "o52", "o53", "o54", "o55", "o56", "o57", "o58", "o59", "o60", "o61", "o62", "o63", "o64", "o65", "o66", "o67", "o68", "o69", "o70", "o71", "o72", "o73", "o74", "o75", "o76", "o77", "o78", "o79", "o80", "o81", "o82", "o83", "o84", "o85", "o86", "o87", "o88", "o89", "o90", "o91", "o92", "o93", "o94", "o95", "o96", "o97", "o98", "o99", "o100", "o101", "o102", "o103", "o104", "o105", "o106", "o107", "o108", "o109", "o110", "o111", "o112", "o113", "o114", "o115", "o116", "o117", "o118", "o119", "o120", "o121", "o122", "o123", "o124", "o125", "o126", "o127", "o128", "o129", "o130", "o131", "o132", "o133", "o134", "o135", "o136", "o137", "o138", "o139", "o140", "o141", "o142", "o143", "o144", "o145", "o146", "o147", "o148", "o149", "o150", "o151", "o152", "o153", "o154", "o155", "o156", "o157", "o158", "o159", "o160", "o161", "o162", "o163", "o164", "o165", "o166", "o167", "o168", "o169", "o170", "o171", "o172", "o173", "o174", "o175", "o176", "o177", "o178", "o179", "o180", "o181", "o182", "o183", "o184", "o185", "o186", "o187", "o188", "o189", "o190", "o191", "o192", "o193", "o194", "o195", "o196", "o197", "o198", "o199", "o200", "o201", "o202", "o203", "o204", "o205", "o206", "o207", "o208", "o209", "o210", "o211", "o212", "o213", "o214", "o215", "o216", "o217", "o218", "o219", "o220", "o221", "o222", "o223", "o224", "o225", "o226", "o227", "o228", "o229", "o230", "o231", "o232", "o233", "o234", "o235", "o236", "o237", "o238", "o239", "o240"], "data": [[6.41, 6.99, 6.4, 4.44, 7.09, 6.54, 5.36, 6.7, 6.44, 6.35, 6.03, 6.66, 5.12, 5.8, 5.42, 6.72, 6.05, 5.65, 5.06, 5.69, 6.01, 5.67, 7.55, 7.21, 2.75, 3.73, 5.79, 5.49, 6.26, 6.26, 8.54, 4.67, 5.55, 8.45, 6.78, 6.8, 5.38, 4.02, 6.2, 6.13, 6.03, 6.68, 7.41, 6.37, 7.38, 7.61, 7.54, 6.89, 8.21, 8.57, 7.89, 6.52, 8.38, 6.9, 8.55, 6.21, 8.6, 7.48, 6.0, 7.12, 7.56, 7.83, 6.32, 6.17, 7.74, 6.94, 7.78, 8.41, 5.52, 7.81, 8.97, 7.14, 6.53, 8.4, 7.8, 8.58, 7.09, 5.72, 7.37, 6.97, 8.93, 8.23, 6.04, 6.57, 9.06, 8.82, 7.23, 8.0, 8.53, 8.56, 9.05, 8.31, 7.89, 7.69, 9.27, 5.3, 7.83, 8.04, 6.29, 8.4, 7.22, 9.03, 7.85, 8.8, 9.46, 8.46, 6.95, 6.18, 10.1, 7.87, 7.17, 8.17, 7.77, 9.02, 8.04, 8.02, 7.14, 8.56, 6.76, 8.8, 11.33, 7.67, 6.54, 10.24, 12.56, 8.3, 8.0, 10.21, 8.49, 8.89, 9.08, 10.14, 9.01, 9.83, 9.29, 8.49, 9.12, 8.36, 9.51, 8.15, 8.19, 11.25, 9.44, 9.44, 10.11, 8.99, 9.23, 10.01, 9.84, 8.11, 10.5, 8.79, 8.23, 8.42, 9.03, 11.45, 8.09, 9.69, 6.93, 9.5, 11.08, 9.72, 9.24, 10.28, 10.84, 10.8, 12.37, 10.25, 9.29, 9.85, 9.91, 10.13, 9.96, 10.21, 7.99, 11.0, 9.31, 8.59, 10.77, 11.58, 10.59, 10.19, 8.88, 13.45, 11.06, 8.63, 9.06, 10.1, 8.13, 10.2, 9.45, 11.47, 11.15, 6.75, 10.05, 8.06, 11.33, 10.2, 10.66, 8.72, 13.69, 13.92, 10.22, 11.95, 10.69, 11.47, 9.98, 13.74, 10.34, 11.14, 12.1, 10.72, 11.21, 10.82, 11.34, 10.1, 10.97, 11.25, 11.1, 11.57, 11.15, 12.4, 11.11, 11.34, 10.7, 10.87, 9.98, 12.12, 10.13, 10.6, 11.93, 11.98, 11.02, 9.08, 12.0, 11.81, 9.81, 12.42, 10.66, 10.15]]}, "x": {"Dose": ["Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Low", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "Medium", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High", "High"], "Condition": ["Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Control", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated", "Treated"]}, "z": null}, "config": {"graphType": "Boxplot", "showViolinBoxplot": true, "violinScale": "area", "groupingFactors": ["Dose", "Condition"], "colorBy": "Condition", "violinSide": "split", "violinTrim": false, "xAxis": ["value"], "smpTitle": "Dose", "title": "Control vs Treated \u2014 split violin by dose"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Hover to read the density and summary stats. <code>violinSide</code> can also be <code>"lt"</code> or <code>"rb"</code> for a one-sided half violin.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The <code>data</code>+<code>config</code> <strong>is</strong> the figure — one portable JSON spec that renders the identical violins from R or JavaScript.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-python/">Interactive volcano plots in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>violin</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/violin-plots-in-python/</guid>
+  <pubDate>Sat, 26 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/violin-plots-in-python/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+<item>
   <title>Clustered heatmaps in Python with canvasxpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
   <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/clustered-heatmap-in-python/</link>

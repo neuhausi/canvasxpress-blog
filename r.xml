@@ -326,6 +326,366 @@ font-style: inherit;">500</span></span>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/sankey-diagrams-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 <item>
+  <title>Violin and half (split) violin plots in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/violin-plots-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A violin plot shows the <strong>full shape of a distribution</strong> — where the density is thick or thin — instead of collapsing it to a box’s quartiles. And when you want to compare two conditions at the same position, a <strong>split (half) violin</strong> puts one condition on each half. Here we build both in R with <a href="https://canvasxpress.org">canvasXpress</a>: interactive, and reproducible because the figure is one portable spec.</p>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The data</h2>
+<p>A measurement across a few dose groups and two conditions. Swap in your own long-format table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-4">doses <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Low"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Medium"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"High"</span>); conds <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treated"</span>)</span>
+<span id="cb1-5">value <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(); Dose <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(); Condition <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>()</span>
+<span id="cb1-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (d <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> doses) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (co <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> conds) {</span>
+<span id="cb1-7">  mu <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (d <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Low"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (d <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Medium"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span></span>
+<span id="cb1-8">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (co <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Treated"</span>) mu <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mu <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb1-9">  value <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(value, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, mu, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>))</span>
+<span id="cb1-10">  Dose <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(Dose, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(d, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>)); Condition <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(Condition, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(co, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>))</span>
+<span id="cb1-11">}</span></code></pre></div>
+</div>
+<p>In canvasXpress terms a violin is a <code>Boxplot</code> graph with the violin turned on: one measured variable × N observations, with the grouping columns as <code>smpAnnot</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">ids <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"o"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_along</span>(value))</span>
+<span id="cb2-2">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(value, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>, ids)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb2-3">smpAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Dose =</span> Dose, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Condition =</span> Condition, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> ids, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="a-full-violin-per-group" class="level2">
+<h2 class="anchored" data-anchor-id="a-full-violin-per-group">A full violin per group</h2>
+<p><code>showViolinBoxplot = TRUE</code> draws the violin (with a small boxplot inside); <code>violinScale = "area"</code> makes equal-area violins.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb3-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> smpAnnot, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Boxplot"</span>,</span>
+<span id="cb3-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showViolinBoxplot =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">violinScale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"area"</span>,</span>
+<span id="cb3-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">groupingFactors =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxis =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>),</span>
+<span id="cb3-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpTitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of value by dose"</span>,</span>
+<span id="cb3-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb3-7">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-a3c87662a2939578a855" style="width:100%;height:500px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a3c87662a2939578a855">{"x":{"data":{"y":{"vars":["value"],"smps":["o1","o2","o3","o4","o5","o6","o7","o8","o9","o10","o11","o12","o13","o14","o15","o16","o17","o18","o19","o20","o21","o22","o23","o24","o25","o26","o27","o28","o29","o30","o31","o32","o33","o34","o35","o36","o37","o38","o39","o40","o41","o42","o43","o44","o45","o46","o47","o48","o49","o50","o51","o52","o53","o54","o55","o56","o57","o58","o59","o60","o61","o62","o63","o64","o65","o66","o67","o68","o69","o70","o71","o72","o73","o74","o75","o76","o77","o78","o79","o80","o81","o82","o83","o84","o85","o86","o87","o88","o89","o90","o91","o92","o93","o94","o95","o96","o97","o98","o99","o100","o101","o102","o103","o104","o105","o106","o107","o108","o109","o110","o111","o112","o113","o114","o115","o116","o117","o118","o119","o120","o121","o122","o123","o124","o125","o126","o127","o128","o129","o130","o131","o132","o133","o134","o135","o136","o137","o138","o139","o140","o141","o142","o143","o144","o145","o146","o147","o148","o149","o150","o151","o152","o153","o154","o155","o156","o157","o158","o159","o160","o161","o162","o163","o164","o165","o166","o167","o168","o169","o170","o171","o172","o173","o174","o175","o176","o177","o178","o179","o180","o181","o182","o183","o184","o185","o186","o187","o188","o189","o190","o191","o192","o193","o194","o195","o196","o197","o198","o199","o200","o201","o202","o203","o204","o205","o206","o207","o208","o209","o210","o211","o212","o213","o214","o215","o216","o217","o218","o219","o220","o221","o222","o223","o224","o225","o226","o227","o228","o229","o230","o231","o232","o233","o234","o235","o236","o237","o238","o239","o240"],"data":[[5.25,6.22,5,7.91,6.4,5.02,6.58,6.89,6.69,5.63,7.81,6.47,5.25,3.34,7.35,5.95,5.98,7.13,6.99,6.71,7.1,6.94,6.09,3.61,6.74,5.93,5.81,4.24,5.43,6.5,7.63,5.88,6.47,5.94,4.35,5.5,5.53,5.93,7.32,6.92,7.3,7.2,8.34,8.17,6.67,6.65,7.94,8.42,7.37,8.56,7.98,6.77,7.91,6.14,9.22,9.88,7.06,6.25,8.18,7.34,10.38,7.45,8.33,7.53,6.61,7.73,5.33,9.26,7.68,10.11,8.07,6.65,8.23,6.38,6,7.85,6.97,7.5,7.59,6.79,7.32,7.84,9.41,6.17,8.71,8.4,9.28,7.63,8.44,8.32,7.35,9.45,9.39,8.84,9.9,8.67,6.47,7.31,6.53,7.43,7.26,8.05,6.91,8.19,7.21,10.12,8.86,9.09,8.46,10.02,7.24,7.45,9.72,7.22,7.75,7.53,7.62,7.67,8.59,7.79,8.89,11.11,9.24,9.28,9.38,10.36,9.41,9.45,8.68,9.11,9.57,8.79,10.14,7.68,9.87,7.66,9.14,8.87,8.72,9.43,7.2,10.91,7.5,8.94,8.16,8.6,12,9.52,7.96,7.53,10.04,9.48,9.12,8.38,7.72,8.21,10.7,8.75,7.84,11.74,10.51,9.71,11.27,11.06,9.26,12.65,9.69,8.29,9.83,10.25,12.77,10.13,10.55,9.91,9.6,9.96,10.95,12.49,11.23,11.45,8.52,11.18,10.26,8.24,10.63,9.81,11.76,9.08,9.48,8.89,9.79,10.48,9.12,11,8.55,8.74,11.73,8.78,10.49,9.54,11.99,13.53,13.4,11.1,8.76,14.5,12.3,12.15,11.48,12.11,11.3,12,11.02,9.86,12.69,13.32,11.13,10,12.27,11.45,9.42,11.5,10.74,11.09,10.11,13.66,11.1,9.57,11.74,11.82,10.32,8.03,10.73,12.18,11.43,11.38,12.17,10.08,12.82,11.49]]},"x":{"Dose":["Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High"],"Condition":["Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated"]},"z":null},"config":{"graphType":"Boxplot","isR":true,"showViolinBoxplot":true,"violinScale":"area","groupingFactors":["Dose"],"xAxis":["value"],"smpTitle":"Dose","title":"Distribution of value by dose"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="a-split-half-violin-comparing-two-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="a-split-half-violin-comparing-two-conditions">A split (half) violin comparing two conditions</h2>
+<p>Group by <strong>both</strong> factors, colour by the condition, and set <code>violinSide = "split"</code> — the two conditions share each dose position, one on each half. This reads far better than two full violins side by side.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb4-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> smpAnnot, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Boxplot"</span>,</span>
+<span id="cb4-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showViolinBoxplot =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">violinScale =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"area"</span>,</span>
+<span id="cb4-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">groupingFactors =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colorBy =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condition"</span>,</span>
+<span id="cb4-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">violinSide =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"split"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">violinTrim =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxis =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>),</span>
+<span id="cb4-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpTitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dose"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Control vs Treated — split violin by dose"</span>,</span>
+<span id="cb4-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb4-8">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-d26bfe112ba61c5aa31f" style="width:100%;height:500px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d26bfe112ba61c5aa31f">{"x":{"data":{"y":{"vars":["value"],"smps":["o1","o2","o3","o4","o5","o6","o7","o8","o9","o10","o11","o12","o13","o14","o15","o16","o17","o18","o19","o20","o21","o22","o23","o24","o25","o26","o27","o28","o29","o30","o31","o32","o33","o34","o35","o36","o37","o38","o39","o40","o41","o42","o43","o44","o45","o46","o47","o48","o49","o50","o51","o52","o53","o54","o55","o56","o57","o58","o59","o60","o61","o62","o63","o64","o65","o66","o67","o68","o69","o70","o71","o72","o73","o74","o75","o76","o77","o78","o79","o80","o81","o82","o83","o84","o85","o86","o87","o88","o89","o90","o91","o92","o93","o94","o95","o96","o97","o98","o99","o100","o101","o102","o103","o104","o105","o106","o107","o108","o109","o110","o111","o112","o113","o114","o115","o116","o117","o118","o119","o120","o121","o122","o123","o124","o125","o126","o127","o128","o129","o130","o131","o132","o133","o134","o135","o136","o137","o138","o139","o140","o141","o142","o143","o144","o145","o146","o147","o148","o149","o150","o151","o152","o153","o154","o155","o156","o157","o158","o159","o160","o161","o162","o163","o164","o165","o166","o167","o168","o169","o170","o171","o172","o173","o174","o175","o176","o177","o178","o179","o180","o181","o182","o183","o184","o185","o186","o187","o188","o189","o190","o191","o192","o193","o194","o195","o196","o197","o198","o199","o200","o201","o202","o203","o204","o205","o206","o207","o208","o209","o210","o211","o212","o213","o214","o215","o216","o217","o218","o219","o220","o221","o222","o223","o224","o225","o226","o227","o228","o229","o230","o231","o232","o233","o234","o235","o236","o237","o238","o239","o240"],"data":[[5.25,6.22,5,7.91,6.4,5.02,6.58,6.89,6.69,5.63,7.81,6.47,5.25,3.34,7.35,5.95,5.98,7.13,6.99,6.71,7.1,6.94,6.09,3.61,6.74,5.93,5.81,4.24,5.43,6.5,7.63,5.88,6.47,5.94,4.35,5.5,5.53,5.93,7.32,6.92,7.3,7.2,8.34,8.17,6.67,6.65,7.94,8.42,7.37,8.56,7.98,6.77,7.91,6.14,9.22,9.88,7.06,6.25,8.18,7.34,10.38,7.45,8.33,7.53,6.61,7.73,5.33,9.26,7.68,10.11,8.07,6.65,8.23,6.38,6,7.85,6.97,7.5,7.59,6.79,7.32,7.84,9.41,6.17,8.71,8.4,9.28,7.63,8.44,8.32,7.35,9.45,9.39,8.84,9.9,8.67,6.47,7.31,6.53,7.43,7.26,8.05,6.91,8.19,7.21,10.12,8.86,9.09,8.46,10.02,7.24,7.45,9.72,7.22,7.75,7.53,7.62,7.67,8.59,7.79,8.89,11.11,9.24,9.28,9.38,10.36,9.41,9.45,8.68,9.11,9.57,8.79,10.14,7.68,9.87,7.66,9.14,8.87,8.72,9.43,7.2,10.91,7.5,8.94,8.16,8.6,12,9.52,7.96,7.53,10.04,9.48,9.12,8.38,7.72,8.21,10.7,8.75,7.84,11.74,10.51,9.71,11.27,11.06,9.26,12.65,9.69,8.29,9.83,10.25,12.77,10.13,10.55,9.91,9.6,9.96,10.95,12.49,11.23,11.45,8.52,11.18,10.26,8.24,10.63,9.81,11.76,9.08,9.48,8.89,9.79,10.48,9.12,11,8.55,8.74,11.73,8.78,10.49,9.54,11.99,13.53,13.4,11.1,8.76,14.5,12.3,12.15,11.48,12.11,11.3,12,11.02,9.86,12.69,13.32,11.13,10,12.27,11.45,9.42,11.5,10.74,11.09,10.11,13.66,11.1,9.57,11.74,11.82,10.32,8.03,10.73,12.18,11.43,11.38,12.17,10.08,12.82,11.49]]},"x":{"Dose":["Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Low","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","Medium","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High","High"],"Condition":["Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Control","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated","Treated"]},"z":null},"config":{"graphType":"Boxplot","isR":true,"showViolinBoxplot":true,"violinScale":"area","groupingFactors":["Dose","Condition"],"colorBy":"Condition","violinSide":"split","violinTrim":false,"xAxis":["value"],"smpTitle":"Dose","title":"Control vs Treated — split violin by dose"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Hover to read the density and summary stats. <code>violinSide</code> can also be <code>"lt"</code> or <code>"rb"</code> for a one-sided half violin (handy for a raincloud when paired with <code>violinPointsSide</code>).</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The <code>data</code>+<code>config</code> <strong>is</strong> the figure — one portable JSON spec that renders the identical violins from Python or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li><a href="../paired-boxplots/">Paired before/after boxplots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>violin</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/violin-plots-in-r/</guid>
+  <pubDate>Fri, 25 Sep 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/violin-plots-in-r/thumbnail.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
+<item>
   <title>Paired before/after boxplots in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
   <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/paired-boxplots/</link>
