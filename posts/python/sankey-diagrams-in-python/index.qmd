@@ -1,0 +1,86 @@
+---
+title: "Sankey / alluvial diagrams in Python with canvasxpress"
+description: "Show how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-09-27"
+categories: [Python, canvasxpress, sankey, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A Sankey (or alluvial) diagram shows how a quantity **flows through a sequence of categorical
+stages** — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to
+a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in
+Python with [canvasxpress](https://pypi.org/project/canvasxpress/) — interactive and reproducible.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The data shape
+
+canvasXpress builds a Sankey from a table where **each row is one path** through the stages, plus a
+frequency/weight. Swap this simulated clinical flow for your own counts.
+
+```{python}
+import random
+random.seed(1)
+
+cohorts  = ["Cohort A", "Cohort B"]
+treats   = ["Drug 1", "Drug 2", "Placebo"]
+outcomes = ["Response", "Stable", "Progression"]
+
+Cohort, Treatment, Outcome, Freq = [], [], [], []
+for co in cohorts:
+    for tr in treats:
+        for ou in outcomes:
+            base = 40 if ou == "Response" else 25 if ou == "Stable" else 15
+            if tr == "Placebo" and ou == "Response":
+                base = 12                                   # placebo responds less
+            Cohort.append(co); Treatment.append(tr); Outcome.append(ou)
+            Freq.append(base + random.randint(0, 15))
+```
+
+The value (`Freq`) is the single measured variable; the stage columns are sample annotations (`x`).
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+ids = [f"r{i+1}" for i in range(len(Freq))]
+data = {
+    "y": {"vars": ["Freq"], "smps": ids, "data": [Freq]},
+    "x": {"Cohort": Cohort, "Treatment": Treatment, "Outcome": Outcome},
+}
+
+config = {
+    "graphType": "Sankey",
+    "sankeyAxes": ["Cohort", "Treatment", "Outcome"],
+    "xAxis": ["Freq"],
+    "colorBy": "Outcome",
+    "sankeyType": "proportional",
+    "graphOrientation": "horizontal",
+    "title": "Patient flow: cohort to treatment to outcome",
+}
+
+cx = CanvasXpress(render_to="sankey", data=data, config=config, width=700, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Hover any stream to see the count; the widths are proportional to the frequency, so you can read the
+flow at a glance. `sankeyType` can also be `"aligned"` (classic alluvial) or `"equal"`.
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec. The same spec renders the identical
+Sankey from R or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Interactive volcano plots in Python](../volcano-plots-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>

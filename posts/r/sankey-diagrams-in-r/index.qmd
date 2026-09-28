@@ -1,0 +1,81 @@
+---
+title: "Sankey / alluvial diagrams in R with canvasXpress"
+description: "Show how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-09-26"
+categories: [R, canvasXpress, sankey, visualization]
+image: "thumbnail.png"
+---
+
+A Sankey (or alluvial) diagram shows how a quantity **flows through a sequence of categorical
+stages** — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to
+a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in R
+with [canvasXpress](https://canvasxpress.org) — interactive, and reproducible because the whole
+figure is one portable spec.
+
+## The data shape
+
+canvasXpress builds a Sankey from a **tidy table where each row is one path** through the stages,
+plus a frequency/weight. Swap this simulated clinical flow for your own counts.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(1)
+cohort <- c(); treat <- c(); outcome <- c(); freq <- c()
+for (co in c("Cohort A", "Cohort B"))
+ for (tr in c("Drug 1", "Drug 2", "Placebo"))
+  for (ou in c("Response", "Stable", "Progression")) {
+    base <- if (ou == "Response") 40 else if (ou == "Stable") 25 else 15
+    if (tr == "Placebo" && ou == "Response") base <- 12          # placebo responds less
+    cohort  <- c(cohort, co); treat <- c(treat, tr); outcome <- c(outcome, ou)
+    freq    <- c(freq, base + sample(0:15, 1))
+  }
+```
+
+The value (`Freq`) is the single measured variable; the stage columns are sample annotations. In
+canvasXpress terms: one variable × N path-rows, with the categorical stages as `smpAnnot`.
+
+```{r}
+ids <- paste0("r", seq_along(freq))
+y <- data.frame(matrix(freq, nrow = 1, dimnames = list("Freq", ids)), check.names = FALSE)
+smpAnnot <- data.frame(Cohort = cohort, Treatment = treat, Outcome = outcome,
+                       row.names = ids, check.names = FALSE)
+```
+
+## The plot
+
+`graphType = "Sankey"` with `sankeyAxes` listing the stages in order, `xAxis` naming the value, and
+`colorBy` coloring the streams.
+
+```{r}
+canvasXpress(
+  data     = y,
+  smpAnnot = smpAnnot,
+  graphType = "Sankey",
+  sankeyAxes = list("Cohort", "Treatment", "Outcome"),
+  xAxis      = list("Freq"),
+  colorBy    = "Outcome",
+  sankeyType = "proportional",
+  graphOrientation = "horizontal",
+  title = "Patient flow: cohort → treatment → outcome",
+  width  = 700,
+  height = 500
+)
+```
+
+Hover any stream to see the count; the widths are proportional to the frequency, so you can read the
+flow at a glance — e.g. how much of each cohort ends in Response vs Progression, and how Placebo
+differs. `sankeyType` can also be `"aligned"` (classic alluvial) or `"equal"`.
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec. The same spec renders the identical
+Sankey from Python or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://github.com/neuhausi/canvasXpress>

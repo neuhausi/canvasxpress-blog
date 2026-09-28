@@ -1,0 +1,115 @@
+---
+title: "Sankey / alluvial diagrams in JavaScript with CanvasXpress"
+description: "Show how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-09-28"
+categories: [JavaScript, CanvasXpress, sankey, visualization]
+image: "thumbnail.png"
+---
+
+A Sankey (or alluvial) diagram shows how a quantity **flows through a sequence of categorical
+stages** — patients moving from a cohort, to a treatment, to an outcome. The width of each stream is
+the magnitude. CanvasXpress is a JavaScript library at heart, so in the browser it's just a `data`
+object and a `config`.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Each row is one path through the stages; the value (`Freq`) is the single variable, and the stages
+are sample annotations (`x`). `sankeyAxes` lists the stages in order.
+
+```html
+<canvas id="sankey" width="700" height="500"></canvas>
+<script>
+  var cohorts = ["Cohort A", "Cohort B"],
+      treats  = ["Drug 1", "Drug 2", "Placebo"],
+      outcomes = ["Response", "Stable", "Progression"];
+
+  var Cohort = [], Treatment = [], Outcome = [], Freq = [];
+  cohorts.forEach(function (co) {
+    treats.forEach(function (tr) {
+      outcomes.forEach(function (ou) {
+        var base = ou === "Response" ? 40 : ou === "Stable" ? 25 : 15;
+        if (tr === "Placebo" && ou === "Response") base = 12;   // placebo responds less
+        Cohort.push(co); Treatment.push(tr); Outcome.push(ou);
+        Freq.push(base + Math.floor(Math.random() * 16));
+      });
+    });
+  });
+
+  var ids = Freq.map(function (_, i) { return "r" + (i + 1); });
+
+  var data = {
+    y: { vars: ["Freq"], smps: ids, data: [Freq] },
+    x: { Cohort: Cohort, Treatment: Treatment, Outcome: Outcome }
+  };
+
+  var config = {
+    graphType: "Sankey",
+    sankeyAxes: ["Cohort", "Treatment", "Outcome"],
+    xAxis: ["Freq"],
+    colorBy: "Outcome",
+    sankeyType: "proportional",
+    graphOrientation: "horizontal",
+    title: "Patient flow: cohort to treatment to outcome"
+  };
+
+  new CanvasXpress("sankey", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="sankeyLive" width="700" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var cohorts = ["Cohort A", "Cohort B"], treats = ["Drug 1", "Drug 2", "Placebo"],
+        outcomes = ["Response", "Stable", "Progression"];
+    var Cohort = [], Treatment = [], Outcome = [], Freq = [];
+    cohorts.forEach(function (co) {
+      treats.forEach(function (tr) {
+        outcomes.forEach(function (ou) {
+          var base = ou === "Response" ? 40 : ou === "Stable" ? 25 : 15;
+          if (tr === "Placebo" && ou === "Response") base = 12;
+          Cohort.push(co); Treatment.push(tr); Outcome.push(ou);
+          Freq.push(base + Math.floor(Math.random() * 16));
+        });
+      });
+    });
+    var ids = Freq.map(function (_, i) { return "r" + (i + 1); });
+    new CanvasXpress("sankeyLive",
+      { y: { vars: ["Freq"], smps: ids, data: [Freq] },
+        x: { Cohort: Cohort, Treatment: Treatment, Outcome: Outcome } },
+      { graphType: "Sankey", sankeyAxes: ["Cohort", "Treatment", "Outcome"], xAxis: ["Freq"],
+        colorBy: "Outcome", sankeyType: "proportional", graphOrientation: "horizontal",
+        title: "Patient flow: cohort to treatment to outcome" });
+  }
+  draw();
+})();
+</script>
+```
+
+Hover any stream to see the count; the widths are proportional to the frequency. `sankeyType` can
+also be `"aligned"` (classic alluvial) or `"equal"`.
+
+## Why "reproducible"
+
+The `data`+`config` **is** the figure — one portable JSON spec that renders the same from R, Python,
+or a web page.
+
+## Next
+
+- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>
