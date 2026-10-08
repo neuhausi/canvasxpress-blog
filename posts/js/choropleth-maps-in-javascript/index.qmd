@@ -1,0 +1,128 @@
+---
+title: "Choropleth maps in JavaScript with CanvasXpress"
+description: "Color a world map by a value per country in the browser with CanvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth."
+author: "Isaac Neuhaus"
+date: "2026-10-08"
+categories: [JavaScript, CanvasXpress, maps, choropleth, visualization]
+image: "thumbnail.png"
+---
+
+A choropleth map shades each region by a value — emissions, population, votes, incidence. The
+trick is always the same: join a table of values to a set of map shapes by a common key, then
+pick a color scale. CanvasXpress does the join and the coloring inside the render, so in the
+browser you pass one value per country and a topoJSON of boundaries and get an interactive,
+reproducible figure.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+The **columns** (`smps`) are the countries — they match the map by name — and the single **row**
+(`vars`) is the variable you color by: CO₂ emissions per country for 2018. We fetch a prepared
+table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand
+the matrix to CanvasXpress. Swap the URL for any `country → value` table of your own.
+
+```html
+<canvas id="comap" width="700" height="500"></canvas>
+<script>
+  var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
+  var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
+
+  // split a tab-separated file into a list of cell-arrays (one per row)
+  function rows(text) {
+    return text.trim().split("\n").map(function (line) { return line.split("\t"); });
+  }
+
+  Promise.all([fetch(DATA).then(function (r) { return r.text(); }),
+               fetch(SMP ).then(function (r) { return r.text(); })])
+    .then(function (texts) {
+      var d = rows(texts[0]);                      // [header, ["CO2", v1, v2, ...]]
+      var countries = d[0].slice(1);               // header, minus the empty corner cell
+      var values    = d[1].slice(1).map(Number);   // the CO2 values
+
+      var s = rows(texts[1]);                       // header + one row per country
+      var col = {};                                 // header name -> column index
+      s[0].forEach(function (name, i) { col[name] = i; });
+      var byCountry = {};
+      s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
+      var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
+
+      var data = {
+        y: { vars: ["CO2"], smps: countries, data: [values] },
+        x: { Continent: continent }
+      };
+      var config = {
+        graphType: "Map",
+        colorBy: "CO2",
+        topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+        mapId: "countries",
+        legendPosition: "left",
+        theme: "solarized",
+        title: "CO2 Emissions per Country (2018)"
+      };
+      new CanvasXpress("comap", data, config);
+    });
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="comapLive" width="700" height="500"></canvas>
+<script>
+(function () {
+  var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
+  var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
+  function rows(text) {
+    return text.trim().split("\n").map(function (line) { return line.split("\t"); });
+  }
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    Promise.all([fetch(DATA).then(function (r) { return r.text(); }),
+                 fetch(SMP ).then(function (r) { return r.text(); })])
+      .then(function (texts) {
+        var d = rows(texts[0]);
+        var countries = d[0].slice(1);
+        var values    = d[1].slice(1).map(Number);
+        var s = rows(texts[1]);
+        var col = {};
+        s[0].forEach(function (name, i) { col[name] = i; });
+        var byCountry = {};
+        s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
+        var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
+        new CanvasXpress("comapLive",
+          { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
+          { graphType: "Map", colorBy: "CO2",
+            topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+            mapId: "countries", legendPosition: "left", theme: "solarized",
+            title: "CO2 Emissions per Country (2018)" });
+      });
+  }
+  draw();
+})();
+</script>
+```
+
+Each country is shaded by its emissions, the legend maps color to value, and hovering a country
+shows its name, continent and number. The whole figure is one portable spec — data, boundaries
+and color rule together — that you can re-render from R or Python.
+
+## Beyond the world map
+
+Point `topoJSON` at a different boundary file to map US states, a single country's provinces, or
+a custom region — the join key is just the shape name. Switch `colorBy` to a categorical field
+for a qualitative map, add `decorations` to drop labeled markers on cities, or set
+`mapProjection` for an Albers or Mercator view.
+
+## Next
+
+- [Clustered heatmaps in JavaScript](../clustered-heatmap-in-javascript/)
+- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>

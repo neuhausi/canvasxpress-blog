@@ -1,0 +1,100 @@
+---
+title: "Choropleth maps in Python with canvasxpress"
+description: "Color a world map by a value per country in Python with canvasxpress — join a DataFrame to a topoJSON by name and get an interactive, reproducible choropleth."
+author: "Isaac Neuhaus"
+date: "2026-10-07"
+categories: [Python, canvasxpress, maps, choropleth, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A choropleth map shades each region by a value — emissions, population, votes, incidence. The
+trick is always the same: join a table of values to a set of map shapes by a common key, then
+pick a color scale. Here we build one in Python with
+[canvasxpress](https://pypi.org/project/canvasxpress/): you pass one value per country and a
+topoJSON of boundaries, and the join and coloring happen inside the render, so the result is
+interactive and reproducible from a single spec.
+
+## Install
+
+```bash
+pip install canvasxpress pandas
+```
+
+## One value per region
+
+A choropleth needs exactly one measurement per shape. In canvasxpress the **columns** (`smps`)
+are the regions — they match the map by name — and each **row** (`vars`) is a variable you can
+color by. Here it's CO₂ emissions per country for 2018. We load a prepared table; swap it for
+your own (any `country → value` table works).
+
+```{python}
+import pandas as pd
+
+dat = pd.read_csv(
+    "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt",
+    sep="\t", index_col=0,
+)
+smp = pd.read_csv(
+    "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt",
+    sep="\t", index_col=0,
+).reindex(dat.columns)        # align annotation to the country order
+
+print(dat.shape)              # (1, N): one row (CO2) x N countries
+dat.iloc[:, :4]
+```
+
+## Build the spec
+
+`y` carries the matrix (`vars` = the variable, `smps` = the countries, `data` = the values); the
+optional `x` block adds per-country annotations (continent, ISO code) for richer tooltips. The
+country names in `smps` are what join to the map.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+data = {
+    "y": {
+        "vars": list(dat.index),            # ["CO2"]
+        "smps": list(dat.columns),          # country names
+        "data": dat.values.tolist(),        # [[values]]
+    },
+    "x": {
+        "Continent": smp["Continent"].tolist(),
+        "Code":      smp["Code"].tolist(),
+    },
+}
+
+config = {
+    "graphType": "Map",
+    "colorBy":   "CO2",
+    "topoJSON":  "https://www.canvasxpress.org/data/maps/WORLD.json",
+    "mapId":     "countries",
+    "legendPosition": "left",
+    "theme": "solarized",
+    "title": "CO2 Emissions per Country (2018)",
+}
+
+cx = CanvasXpress(render_to="comap", data=data, config=config, width=700, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Each country is shaded by its emissions, the legend maps color to value, and hovering a country
+shows its name, continent and number. The whole figure is one portable spec you can store,
+validate and re-render from R or JavaScript.
+
+## Beyond the world map
+
+Point `topoJSON` at a different boundary file to map US states, a single country's provinces, or
+a custom region — the join key is just the shape name. Switch `colorBy` to a categorical column
+for a qualitative map, add `decorations` to drop labeled markers on cities, or set
+`mapProjection` for an Albers or Mercator view.
+
+## Next
+
+- [Clustered heatmaps in Python](../clustered-heatmap-in-python/)
+- [Interactive volcano plots in Python](../volcano-plots-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>

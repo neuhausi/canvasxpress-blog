@@ -1,0 +1,87 @@
+---
+title: "Choropleth maps in R with canvasXpress"
+description: "Color a world map by a value per country in R with canvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth."
+author: "Isaac Neuhaus"
+date: "2026-10-06"
+categories: [R, canvasXpress, maps, choropleth, visualization]
+image: "thumbnail.png"
+---
+
+A choropleth map shades each region by a value — emissions, population, votes, incidence. The
+trick is always the same: join a table of values to a set of map shapes by a common key, then
+pick a color scale. In this post we build one in R with [canvasXpress](https://canvasxpress.org):
+you pass a named vector of values and a topoJSON of boundaries, and the join and coloring happen
+inside the render, so the result is interactive and fully reproducible from a single spec.
+
+## One value per region
+
+A choropleth needs exactly one measurement per shape. In canvasXpress the **columns** are the
+regions (they match the map by name) and the **row** is the variable you color by — here CO₂
+emissions per country for 2018. We'll load a prepared table; swap it for your own (any
+`country → value` table works).
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+y <- read.table(
+  "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt",
+  header = TRUE, sep = "\t", quote = "", row.names = 1,
+  check.names = FALSE, stringsAsFactors = FALSE
+)
+
+dim(y)              # 1 row (CO2) x N countries
+y[, 1:4]
+```
+
+The single row is the variable (`CO2`); each column name is a country that must match a shape in
+the map. An optional **sample annotation** table (rows = countries) rides along for richer
+tooltips and legends — here the continent and ISO code.
+
+```{r}
+x <- read.table(
+  "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt",
+  header = TRUE, sep = "\t", quote = "", row.names = 1,
+  check.names = FALSE, stringsAsFactors = FALSE
+)
+head(x)
+```
+
+## The map
+
+`graphType = "Map"` with a `topoJSON` of world boundaries draws the shapes; `colorBy = "CO2"`
+shades each country by its value. The countries join to the map by name — no manual merge, no
+projection math.
+
+```{r}
+canvasXpress(
+  data     = y,
+  smpAnnot = x,
+  graphType = "Map",
+  colorBy   = "CO2",
+  topoJSON  = "https://www.canvasxpress.org/data/maps/WORLD.json",
+  mapId     = "countries",
+  legendPosition = "left",
+  theme = "solarized",
+  title = "CO2 Emissions per Country (2018)",
+  width  = 700,
+  height = 500
+)
+```
+
+Each country is shaded by its emissions, the legend maps color to value, and hovering a country
+shows its name, continent and number. The whole figure is one portable spec — the data, the
+boundaries and the color rule travel together.
+
+## Beyond the world map
+
+Point `topoJSON` at a different boundary file to map US states, a single country's provinces, or
+a custom region — the join key is just the shape name. Switch `colorBy` to a categorical column
+(e.g. an election winner) for a qualitative map, add `decorations` to drop labeled markers on
+cities, or set `mapProjection` for an Albers or Mercator view.
+
+## Next
+
+- [Clustered heatmaps in R](../clustered-heatmap-in-r/)
+- [Interactive volcano plots in R](../volcano-plots-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
