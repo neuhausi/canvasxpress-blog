@@ -1,6 +1,6 @@
 ---
 title: "Choropleth maps in R with canvasXpress"
-description: "Build an honest, interactive choropleth in R with canvasXpress — join values to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and pick a sequential vs diverging palette."
+description: "Build a rich, honest, interactive choropleth in R with canvasXpress — quantile classes and a viridis ramp that survive heavy-tailed data, plus the area-bias trap and sequential vs diverging palettes."
 author: "Isaac Neuhaus"
 date: "2026-10-06"
 categories: [R, canvasXpress, maps, choropleth, visualization]
@@ -8,12 +8,11 @@ image: "thumbnail.png"
 ---
 
 A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most
-common map in data analysis and the easiest to get *subtly wrong*. The mechanics are simple: join a
-table of values to a set of shapes by a common key, then map value to colour. The judgement is in
-the rest — what you encode, how you class it, and which palette you choose. This post builds one in
-R with [canvasXpress](https://canvasxpress.org) and treats those choices as first-class, not
-afterthoughts. The join and the colouring happen inside the render, so every figure here is one
-portable spec you can re-run from R, Python or the browser.
+common map in data analysis and the easiest to get *subtly wrong*: most "my map is all one colour"
+complaints are not rendering bugs but scale bugs. This post builds a choropleth in R with
+[canvasXpress](https://canvasxpress.org) that stays vivid and honest on exactly the kind of
+heavy-tailed data that flattens naive maps. The join and the colouring happen inside the render, so
+every figure is one portable spec you can re-run from R, Python or the browser.
 
 ## First, the trap: colour encodes a *rate*, not a *count*
 
@@ -23,9 +22,8 @@ light up simply because they are big and populous. You have drawn a population m
 
 The fix is almost always to map a **rate or density**: cases per 100k, emissions per capita, sales
 per store. Reserve raw counts for a *proportional-symbol* map (a sized bubble at each centroid),
-where the size channel carries the count honestly and area is not doing uninvited work. Decide which
-question you are answering before you pick the geometry — this one choice prevents most misleading
-maps.
+where the size channel carries the count honestly. Decide which question you are answering before
+you pick the geometry — this one choice prevents most misleading maps.
 
 ## One value per region
 
@@ -61,74 +59,98 @@ x <- read.table(
 head(x)
 ```
 
-## A first map: one continuous ramp
+## The map: quantile classes computed in R, painted by the map
 
-`graphType = "Map"` with a `topoJSON` of world boundaries draws the shapes; `colorBy = "CO2"` shades
-each country on a continuous scale. The countries join to the map by name — no manual merge, no
-projection math.
+`graphType = "Map"` with a `topoJSON` of world boundaries draws the shapes and joins the countries
+by name — no manual merge, no projection math. The statistics stay in R, where they belong: we cut
+the values into **seven quantile classes** with `quantile()` + `cut()`, so each class holds an equal
+number of countries (~28 of 198), then colour by that classed annotation with a viridis palette. On
+skewed data that equal-count guarantee is what keeps all seven colours on the map.
 
 ```{r}
-canvasXpress(
-  data      = y,
-  smpAnnot  = x,
-  graphType = "Map",
-  colorBy   = "CO2",
-  topoJSON  = "https://www.canvasxpress.org/data/maps/WORLD.json",
-  mapId     = "co2Continuous",
-  legendPosition = "left",
-  theme = "solarized",
-  title = "CO2 emissions per country (2018)",
-  width  = 700,
-  height = 500
+vals   <- as.numeric(y[1, ])
+breaks <- unique(quantile(vals, probs = seq(0, 1, length.out = 8)))
+cls    <- cut(vals, breaks = breaks, include.lowest = TRUE)
+x$Emissions <- sprintf(
+  "Q%d: %s", as.integer(cls),
+  gsub(",", " - ", gsub("[][()]", "", levels(cls)))[as.integer(cls)]
 )
+table(x$Emissions)   # ~28 countries per class
 ```
 
-It renders — but look closely and most of the world is the same pale colour. That is not a bug; it
-is the data. Emissions are **heavy-tailed**: a few countries dwarf everyone else, so a linear ramp
-spends almost its entire range on the top few and flattens the rest into one indistinguishable band.
-A continuous ramp is honest only when the variable is roughly uniform or near-normal.
-
-## Class a skewed scale with natural breaks
-
-When the data is skewed, **class** it: cut the range into a handful of bins and give each bin a
-colour. `colorSpectrumBreaksMethod = "jenks"` picks class edges that minimise within-class variance
-(Jenks natural breaks) — it finds the gaps the data actually has instead of slicing the range evenly.
-Now the middle of the distribution gets colours of its own.
-
 ```{r}
 canvasXpress(
   data      = y,
   smpAnnot  = x,
   graphType = "Map",
-  colorBy   = "CO2",
+  colorBy   = "Emissions",
   topoJSON  = "https://www.canvasxpress.org/data/maps/WORLD.json",
-  mapId     = "co2Classed",
-  colorSpectrum = list("#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"),
-  colorSpectrumBreaksMethod = "jenks",
-  mapColor        = "#e5e7eb",
+  mapId     = "co2Quantile",
+  colors = list("#440154", "#443983", "#31688e", "#21918c",
+                "#35b779", "#90d743", "#fde725", "#d9dde3"),
+  mapColor        = "#d9dde3",
   mapOutlineColor = "#ffffff",
   legendPosition  = "bottom",
-  title    = "CO2 emissions per country (2018), classed by natural breaks",
-  subtitle = "Five Jenks classes — a single continuous ramp collapses this to one tone",
-  width  = 700,
-  height = 500
+  legendColumns   = 4,
+  title    = "CO2 emissions per country (2018)",
+  subtitle = "Seven quantile classes computed in R: each colour holds about 28 of 198 countries",
+  width  = 760,
+  height = 560
 )
 ```
 
-Five classes is a good default (three to seven is the usable range — more and readers cannot tell
-colours apart in a legend). Swap `"jenks"` for `"quantile"` to put an equal *number of regions* in
-each class instead of equal-variance breaks: quantile classing guarantees every colour is used and
-is the right choice when you care about ranking regions rather than their absolute spacing.
+Every band of the ramp is doing work: the darkest purples are the smallest emitters, the yellows the
+largest, and the legend states each class's actual value range — the edges are *data-driven*, not
+evenly spaced. The eighth colour, a neutral grey, catches map regions with no data so missing reads
+as missing. Hover any country for its name, continent, class and value.
+
+If you prefer to keep the classing inside the engine, current CanvasXpress builds accept
+`colorSpectrum` (the ramp) plus `colorSpectrumBreaksMethod = "quantile"` and do the same cut at
+render time — the R route above works everywhere and keeps the breaks inspectable in your session.
+
+## Why not just a plain linear ramp?
+
+Because the data is **heavy-tailed** — a few countries emit thousands of megatonnes while most emit
+almost nothing. On a linear scale, **195 of these 198 countries fall into the bottom fifth of the
+range**, so a continuous ramp paints nearly the whole world one pale tone and spends its colour on
+two or three outliers:
+
+```{r}
+canvasXpress(
+  data      = y,
+  smpAnnot  = x,
+  graphType = "Map",
+  colorBy   = "CO2",
+  topoJSON  = "https://www.canvasxpress.org/data/maps/WORLD.json",
+  mapId     = "co2Linear",
+  legendPosition = "left",
+  theme = "solarized",
+  title    = "The same data on a plain linear ramp",
+  subtitle = "195 of 198 countries sit in the bottom fifth of the scale - the map goes flat",
+  width  = 700,
+  height = 480
+)
+```
+
+This is the single most common choropleth failure. The cure is **classing**:
+
+- `colorSpectrumBreaksMethod = "quantile"` — equal *counts* per class. Every colour is used, by
+  construction. The right default for skewed data and for "which regions rank high/low" questions.
+- `colorSpectrumBreaksMethod = "jenks"` — natural breaks that minimise within-class variance. Best
+  when the data has genuine clusters with gaps between them; on smoothly heavy-tailed data like this
+  it piles almost everything into the bottom class, so check the legend before you trust it.
+- Three to seven classes is the usable range — beyond that, readers cannot match colours to the
+  legend.
 
 ## Choose the palette on purpose
 
 The palette is not decoration — it is the scale's grammar:
 
-- **Sequential** (light → dark of one hue, as above) for a quantity that only goes up: counts,
-  rates, concentrations. Low values pale, high values saturated.
-- **Diverging** (two hues meeting at a neutral midpoint) when values are meaningful *above and
-  below a reference*: change vs. last year, difference from a target, a signed index. Give
-  canvasXpress a three-colour `colorSpectrum` and pin the midpoint with `colorSpectrumZeroValue`:
+- **Sequential** (dark → light of ordered hues, like viridis above) for a quantity that only goes
+  up: counts, rates, concentrations.
+- **Diverging** (two hues meeting at a neutral midpoint) when values are meaningful *above and below
+  a reference*: change vs. last year, difference from a target, a signed index. Give canvasXpress a
+  three-colour `colorSpectrum` and pin the midpoint with `colorSpectrumZeroValue`:
 
   ```r
   colorBy = "Change",
@@ -139,19 +161,17 @@ The palette is not decoration — it is the scale's grammar:
   Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a
   "normal" that the data does not have.
 
-Reach for colour-blind-safe ramps (ColorBrewer, viridis) and keep the *same* scale across small
-multiples so maps are comparable. A rainbow ramp is almost always the wrong answer: it has no
-perceptual order, so readers cannot tell which end is "more".
+Viridis and the ColorBrewer ramps are colour-blind-safe and perceptually ordered; a rainbow ramp is
+neither, so readers cannot tell which end means "more". Keep the *same* scale across small multiples
+so maps stay comparable.
 
 ## Polish: legend, labels and base styling
-
-A few keys turn a rough draft into something publishable:
 
 - `subtitle` / `source` — caption the units and provenance.
 - `legendNumberFormat = list(style = "decimal", decimals = 1, suffix = "%")` — format the legend
   ticks as percentages, currency, etc.
-- `mapColor` / `mapOutlineColor` — set the fill for regions with **no data** (grey) and the border
-  between shapes, so missing data reads as missing rather than as a value.
+- `mapColor` / `mapOutlineColor` — the fill for regions with **no data** (a neutral grey) and the
+  border between shapes, so missing data reads as missing rather than as a value.
 - `showMapLabels = TRUE` — draw region names (best on maps with few regions, e.g. a single country's
   provinces; it clutters a 190-country world map).
 - `legendInside = TRUE` — float the legend over empty ocean to reclaim width.

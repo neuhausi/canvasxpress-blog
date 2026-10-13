@@ -1,6 +1,6 @@
 ---
 title: "Choropleth maps in Python with canvasxpress"
-description: "Build an honest, interactive choropleth in Python with canvasxpress — join a DataFrame to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and choose a sequential vs diverging palette."
+description: "Build a rich, honest, interactive choropleth in Python with canvasxpress — quantile classes and a viridis ramp that survive heavy-tailed data, plus the area-bias trap and sequential vs diverging palettes."
 author: "Isaac Neuhaus"
 date: "2026-10-07"
 categories: [Python, canvasxpress, maps, choropleth, visualization]
@@ -9,12 +9,11 @@ jupyter: python3
 ---
 
 A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most
-common map in data analysis and the easiest to get *subtly wrong*. The mechanics are simple: join a
-table of values to a set of shapes by a common key, then map value to colour. The judgement is in
-the rest — what you encode, how you class it, and which palette you choose. Here we build one in
-Python with [canvasxpress](https://pypi.org/project/canvasxpress/) and treat those choices as
-first-class. The join and the colouring happen inside the render, so every figure is one portable
-spec you can re-run from Python, R or the browser.
+common map in data analysis and the easiest to get *subtly wrong*: most "my map is all one colour"
+complaints are not rendering bugs but scale bugs. Here we build a choropleth in Python with
+[canvasxpress](https://pypi.org/project/canvasxpress/) that stays vivid and honest on exactly the
+kind of heavy-tailed data that flattens naive maps. The join and the colouring happen inside the
+render, so every figure is one portable spec you can re-run from Python, R or the browser.
 
 ## Install
 
@@ -56,11 +55,13 @@ print(dat.shape)              # (1, N): one row (CO2) x N countries
 dat.iloc[:, :4]
 ```
 
-## A first map: one continuous ramp
+## The map: quantile classes on a viridis ramp
 
 `y` carries the matrix (`vars` = the variable, `smps` = the countries, `data` = the values); the
-optional `x` block adds per-country annotations (continent, ISO code) for richer tooltips. The
-country names in `smps` are what join to the map.
+optional `x` block adds per-country annotations (continent, ISO code) for richer tooltips. The two
+choices that make this map *work* are in the colour scale: a seven-stop viridis `colorSpectrum`,
+and `colorSpectrumBreaksMethod = "quantile"`, which puts an equal number of countries in every
+colour class. On skewed data that guarantee is what keeps all seven colours on the map.
 
 ```{python}
 from canvasxpress.canvas import CanvasXpress
@@ -83,60 +84,66 @@ config = {
     "graphType": "Map",
     "colorBy":   "CO2",
     "topoJSON":  "https://www.canvasxpress.org/data/maps/WORLD.json",
-    "mapId":     "co2Continuous",
-    "legendPosition": "left",
-    "theme": "solarized",
-    "title": "CO2 emissions per country (2018)",
+    "mapId":     "co2Quantile",
+    "colorSpectrum": ["#440154", "#443983", "#31688e", "#21918c",
+                      "#35b779", "#90d743", "#fde725"],
+    "colorSpectrumBreaksMethod": "quantile",
+    "mapColor":        "#d9dde3",
+    "mapOutlineColor": "#ffffff",
+    "legendPosition":  "bottom",
+    "title":    "CO2 emissions per country (2018)",
+    "subtitle": "Seven quantile classes: each colour holds about 28 of 198 countries",
 }
 
-cx = CanvasXpress(render_to="co2cont", data=data, config=config, width=700, height=500)
+cx = CanvasXpress(render_to="co2quant", data=data, config=config, width=760, height=520)
 for part in CXNoteBook(cx).render():
     display(part)
 ```
 
-It renders — but most of the world is the same pale colour. That is not a bug; it is the data.
-Emissions are **heavy-tailed**: a few countries dwarf everyone else, so a linear ramp spends almost
-its whole range on the top few and flattens the rest into one band. A continuous ramp is honest only
-when the variable is roughly uniform or near-normal.
+Every band of the ramp is doing work: the darkest purples are the smallest emitters, the yellows the
+largest, and the legend's break values tell you the class edges are *data-driven*, not evenly spaced.
+Hover any country for its name, continent and value.
 
-## Class a skewed scale with natural breaks
+## Why not just a plain linear ramp?
 
-When the data is skewed, **class** it: cut the range into a handful of bins, one colour each.
-`colorSpectrumBreaksMethod = "jenks"` picks class edges that minimise within-class variance (Jenks
-natural breaks) — it finds the gaps the data actually has instead of slicing the range evenly. The
-`data`/`x` blocks are unchanged; only the colour configuration differs.
+Because the data is **heavy-tailed** — a few countries emit thousands of megatonnes while most emit
+almost nothing. On a linear scale, **195 of these 198 countries fall into the bottom fifth of the
+range**, so a continuous ramp paints nearly the whole world one pale tone and spends its colour on
+two or three outliers:
 
 ```{python}
-classed = {
+linear = {
     "graphType": "Map",
     "colorBy":   "CO2",
     "topoJSON":  "https://www.canvasxpress.org/data/maps/WORLD.json",
-    "mapId":     "co2Classed",
-    "colorSpectrum": ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"],
-    "colorSpectrumBreaksMethod": "jenks",
-    "mapColor":        "#e5e7eb",
-    "mapOutlineColor": "#ffffff",
-    "legendPosition":  "bottom",
-    "title":    "CO2 emissions per country (2018), classed by natural breaks",
-    "subtitle": "Five Jenks classes — a single continuous ramp collapses this to one tone",
+    "mapId":     "co2Linear",
+    "legendPosition": "left",
+    "theme": "solarized",
+    "title":    "The same data on a plain linear ramp",
+    "subtitle": "195 of 198 countries sit in the bottom fifth of the scale - the map goes flat",
 }
 
-cx = CanvasXpress(render_to="co2cls", data=data, config=classed, width=700, height=500)
+cx = CanvasXpress(render_to="co2lin", data=data, config=linear, width=700, height=480)
 for part in CXNoteBook(cx).render():
     display(part)
 ```
 
-Five classes is a good default (three to seven is the usable range). Swap `"jenks"` for `"quantile"`
-to put an equal *number of regions* in each class instead of equal-variance breaks — quantile
-classing guarantees every colour is used and is the right choice when you care about ranking regions
-rather than their absolute spacing.
+This is the single most common choropleth failure. The cure is **classing**:
+
+- `"colorSpectrumBreaksMethod": "quantile"` — equal *counts* per class. Every colour is used, by
+  construction. The right default for skewed data and for "which regions rank high/low" questions.
+- `"colorSpectrumBreaksMethod": "jenks"` — natural breaks that minimise within-class variance. Best
+  when the data has genuine clusters with gaps between them; on smoothly heavy-tailed data like this
+  it piles almost everything into the bottom class, so check the legend before you trust it.
+- Three to seven classes is the usable range — beyond that, readers cannot match colours to the
+  legend.
 
 ## Choose the palette on purpose
 
 The palette is the scale's grammar, not decoration:
 
-- **Sequential** (light → dark of one hue, as above) for a quantity that only goes up: counts, rates,
-  concentrations.
+- **Sequential** (dark → light of ordered hues, like viridis above) for a quantity that only goes
+  up: counts, rates, concentrations.
 - **Diverging** (two hues meeting at a neutral midpoint) when values are meaningful *above and below
   a reference*: change vs. last year, difference from a target, a signed index. Give a three-colour
   `colorSpectrum` and pin the midpoint with `colorSpectrumZeroValue`:
@@ -150,16 +157,16 @@ The palette is the scale's grammar, not decoration:
   Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a
   "normal" the data does not have.
 
-Reach for colour-blind-safe ramps (ColorBrewer, viridis) and keep the *same* scale across small
-multiples so maps stay comparable. A rainbow ramp has no perceptual order, so readers cannot tell
-which end means "more".
+Viridis and the ColorBrewer ramps are colour-blind-safe and perceptually ordered; a rainbow ramp is
+neither, so readers cannot tell which end means "more". Keep the *same* scale across small multiples
+so maps stay comparable.
 
 ## Polish: legend, labels and base styling
 
 - `subtitle` / `source` — caption units and provenance.
 - `"legendNumberFormat": {"style": "decimal", "decimals": 1, "suffix": "%"}` — format legend ticks.
-- `mapColor` / `mapOutlineColor` — fill for **no-data** regions and the shape borders, so missing
-  data reads as missing rather than as a value.
+- `mapColor` / `mapOutlineColor` — the fill for **no-data** regions (a neutral grey) and the shape
+  borders, so missing data reads as missing rather than as a value.
 - `"showMapLabels": True` — draw region names (best on few-region maps; clutters a world map).
 - `"legendInside": True` — float the legend over empty ocean to reclaim width.
 
