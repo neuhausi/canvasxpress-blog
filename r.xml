@@ -10,7 +10,231 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/r.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Sat, 26 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 06 Oct 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Choropleth maps in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/choropleth-maps-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A choropleth map shades each region by a value — emissions, population, votes, incidence. The trick is always the same: join a table of values to a set of map shapes by a common key, then pick a color scale. In this post we build one in R with <a href="https://canvasxpress.org">canvasXpress</a>: you pass a named vector of values and a topoJSON of boundaries, and the join and coloring happen inside the render, so the result is interactive and fully reproducible from a single spec.</p>
+<section id="one-value-per-region" class="level2">
+<h2 class="anchored" data-anchor-id="one-value-per-region">One value per region</h2>
+<p>A choropleth needs exactly one measurement per shape. In canvasXpress the <strong>columns</strong> are the regions (they match the map by name) and the <strong>row</strong> is the variable you color by — here CO₂ emissions per country for 2018. We’ll load a prepared table; swap it for your own (any <code>country → value</code> table works).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read.table</span>(</span>
+<span id="cb1-4">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt"</span>,</span>
+<span id="cb1-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">header =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\t</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">quote =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb1-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stringsAsFactors =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb1-7">)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(y)              <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1 row (CO2) x N countries</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]   1 198</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">y[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Afghanistan  Albania  Algeria Andorra
+CO2    10.45267 5.402999 164.3093 0.46421</code></pre>
+</div>
+</div>
+<p>The single row is the variable (<code>CO2</code>); each column name is a country that must match a shape in the map. An optional <strong>sample annotation</strong> table (rows = countries) rides along for richer tooltips and legends — here the continent and ISO code.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read.table</span>(</span>
+<span id="cb5-2">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt"</span>,</span>
+<span id="cb5-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">header =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\t</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">quote =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb5-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">check.names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stringsAsFactors =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb5-5">)</span>
+<span id="cb5-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(x)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Code     Continent     Country
+Afghanistan  AFG          Asia Afghanistan
+Albania      ALB        Europe     Albania
+Algeria      DZA        Africa     Algeria
+Andorra      AND        Europe     Andorra
+Angola       AGO        Africa      Angola
+Anguilla     AIA North America    Anguilla</code></pre>
+</div>
+</div>
+</section>
+<section id="the-map" class="level2">
+<h2 class="anchored" data-anchor-id="the-map">The map</h2>
+<p><code>graphType = "Map"</code> with a <code>topoJSON</code> of world boundaries draws the shapes; <code>colorBy = "CO2"</code> shades each country by its value. The countries join to the map by name — no manual merge, no projection math.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb7-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data     =</span> y,</span>
+<span id="cb7-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> x,</span>
+<span id="cb7-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Map"</span>,</span>
+<span id="cb7-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colorBy   =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CO2"</span>,</span>
+<span id="cb7-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">topoJSON  =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/maps/WORLD.json"</span>,</span>
+<span id="cb7-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mapId     =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"countries"</span>,</span>
+<span id="cb7-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legendPosition =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>,</span>
+<span id="cb7-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">theme =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"solarized"</span>,</span>
+<span id="cb7-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CO2 Emissions per Country (2018)"</span>,</span>
+<span id="cb7-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width  =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>,</span>
+<span id="cb7-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb7-13">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-70a823243db4f9593073" style="width:100%;height:464px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-70a823243db4f9593073">{"x":{"data":{"y":{"vars":["CO2"],"smps":["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Cook Islands","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Fiji","Finland","France","French Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Greenland","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Lao People's Democratic Republic","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Moldova","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue","Democratic People's Republic of Korea","The former Yugoslav Republic of Macedonia","Norway","Oman","Pakistan","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre and Miquelon","Saint Vincent and the Grenadines","Samoa","Sao Tome and Principe","Saudi Arabia","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","Republic of Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"],"data":[[10.45,5.403,164.3,0.4642,37.68,0.1471,0.5056,185,6.297,0.9432,416,66.72,37.49,2.03,31.59,85.72,1.207,61.87,100.2,0.6122,7.76,0.6489,1.662,22.35,22.09,6.815,466.6,0.1736,9.56,43.55,4.14,0.568,15.48,7.567,586.5,0.6095,0.3005,1.008,85.83,9957,92.23,0.2459,3.518,0.07271,8.249,17.72,26.08,7.333,104.4,2.231,34.65,0.39,25.31,41.82,251.5,6.018,5.906,0.7088,17.71,16.18,2.124,45.85,331.7,0.7806,4.803,0.5632,9.862,755.4,14.48,71.8,0.5117,0.2786,19.41,3.032,0.3086,2.343,3.367,10.47,42.51,49.63,3.675,2591,576.6,755.4,211.3,38.8,62.21,348.1,8.01,1136,24.92,319.6,17.14,0.06888,104.2,10.17,32.26,7.859,27.57,2.426,1.274,45.21,0.1437,13.67,9.569,2.216,4.188,1.47,249.1,1.565,3.273,1.532,0.1531,3.935,4.902,451.1,5.878,64.51,2.123,65.37,8.383,26.1,4.154,0.04975,13.41,160.2,8.209,35.08,5.377,2.094,136.1,0.007653,38.16,6.981,43.82,71.03,247.4,12.1,6.786,8.103,54.21,138.9,337.7,51.48,109.2,76.95,1691,1.08,0.01132,0.249,0.3622,0.07923,0.2641,0.2679,0.1261,576.8,46.05,0.6054,0.9876,38.29,36.09,14.49,0.2985,0.6583,634.9,1.54,269.7,22.97,22.37,2.552,41.77,36.9,25.88,273.1,7.473,11.5,292.5,0.5204,3.167,0.1645,37.87,30.36,419.2,78.03,0.01148,5.385,231.7,188.5,380.1,5425,6.252,113.9,0.1454,129.6,211.8,9.945,6.93,11.34]]},"x":{"Code":["AFG","ALB","DZA","AND","AGO","AIA","ATG","ARG","ARM","ABW","AUS","AUT","AZE","BHS","BHR","BGD","BRB","BLR","BEL","BLZ","BEN","BMU","BTN","BOL","BIH","BWA","BRA","VGB","BRN","BGR","BFA","BDI","KHM","CMR","CAN","CPV","CAF","TCD","CHL","CHN","COL","COM","COG","COK","CRI","HRV","CUB","CYP","CZE","COD","DNK","DJI","DOM","ECU","EGY","SLV","GNQ","ERI","EST","ETH","FJI","FIN","FRA","PYF","GAB","GMB","GEO","DEU","GHA","GRC","GRL","GRD","GTM","GIN","GNB","GUY","HTI","HND","HKG","HUN","ISL","IND","IDN","IRN","IRQ","IRL","ISR","ITA","JAM","JPN","JOR","KAZ","KEN","KIR","KWT","KGZ","LAO","LVA","LBN","LSO","LBR","LBY","LIE","LTU","LUX","MAC","MDG","MWI","MYS","MDV","MLI","MLT","MHL","MRT","MUS","MEX","MDA","MNG","MNE","MAR","MOZ","MMR","NAM","NRU","NPL","NLD","NCL","NZL","NIC","NER","NGA","NIU","PRK","MKD","NOR","OMN","PAK","PAN","PNG","PRY","PER","PHL","POL","PRT","QAT","ROU","RUS","RWA","SHN","KNA","LCA","SPM","VCT","WSM","STP","SAU","SRB","SYC","SLE","SGP","SVK","SVN","SLB","SOM","KOR","SSD","ESP","LKA","SDN","SUR","SWE","CHE","SYR","TWN","TJK","TZA","THA","TLS","TGO","TON","TTO","TUN","TUR","TKM","TUV","UGA","UKR","ARE","GBR","USA","URY","UZB","VUT","VEN","VNM","YEM","ZMB","ZWE"],"Continent":["Asia","Europe","Africa","Europe","Africa","North America","North America","South America","Asia","North America","Oceania","Europe","Europe","North America","Asia","Asia","North America","Europe","Europe","North America","Africa","North America","Asia","South America","Europe","Africa","South America","North America","Asia","Europe","Africa","Africa","Asia","Africa","North America","Africa","Africa","Africa","South America","Asia","South America","Africa","Africa","Oceania","Central America","Europe","North America","Europe","Europe","Africa","Europe","Africa","North America","South America","Africa","Central America","Africa","Africa","Europe","Africa","Oceania","Europe","Europe","Oceania","Africa","Africa","Asia","Europe","Africa","Europe","North America","North America","Central America","Africa","Africa","South America","North America","Central America","Asia","Europe","Europe","Asia","Asia","Asia","Asia","Europe","Asia","Europe","North America","Asia","Asia","Asia","Africa","Oceania","Asia","Asia","Asia","Europe","Asia","Africa","Africa","Africa","Europe","Europe","Europe","Asia","Africa","Africa","Asia","Asia","Africa","Europe","Oceania","Africa","Africa","North America","Europe","Asia","Europe","Africa","Africa","Asia","Africa","Oceania","Asia","Europe","Oceania","Oceania","Central America","Africa","Africa","Oceania","Asia","Europe","Europe","Asia","Asia","Central America","Oceania","South America","South America","Asia","Europe","Europe","Africa","Europe","Asia","Africa","Africa","North America","North America","North America","North America","Oceania","Africa","Asia","Europe","Africa","Africa","Asia","Europe","Europe","Oceania","Africa","Asia","Africa","Europe","Asia","Africa","South America","Europe","Europe","Asia","Asia","Asia","Africa","Asia","Asia","Africa","Oceania","North America","Africa","Asia","Asia","Oceania","Africa","Europe","Asia","Europe","North America","South America","Asia","Oceania","South America","Asia","Asia","Africa","Africa"],"Country":["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei Darussalam","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Cook Islands","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Democratic Republic of the Congo","Denmark","Djibouti","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Fiji","Finland","France","French Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Greenland","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Lao People's Democratic Republic","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Moldova","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Niue","Democratic People's Republic of Korea","The former Yugoslav Republic of Macedonia","Norway","Oman","Pakistan","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Helena","Saint Kitts and Nevis","Saint Lucia","Saint Pierre and Miquelon","Saint Vincent and the Grenadines","Samoa","Sao Tome and Principe","Saudi Arabia","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","Republic of Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"]},"z":null},"config":{"graphType":"Map","isR":true,"colorBy":"CO2","topoJSON":"https://www.canvasxpress.org/data/maps/WORLD.json","mapId":"countries","legendPosition":"left","theme":"solarized","title":"CO2 Emissions per Country (2018)"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Each country is shaded by its emissions, the legend maps color to value, and hovering a country shows its name, continent and number. The whole figure is one portable spec — the data, the boundaries and the color rule travel together.</p>
+</section>
+<section id="beyond-the-world-map" class="level2">
+<h2 class="anchored" data-anchor-id="beyond-the-world-map">Beyond the world map</h2>
+<p>Point <code>topoJSON</code> at a different boundary file to map US states, a single country’s provinces, or a custom region — the join key is just the shape name. Switch <code>colorBy</code> to a categorical column (e.g.&nbsp;an election winner) for a qualitative map, add <code>decorations</code> to drop labeled markers on cities, or set <code>mapProjection</code> for an Albers or Mercator view.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../clustered-heatmap-in-r/">Clustered heatmaps in R</a></li>
+<li><a href="../volcano-plots-in-r/">Interactive volcano plots in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>maps</category>
+  <category>choropleth</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/choropleth-maps-in-r/</guid>
+  <pubDate>Tue, 06 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/choropleth-maps-in-r/thumbnail.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Sankey / alluvial diagrams in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>

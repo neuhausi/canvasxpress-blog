@@ -4,21 +4,21 @@
     "href": "r.html",
     "title": "CanvasXpress in R",
     "section": "",
-    "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable R. This page’s feed (r.xml) is the one syndicated to R-Bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in R with canvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 6, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "CanvasXpress Recipes",
     "section": "",
-    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Browse everything below, or jump to a topic: R or Python. Each topic has its own feed — the R feed and Python feed syndicate to R-Bloggers and Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in the browser with CanvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 8, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in Python with canvasxpress — join a DataFrame to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 7, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in R with canvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 6, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in R, from one portable spec.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in R.\n\n\n\n\n\nSep 25, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nPaired before/after boxplots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggpubr\n\n\nvisualization\n\n\n\nShow paired measurements — each subject connected across two timepoints — as an interactive boxplot, by wrapping a ggpubr::ggpaired plot with canvasXpress().\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nUse your ggplot2 (and ggpubr) plots directly with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nggplot2\n\n\nggpubr\n\n\nvisualization\n\n\n\nYou don’t have to rewrite your plots. Hand an existing ggplot object to canvasXpress() and get an interactive, reproducible version — pairwise significance brackets included.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix in R — one portable, reproducible spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of R.\n\n\n\n\n\nSep 19, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in R with canvasXpress\n\n\n\n\n\n\nR\n\n\ncanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression table — and save it as a portable spec you can reproduce anywhere.\n\n\n\n\n\nSep 18, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "js.html",
     "href": "js.html",
     "title": "CanvasXpress in JavaScript",
     "section": "",
-    "text": "Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like Echo JS and JavaScript Weekly; this page also has its own feed (js.xml).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable, browser-native JavaScript. There is no dedicated JavaScript blog aggregator, so individual posts are shared to sites like Echo JS and JavaScript Weekly; this page also has its own feed (js.xml).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in the browser with CanvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 8, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in the browser, from one portable spec.\n\n\n\n\n\nSep 28, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in the browser.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot in the browser with a few lines of JavaScript — one portable, reproducible CanvasXpress spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of browser JavaScript.\n\n\n\n\n\nSep 21, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in JavaScript with CanvasXpress\n\n\n\n\n\n\nJavaScript\n\n\nCanvasXpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a matrix — a few lines of browser JavaScript, one portable spec.\n\n\n\n\n\nSep 20, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/r/volcano-plots-in-r/index.html",
@@ -147,81 +147,123 @@
     "text": "Next\n\nPaired before/after boxplots in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/r/choropleth-maps-in-r/index.html",
+    "href": "posts/r/choropleth-maps-in-r/index.html",
+    "title": "Choropleth maps in R with canvasXpress",
     "section": "",
-    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. CanvasXpress clusters inside the render, so in the browser you pass a plain matrix and get an interactive, reproducible figure."
+    "text": "A choropleth map shades each region by a value — emissions, population, votes, incidence. The trick is always the same: join a table of values to a set of map shapes by a common key, then pick a color scale. In this post we build one in R with canvasXpress: you pass a named vector of values and a topoJSON of boundaries, and the join and coloring happen inside the render, so the result is interactive and fully reproducible from a single spec."
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
-    "section": "Load the library",
-    "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
+    "objectID": "posts/r/choropleth-maps-in-r/index.html#one-value-per-region",
+    "href": "posts/r/choropleth-maps-in-r/index.html#one-value-per-region",
+    "title": "Choropleth maps in R with canvasXpress",
+    "section": "One value per region",
+    "text": "One value per region\nA choropleth needs exactly one measurement per shape. In canvasXpress the columns are the regions (they match the map by name) and the row is the variable you color by — here CO₂ emissions per country for 2018. We’ll load a prepared table; swap it for your own (any country → value table works).\n\nlibrary(canvasXpress)\n\ny &lt;- read.table(\n  \"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt\",\n  header = TRUE, sep = \"\\t\", quote = \"\", row.names = 1,\n  check.names = FALSE, stringsAsFactors = FALSE\n)\n\ndim(y)              # 1 row (CO2) x N countries\n\n[1]   1 198\n\ny[, 1:4]\n\n    Afghanistan  Albania  Algeria Andorra\nCO2    10.45267 5.402999 164.3093 0.46421\n\n\nThe single row is the variable (CO2); each column name is a country that must match a shape in the map. An optional sample annotation table (rows = countries) rides along for richer tooltips and legends — here the continent and ISO code.\n\nx &lt;- read.table(\n  \"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt\",\n  header = TRUE, sep = \"\\t\", quote = \"\", row.names = 1,\n  check.names = FALSE, stringsAsFactors = FALSE\n)\nhead(x)\n\n            Code     Continent     Country\nAfghanistan  AFG          Asia Afghanistan\nAlbania      ALB        Europe     Albania\nAlgeria      DZA        Africa     Algeria\nAndorra      AND        Europe     Andorra\nAngola       AGO        Africa      Angola\nAnguilla     AIA North America    Anguilla"
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
-    "section": "The markup and the spec",
-    "text": "The markup and the spec\nGenes are the variables (rows), samples the columns; the matrix goes in as data, and the sample annotation becomes a track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n&lt;canvas id=\"heatmap\" width=\"650\" height=\"550\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];\n  for (var j = 0; j &lt; ns; j++) { samps.push(\"S\" + (j + 1)); cond.push(j &lt; ns / 2 ? \"Tumor\" : \"Normal\"); }\n  for (var i = 0; i &lt; ng; i++) {\n    genes.push(\"Gene\" + (i + 1));\n    var row = [];\n    for (var k = 0; k &lt; ns; k++) {\n      var val = gauss();\n      if (i &lt; 20 && cond[k] === \"Tumor\")   val += 2;        // first block up in Tumor\n      if (i &gt;= 20 && cond[k] === \"Normal\") val += 2;        // second block up in Normal\n      row.push(Math.round(val * 1000) / 1000);\n    }\n    matrix.push(row);\n  }\n\n  var data = {\n    y: { vars: genes, smps: samps, data: matrix },\n    x: { Condition: cond }\n  };\n\n  var config = {\n    graphType: \"Heatmap\",\n    samplesClustered: true, variablesClustered: true,\n    colorSpectrum: [\"navy\", \"white\", \"firebrick3\"],\n    showSmpDendrogram: true, showVarDendrogram: true,\n    title: \"Clustered expression heatmap\"\n  };\n\n  new CanvasXpress(\"heatmap\", data, config);\n&lt;/script&gt;"
+    "objectID": "posts/r/choropleth-maps-in-r/index.html#the-map",
+    "href": "posts/r/choropleth-maps-in-r/index.html#the-map",
+    "title": "Choropleth maps in R with canvasXpress",
+    "section": "The map",
+    "text": "The map\ngraphType = \"Map\" with a topoJSON of world boundaries draws the shapes; colorBy = \"CO2\" shades each country by its value. The countries join to the map by name — no manual merge, no projection math.\n\ncanvasXpress(\n  data     = y,\n  smpAnnot = x,\n  graphType = \"Map\",\n  colorBy   = \"CO2\",\n  topoJSON  = \"https://www.canvasxpress.org/data/maps/WORLD.json\",\n  mapId     = \"countries\",\n  legendPosition = \"left\",\n  theme = \"solarized\",\n  title = \"CO2 Emissions per Country (2018)\",\n  width  = 700,\n  height = 500\n)\n\n\n\n\n\nEach country is shaded by its emissions, the legend maps color to value, and hovering a country shows its name, continent and number. The whole figure is one portable spec — the data, the boundaries and the color rule travel together."
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
-    "section": "Live result",
-    "text": "Live result\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or Python."
+    "objectID": "posts/r/choropleth-maps-in-r/index.html#beyond-the-world-map",
+    "href": "posts/r/choropleth-maps-in-r/index.html#beyond-the-world-map",
+    "title": "Choropleth maps in R with canvasXpress",
+    "section": "Beyond the world map",
+    "text": "Beyond the world map\nPoint topoJSON at a different boundary file to map US states, a single country’s provinces, or a custom region — the join key is just the shape name. Switch colorBy to a categorical column (e.g. an election winner) for a qualitative map, add decorations to drop labeled markers on cities, or set mapProjection for an Albers or Mercator view."
   },
   {
-    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#next",
-    "href": "posts/js/clustered-heatmap-in-javascript/index.html#next",
-    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "objectID": "posts/r/choropleth-maps-in-r/index.html#next",
+    "href": "posts/r/choropleth-maps-in-r/index.html#next",
+    "title": "Choropleth maps in R with canvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in JavaScript\nKaplan–Meier survival curves in JavaScript\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nClustered heatmaps in R\nInteractive volcano plots in R\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html",
+    "href": "posts/js/violin-plots-in-javascript/index.html",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "",
-    "text": "A Sankey (or alluvial) diagram shows how a quantity flows through a sequence of categorical stages — patients moving from a cohort, to a treatment, to an outcome. The width of each stream is the magnitude. CanvasXpress is a JavaScript library at heart, so in the browser it’s just a data object and a config."
+    "text": "A violin plot shows the full shape of a distribution instead of collapsing it to a box’s quartiles. And a split (half) violin puts one condition on each half so you can compare two groups at the same position. CanvasXpress is a JavaScript library at heart, so in the browser it’s just a data object and a config."
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#load-the-library",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html#load-the-library",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
+    "href": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Load the library",
     "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#the-markup-and-the-spec",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html#the-markup-and-the-spec",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "The markup and the spec",
-    "text": "The markup and the spec\nEach row is one path through the stages; the value (Freq) is the single variable, and the stages are sample annotations (x). sankeyAxes lists the stages in order.\n&lt;canvas id=\"sankey\" width=\"700\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  var cohorts = [\"Cohort A\", \"Cohort B\"],\n      treats  = [\"Drug 1\", \"Drug 2\", \"Placebo\"],\n      outcomes = [\"Response\", \"Stable\", \"Progression\"];\n\n  var Cohort = [], Treatment = [], Outcome = [], Freq = [];\n  cohorts.forEach(function (co) {\n    treats.forEach(function (tr) {\n      outcomes.forEach(function (ou) {\n        var base = ou === \"Response\" ? 40 : ou === \"Stable\" ? 25 : 15;\n        if (tr === \"Placebo\" && ou === \"Response\") base = 12;   // placebo responds less\n        Cohort.push(co); Treatment.push(tr); Outcome.push(ou);\n        Freq.push(base + Math.floor(Math.random() * 16));\n      });\n    });\n  });\n\n  var ids = Freq.map(function (_, i) { return \"r\" + (i + 1); });\n\n  var data = {\n    y: { vars: [\"Freq\"], smps: ids, data: [Freq] },\n    x: { Cohort: Cohort, Treatment: Treatment, Outcome: Outcome }\n  };\n\n  var config = {\n    graphType: \"Sankey\",\n    sankeyAxes: [\"Cohort\", \"Treatment\", \"Outcome\"],\n    xAxis: [\"Freq\"],\n    colorBy: \"Outcome\",\n    sankeyType: \"proportional\",\n    graphOrientation: \"horizontal\",\n    title: \"Patient flow: cohort to treatment to outcome\"\n  };\n\n  new CanvasXpress(\"sankey\", data, config);\n&lt;/script&gt;"
+    "text": "The markup and the spec\nA violin is a Boxplot graph with the violin turned on. One measured variable (value) × N observations, with the grouping columns as sample annotations (x). For the split violin, group by both factors, colour by condition, and set violinSide: \"split\".\n&lt;canvas id=\"violin\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;canvas id=\"violinSplit\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var doses = [\"Low\", \"Medium\", \"High\"], conds = [\"Control\", \"Treated\"];\n  var mus = { Low: 6, Medium: 8, High: 10 };\n  var value = [], Dose = [], Condition = [];\n  doses.forEach(function (d) {\n    conds.forEach(function (co) {\n      var mu = mus[d] + (co === \"Treated\" ? 1.5 : 0);\n      for (var i = 0; i &lt; 40; i++) {\n        value.push(Math.round((mu + 1.2 * gauss()) * 100) / 100);\n        Dose.push(d); Condition.push(co);\n      }\n    });\n  });\n  var ids = value.map(function (_, i) { return \"o\" + (i + 1); });\n\n  var data = { y: { vars: [\"value\"], smps: ids, data: [value] },\n               x: { Dose: Dose, Condition: Condition } };\n\n  // full violin\n  new CanvasXpress(\"violin\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\"], xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Distribution of value by dose\"\n  });\n\n  // split (half) violin comparing conditions\n  new CanvasXpress(\"violinSplit\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\", \"Condition\"], colorBy: \"Condition\",\n    violinSide: \"split\", violinTrim: false, xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Control vs Treated — split violin by dose\"\n  });\n&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#live-result",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html#live-result",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#live-result",
+    "href": "posts/js/violin-plots-in-javascript/index.html#live-result",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Live result",
-    "text": "Live result\n\n\n\n\nHover any stream to see the count; the widths are proportional to the frequency. sankeyType can also be \"aligned\" (classic alluvial) or \"equal\"."
+    "text": "Live result\n\n\n\n\n\nHover to read the density and summary stats. violinSide can also be \"lt\" or \"rb\" for a one-sided half violin."
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#why-reproducible",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html#why-reproducible",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
+    "href": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Why “reproducible”",
     "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec that renders the same from R, Python, or a web page."
   },
   {
-    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#next",
-    "href": "posts/js/sankey-diagrams-in-javascript/index.html#next",
-    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
+    "objectID": "posts/js/violin-plots-in-javascript/index.html#next",
+    "href": "posts/js/violin-plots-in-javascript/index.html#next",
+    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
+    "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html"
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html",
+    "href": "posts/js/volcano-plots-in-javascript/index.html",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "",
+    "text": "A volcano plot puts log fold change on x, statistical significance on y, and pushes the interesting genes into the top corners. CanvasXpress is a JavaScript library at heart, so in the browser there’s no wrapper at all — you give a &lt;canvas&gt; a data object and a config, and you get an interactive, reproducible figure. The same spec renders identically from R and Python too."
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Load the library",
+    "text": "Load the library\nDrop one script tag (and the stylesheet) on your page. Here we pin to a released version on a CDN:\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "The markup and the spec",
+    "text": "The markup and the spec\nGive the page a canvas, then build the data (a value matrix plus annotations) and a config, and call new CanvasXpress(...):\n&lt;canvas id=\"volcano\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // Normal-distribution helpers (no stats library needed in the browser)\n  function gauss() {                        // standard normal via Box–Muller\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n  function normCdf(x) {                      // standard normal CDF via an erf approximation\n    var s = x &lt; 0 ? -1 : 1, ax = Math.abs(x) / Math.SQRT2;\n    var t = 1 / (1 + 0.3275911 * ax);\n    var y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-ax * ax);\n    return 0.5 * (1 + s * y);\n  }\n\n  // Simulate a realistic volcano: most genes unchanged, a minority differentially\n  // expressed; significance follows effect size / standard error. Genes are the\n  // variables (rows); each row holds [logFC, -log-pVal].\n  var genes = [], rows = [], group = [], fc = [];\n  for (var i = 0; i &lt; 1000; i++) {\n    var de = Math.random() &lt; 0.12;                          // ~12% truly changed\n    var sgn = Math.random() &lt; 0.5 ? -1 : 1;\n    var effect = de ? sgn * (0.8 + 0.9 * Math.random()) : 0;\n    var se = 0.22 + 0.5 * Math.random();                    // per-gene standard error\n    var f = effect + se * gauss();                          // observed log2FC\n    var praw = 2 * (1 - normCdf(Math.abs(f / se)));         // z-test p-value\n    var p = Math.min(-Math.log(Math.max(praw, 1e-16)) / Math.LN10, 16);\n    genes.push(\"Gene\" + (i + 1));\n    rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);\n    group.push(f &gt; 1 && p &gt; 1.3 ? \"Increased\" : f &lt; -1 && p &gt; 1.3 ? \"Decreased\" : \"NoChange\");\n    fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);\n  }\n\n  var data = {\n    y: { vars: genes, smps: [\"logFC\", \"-log-pVal\"], data: rows },\n    z: { Group: group, FC: fc }\n  };\n\n  var config = {\n    graphType: \"Scatter2D\",\n    title: \"Publication-ready volcano plot\",\n    xAxis: [\"logFC\"], yAxis: [\"-log-pVal\"],\n    xAxisTitle: \"log2 fold change\", yAxisTitle: \"-log10 p-value\",\n    colorBy: \"Group\",\n    colorKey: { Group: { Increased: \"rgba(197,27,38,0.75)\",\n                         Decreased: \"rgba(33,102,172,0.75)\",\n                         NoChange:  \"rgba(150,150,150,0.35)\" } },\n    sizeBy: \"FC\", sizes: [3, 6, 9, 12, 15],\n    showDecorations: true,\n    decorations: { line: [\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: 1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: -1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, y: 1.301 }\n    ] }\n  };\n\n  new CanvasXpress(\"volcano\", data, config);\n&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#live-result",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#live-result",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Live result",
+    "text": "Live result\nHere’s exactly that code, running on this page:\n\n\n\n\nHover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs."
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data and config above are the figure — one portable JSON specification. Save it and the identical plot renders from the R (canvasXpress) and Python (canvasxpress) packages, and it can be validated against a published schema and re-rendered later, so a figure can be regenerated and audited rather than just viewed."
+  },
+  {
+    "objectID": "posts/js/volcano-plots-in-javascript/index.html#next",
+    "href": "posts/js/volcano-plots-in-javascript/index.html#next",
+    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "section": "Next",
+    "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nDocumentation: https://canvasxpress.org/documentation.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
   },
   {
     "objectID": "posts/js/kaplan-meier-in-javascript/index.html",
@@ -266,81 +308,81 @@
     "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html",
-    "href": "posts/python/kaplan-meier-in-python/index.html",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "objectID": "posts/python/volcano-plots-in-python/index.html",
+    "href": "posts/python/volcano-plots-in-python/index.html",
+    "title": "Interactive volcano plots in Python with canvasxpress",
     "section": "",
-    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. Here we build one in Python with canvasxpress — it computes the survival steps for you from a time column and a censoring column — and the result is interactive and reproducible."
+    "text": "A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed to the top corners. Here we build one in Python with canvasxpress — interactive (zoom, hover, filter) and reproducible: the whole figure is one portable specification you can store and re-render from Python, R or JavaScript."
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html#install",
-    "href": "posts/python/kaplan-meier-in-python/index.html#install",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "objectID": "posts/python/volcano-plots-in-python/index.html#install",
+    "href": "posts/python/volcano-plots-in-python/index.html#install",
+    "title": "Interactive volcano plots in Python with canvasxpress",
     "section": "Install",
     "text": "Install\npip install canvasxpress"
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html#a-survival-table",
-    "href": "posts/python/kaplan-meier-in-python/index.html#a-survival-table",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
-    "section": "A survival table",
-    "text": "A survival table\nSwap this simulated block for your own data: per subject you need a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nimport numpy as np\n\nrng  = np.random.default_rng(1)\nn    = 200\narm  = rng.choice([\"Treatment\", \"Control\"], n)\nbase = np.where(arm == \"Treatment\", 60, 40)     # treatment survives longer\ntime = np.round(rng.exponential(base), 1)\ncens = rng.binomial(1, 0.3, n)                  # 1 = censored, 0 = event\nsubj = [f\"Subj{i+1}\" for i in range(n)]"
+    "objectID": "posts/python/volcano-plots-in-python/index.html#a-differential-expression-table",
+    "href": "posts/python/volcano-plots-in-python/index.html#a-differential-expression-table",
+    "title": "Interactive volcano plots in Python with canvasxpress",
+    "section": "A differential-expression table",
+    "text": "A differential-expression table\nSwap this simulated block for your own results — the output of any DE pipeline works, as long as you have a log fold change and a significance value per gene.\n\nimport numpy as np\nimport pandas as pd\nfrom scipy.stats import norm\n\nrng = np.random.default_rng(1)\nn = 1000\ngenes = [f\"Gene{i+1}\" for i in range(n)]\n\n# Simulate a realistic volcano: most genes have no real effect, a minority are\n# differentially expressed. Significance follows effect size / standard error, which\n# is what gives a volcano its shape.\nde     = rng.random(n) &lt; 0.12                              # ~12% truly changed\nsign   = rng.choice([-1, 1], n)\neffect = np.where(de, sign * (0.8 + 0.9 * rng.random(n)), 0.0)   # true log2FC\nse     = 0.22 + 0.5 * rng.random(n)                        # per-gene standard error\nlogfc  = effect + rng.normal(0, se)                        # observed log2FC\npval   = 2 * norm.sf(np.abs(logfc / se))                   # z-test p-value\nneglogp = np.minimum(-np.log10(pval), 16)\n\ndf = pd.DataFrame({\"logFC\": logfc.round(3), \"-log-pVal\": neglogp.round(3)}, index=genes)\n\ndef classify(fc, p):\n    if fc &gt; 1 and p &gt; 1.3:   return \"Increased\"\n    if fc &lt; -1 and p &gt; 1.3:  return \"Decreased\"\n    return \"NoChange\"\n\ngroup = [classify(fc, p) for fc, p in zip(df[\"logFC\"], df[\"-log-pVal\"])]\nfold  = (2 ** df[\"logFC\"].abs()).round(2)"
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html#build-the-spec",
-    "href": "posts/python/kaplan-meier-in-python/index.html#build-the-spec",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "objectID": "posts/python/volcano-plots-in-python/index.html#build-the-spec",
+    "href": "posts/python/volcano-plots-in-python/index.html#build-the-spec",
+    "title": "Interactive volcano plots in Python with canvasxpress",
     "section": "Build the spec",
-    "text": "Build the spec\nThe two columns — the time and its matching censor flag — go in as the variable samples, and the arm rides along as a variable annotation. The key is graphType=\"KaplanMeier\" and passing both columns to xAxis.\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    # Subjects are the variables (rows); each row holds [Time, Time-Censor].\n    \"y\": {\"vars\": subj, \"smps\": [\"Time\", \"Time-Censor\"],\n          \"data\": [[t, c] for t, c in zip(time.tolist(), cens.tolist())]},\n    \"z\": {\"Arm\": arm.tolist()},\n}\n\nconfig = {\n    \"graphType\": \"KaplanMeier\",\n    \"xAxis\": [\"Time\", \"Time-Censor\"],\n    \"colorBy\": \"Arm\",\n    \"title\": \"Overall survival by treatment arm\",\n    \"xAxisTitle\": \"Time (weeks)\", \"yAxisTitle\": \"Probability of survival\",\n    \"invertCensored\": True,               # draw censoring ticks\n    \"showKMConfidenceIntervals\": False,\n}\n\ncx = CanvasXpress(render_to=\"km\", data=data, config=config, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. canvasxpress derives the survival curve from the raw table, so you never precompute the steps — and the same spec re-renders the identical curve from R or JavaScript."
+    "text": "Build the spec\ncanvasxpress takes a data object (a value matrix plus annotations) and a config. We put the two measurements as the variable’s samples and carry the regulation call and fold change as variable annotations (z).\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    # Genes are the variables (rows); each row holds [logFC, -log-pVal].\n    \"y\": {\"vars\": genes, \"smps\": [\"logFC\", \"-log-pVal\"],\n          \"data\": [[fc, p] for fc, p in zip(df[\"logFC\"], df[\"-log-pVal\"])]},\n    \"z\": {\"Group\": group, \"FC\": fold.tolist()},\n}\n\nconfig = {\n    \"graphType\": \"Scatter2D\",\n    \"title\": \"Publication-ready volcano plot\",\n    \"xAxis\": [\"logFC\"], \"yAxis\": [\"-log-pVal\"],\n    \"xAxisTitle\": \"log2 fold change\", \"yAxisTitle\": \"-log10 p-value\",\n    \"colorBy\": \"Group\",\n    \"colorKey\": {\"Group\": {\"Increased\": \"rgba(197,27,38,0.75)\",\n                            \"Decreased\": \"rgba(33,102,172,0.75)\",\n                            \"NoChange\":  \"rgba(150,150,150,0.35)\"}},\n    \"sizeBy\": \"FC\", \"sizes\": [3, 6, 9, 12, 15],\n    \"showDecorations\": True,\n    \"decorations\": {\"line\": [\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"x\": 1},\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"x\": -1},\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"y\": 1.301},\n    ]},\n}\n\ncx = CanvasXpress(render_to=\"volcano\", data=data, config=config, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nThe chart is interactive — hover a point for its gene and values, drag to zoom, filter by regulation group in the toolbar. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs."
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html#a-common-gotcha",
-    "href": "posts/python/kaplan-meier-in-python/index.html#a-common-gotcha",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
-    "section": "A common gotcha",
-    "text": "A common gotcha\nThe survival transform only fires with graphType=\"KaplanMeier\". A bare \"Scatter2D\" gives a raw scatter of the censor values instead — survival probability is computed by the engine, not a column in your data."
+    "objectID": "posts/python/volcano-plots-in-python/index.html#why-reproducible",
+    "href": "posts/python/volcano-plots-in-python/index.html#why-reproducible",
+    "title": "Interactive volcano plots in Python with canvasxpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nEverything above serializes to one JSON specification — the data and the config. That spec is portable: the identical figure renders from the R (canvasXpress) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just viewed."
   },
   {
-    "objectID": "posts/python/kaplan-meier-in-python/index.html#next",
-    "href": "posts/python/kaplan-meier-in-python/index.html#next",
-    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "objectID": "posts/python/volcano-plots-in-python/index.html#next",
+    "href": "posts/python/volcano-plots-in-python/index.html#next",
+    "title": "Interactive volcano plots in Python with canvasxpress",
+    "section": "Next",
+    "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nComing from Plotly/Matplotlib: https://canvasxpress.org/migrate.html\nPackage: https://pypi.org/project/canvasxpress/"
+  },
+  {
+    "objectID": "posts/python/sankey-diagrams-in-python/index.html",
+    "href": "posts/python/sankey-diagrams-in-python/index.html",
+    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "section": "",
+    "text": "A Sankey (or alluvial) diagram shows how a quantity flows through a sequence of categorical stages — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in Python with canvasxpress — interactive and reproducible."
+  },
+  {
+    "objectID": "posts/python/sankey-diagrams-in-python/index.html#install",
+    "href": "posts/python/sankey-diagrams-in-python/index.html#install",
+    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "section": "Install",
+    "text": "Install\npip install canvasxpress"
+  },
+  {
+    "objectID": "posts/python/sankey-diagrams-in-python/index.html#the-data-shape",
+    "href": "posts/python/sankey-diagrams-in-python/index.html#the-data-shape",
+    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "section": "The data shape",
+    "text": "The data shape\ncanvasXpress builds a Sankey from a table where each row is one path through the stages, plus a frequency/weight. Swap this simulated clinical flow for your own counts.\n\nimport random\nrandom.seed(1)\n\ncohorts  = [\"Cohort A\", \"Cohort B\"]\ntreats   = [\"Drug 1\", \"Drug 2\", \"Placebo\"]\noutcomes = [\"Response\", \"Stable\", \"Progression\"]\n\nCohort, Treatment, Outcome, Freq = [], [], [], []\nfor co in cohorts:\n    for tr in treats:\n        for ou in outcomes:\n            base = 40 if ou == \"Response\" else 25 if ou == \"Stable\" else 15\n            if tr == \"Placebo\" and ou == \"Response\":\n                base = 12                                   # placebo responds less\n            Cohort.append(co); Treatment.append(tr); Outcome.append(ou)\n            Freq.append(base + random.randint(0, 15))\n\nThe value (Freq) is the single measured variable; the stage columns are sample annotations (x).\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\nids = [f\"r{i+1}\" for i in range(len(Freq))]\ndata = {\n    \"y\": {\"vars\": [\"Freq\"], \"smps\": ids, \"data\": [Freq]},\n    \"x\": {\"Cohort\": Cohort, \"Treatment\": Treatment, \"Outcome\": Outcome},\n}\n\nconfig = {\n    \"graphType\": \"Sankey\",\n    \"sankeyAxes\": [\"Cohort\", \"Treatment\", \"Outcome\"],\n    \"xAxis\": [\"Freq\"],\n    \"colorBy\": \"Outcome\",\n    \"sankeyType\": \"proportional\",\n    \"graphOrientation\": \"horizontal\",\n    \"title\": \"Patient flow: cohort to treatment to outcome\",\n}\n\ncx = CanvasXpress(render_to=\"sankey\", data=data, config=config, width=700, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nHover any stream to see the count; the widths are proportional to the frequency, so you can read the flow at a glance. sankeyType can also be \"aligned\" (classic alluvial) or \"equal\"."
+  },
+  {
+    "objectID": "posts/python/sankey-diagrams-in-python/index.html#why-reproducible",
+    "href": "posts/python/sankey-diagrams-in-python/index.html#why-reproducible",
+    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "section": "Why “reproducible”",
+    "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec. The same spec renders the identical Sankey from R or JavaScript, and can be validated and re-rendered later."
+  },
+  {
+    "objectID": "posts/python/sankey-diagrams-in-python/index.html#next",
+    "href": "posts/python/sankey-diagrams-in-python/index.html#next",
+    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
     "section": "Next",
     "text": "Next\n\nInteractive volcano plots in Python\nGallery: https://canvasxpress.org/examples.html\nPackage: https://pypi.org/project/canvasxpress/"
-  },
-  {
-    "objectID": "posts/python/clustered-heatmap-in-python/index.html",
-    "href": "posts/python/clustered-heatmap-in-python/index.html",
-    "title": "Clustered heatmaps in Python with canvasxpress",
-    "section": "",
-    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. Here we build one in Python with canvasxpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
-  },
-  {
-    "objectID": "posts/python/clustered-heatmap-in-python/index.html#install",
-    "href": "posts/python/clustered-heatmap-in-python/index.html#install",
-    "title": "Clustered heatmaps in Python with canvasxpress",
-    "section": "Install",
-    "text": "Install\npip install canvasxpress"
-  },
-  {
-    "objectID": "posts/python/clustered-heatmap-in-python/index.html#an-expression-matrix-with-sample-metadata",
-    "href": "posts/python/clustered-heatmap-in-python/index.html#an-expression-matrix-with-sample-metadata",
-    "title": "Clustered heatmaps in Python with canvasxpress",
-    "section": "An expression matrix with sample metadata",
-    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations.\n\nimport numpy as np\nimport pandas as pd\n\nrng   = np.random.default_rng(1)\nng, ns = 40, 30\ngenes = [f\"Gene{i+1}\" for i in range(ng)]\nsamps = [f\"S{i+1}\"    for i in range(ns)]\ncond  = [\"Tumor\"] * (ns // 2) + [\"Normal\"] * (ns // 2)\n\nm = rng.normal(0, 1, (ng, ns))\ntumor = [i for i, c in enumerate(cond) if c == \"Tumor\"]\nnormal = [i for i, c in enumerate(cond) if c == \"Normal\"]\nm[np.ix_(range(0, 20),  tumor)]  += 2      # first block up in Tumor\nm[np.ix_(range(20, 40), normal)] += 2      # second block up in Normal\n\nexpr = pd.DataFrame(m.round(3), index=genes, columns=samps)"
-  },
-  {
-    "objectID": "posts/python/clustered-heatmap-in-python/index.html#build-the-spec",
-    "href": "posts/python/clustered-heatmap-in-python/index.html#build-the-spec",
-    "title": "Clustered heatmaps in Python with canvasxpress",
-    "section": "Build the spec",
-    "text": "Build the spec\nThe matrix goes in as data, and the sample annotation becomes an annotation track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    \"y\": {\"vars\": genes, \"smps\": samps, \"data\": expr.values.tolist()},\n    \"x\": {\"Condition\": cond},\n}\n\nconfig = {\n    \"graphType\": \"Heatmap\",\n    \"samplesClustered\": True, \"variablesClustered\": True,\n    \"colorSpectrum\": [\"navy\", \"white\", \"firebrick3\"],\n    \"showSmpDendrogram\": True, \"showVarDendrogram\": True,\n    \"title\": \"Clustered expression heatmap\",\n}\n\ncx = CanvasXpress(render_to=\"heatmap\", data=data, config=config, width=650, height=550)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or JavaScript."
-  },
-  {
-    "objectID": "posts/python/clustered-heatmap-in-python/index.html#next",
-    "href": "posts/python/clustered-heatmap-in-python/index.html#next",
-    "title": "Clustered heatmaps in Python with canvasxpress",
-    "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in Python\nKaplan–Meier survival curves in Python\nGallery: https://canvasxpress.org/examples.html"
   },
   {
     "objectID": "posts/python/violin-plots-in-python/index.html",
@@ -392,165 +434,242 @@
     "text": "Next\n\nInteractive volcano plots in Python\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/python/sankey-diagrams-in-python/index.html",
-    "href": "posts/python/sankey-diagrams-in-python/index.html",
-    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "objectID": "posts/python/clustered-heatmap-in-python/index.html",
+    "href": "posts/python/clustered-heatmap-in-python/index.html",
+    "title": "Clustered heatmaps in Python with canvasxpress",
     "section": "",
-    "text": "A Sankey (or alluvial) diagram shows how a quantity flows through a sequence of categorical stages — patients moving from a cohort, to a treatment, to an outcome; or reads from a sample, to a mapping status, to a feature. The width of each stream is the magnitude. Here we build one in Python with canvasxpress — interactive and reproducible."
+    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. Here we build one in Python with canvasxpress — clustering happens inside the render, so you pass a plain matrix and get an interactive, reproducible figure."
   },
   {
-    "objectID": "posts/python/sankey-diagrams-in-python/index.html#install",
-    "href": "posts/python/sankey-diagrams-in-python/index.html#install",
-    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "objectID": "posts/python/clustered-heatmap-in-python/index.html#install",
+    "href": "posts/python/clustered-heatmap-in-python/index.html#install",
+    "title": "Clustered heatmaps in Python with canvasxpress",
     "section": "Install",
     "text": "Install\npip install canvasxpress"
   },
   {
-    "objectID": "posts/python/sankey-diagrams-in-python/index.html#the-data-shape",
-    "href": "posts/python/sankey-diagrams-in-python/index.html#the-data-shape",
-    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
-    "section": "The data shape",
-    "text": "The data shape\ncanvasXpress builds a Sankey from a table where each row is one path through the stages, plus a frequency/weight. Swap this simulated clinical flow for your own counts.\n\nimport random\nrandom.seed(1)\n\ncohorts  = [\"Cohort A\", \"Cohort B\"]\ntreats   = [\"Drug 1\", \"Drug 2\", \"Placebo\"]\noutcomes = [\"Response\", \"Stable\", \"Progression\"]\n\nCohort, Treatment, Outcome, Freq = [], [], [], []\nfor co in cohorts:\n    for tr in treats:\n        for ou in outcomes:\n            base = 40 if ou == \"Response\" else 25 if ou == \"Stable\" else 15\n            if tr == \"Placebo\" and ou == \"Response\":\n                base = 12                                   # placebo responds less\n            Cohort.append(co); Treatment.append(tr); Outcome.append(ou)\n            Freq.append(base + random.randint(0, 15))\n\nThe value (Freq) is the single measured variable; the stage columns are sample annotations (x).\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\nids = [f\"r{i+1}\" for i in range(len(Freq))]\ndata = {\n    \"y\": {\"vars\": [\"Freq\"], \"smps\": ids, \"data\": [Freq]},\n    \"x\": {\"Cohort\": Cohort, \"Treatment\": Treatment, \"Outcome\": Outcome},\n}\n\nconfig = {\n    \"graphType\": \"Sankey\",\n    \"sankeyAxes\": [\"Cohort\", \"Treatment\", \"Outcome\"],\n    \"xAxis\": [\"Freq\"],\n    \"colorBy\": \"Outcome\",\n    \"sankeyType\": \"proportional\",\n    \"graphOrientation\": \"horizontal\",\n    \"title\": \"Patient flow: cohort to treatment to outcome\",\n}\n\ncx = CanvasXpress(render_to=\"sankey\", data=data, config=config, width=700, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nHover any stream to see the count; the widths are proportional to the frequency, so you can read the flow at a glance. sankeyType can also be \"aligned\" (classic alluvial) or \"equal\"."
+    "objectID": "posts/python/clustered-heatmap-in-python/index.html#an-expression-matrix-with-sample-metadata",
+    "href": "posts/python/clustered-heatmap-in-python/index.html#an-expression-matrix-with-sample-metadata",
+    "title": "Clustered heatmaps in Python with canvasxpress",
+    "section": "An expression matrix with sample metadata",
+    "text": "An expression matrix with sample metadata\nSwap this simulated block for your own matrix (genes in rows, samples in columns) and a table of per-sample annotations.\n\nimport numpy as np\nimport pandas as pd\n\nrng   = np.random.default_rng(1)\nng, ns = 40, 30\ngenes = [f\"Gene{i+1}\" for i in range(ng)]\nsamps = [f\"S{i+1}\"    for i in range(ns)]\ncond  = [\"Tumor\"] * (ns // 2) + [\"Normal\"] * (ns // 2)\n\nm = rng.normal(0, 1, (ng, ns))\ntumor = [i for i, c in enumerate(cond) if c == \"Tumor\"]\nnormal = [i for i, c in enumerate(cond) if c == \"Normal\"]\nm[np.ix_(range(0, 20),  tumor)]  += 2      # first block up in Tumor\nm[np.ix_(range(20, 40), normal)] += 2      # second block up in Normal\n\nexpr = pd.DataFrame(m.round(3), index=genes, columns=samps)"
   },
   {
-    "objectID": "posts/python/sankey-diagrams-in-python/index.html#why-reproducible",
-    "href": "posts/python/sankey-diagrams-in-python/index.html#why-reproducible",
-    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
-    "section": "Why “reproducible”",
-    "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec. The same spec renders the identical Sankey from R or JavaScript, and can be validated and re-rendered later."
+    "objectID": "posts/python/clustered-heatmap-in-python/index.html#build-the-spec",
+    "href": "posts/python/clustered-heatmap-in-python/index.html#build-the-spec",
+    "title": "Clustered heatmaps in Python with canvasxpress",
+    "section": "Build the spec",
+    "text": "Build the spec\nThe matrix goes in as data, and the sample annotation becomes an annotation track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    \"y\": {\"vars\": genes, \"smps\": samps, \"data\": expr.values.tolist()},\n    \"x\": {\"Condition\": cond},\n}\n\nconfig = {\n    \"graphType\": \"Heatmap\",\n    \"samplesClustered\": True, \"variablesClustered\": True,\n    \"colorSpectrum\": [\"navy\", \"white\", \"firebrick3\"],\n    \"showSmpDendrogram\": True, \"showVarDendrogram\": True,\n    \"title\": \"Clustered expression heatmap\",\n}\n\ncx = CanvasXpress(render_to=\"heatmap\", data=data, config=config, width=650, height=550)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or JavaScript."
   },
   {
-    "objectID": "posts/python/sankey-diagrams-in-python/index.html#next",
-    "href": "posts/python/sankey-diagrams-in-python/index.html#next",
-    "title": "Sankey / alluvial diagrams in Python with canvasxpress",
+    "objectID": "posts/python/clustered-heatmap-in-python/index.html#next",
+    "href": "posts/python/clustered-heatmap-in-python/index.html#next",
+    "title": "Clustered heatmaps in Python with canvasxpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in Python\nKaplan–Meier survival curves in Python\nGallery: https://canvasxpress.org/examples.html"
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html",
+    "href": "posts/python/kaplan-meier-in-python/index.html",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "section": "",
+    "text": "Kaplan–Meier curves summarize time-to-event data: the step-down survival probability over time, usually split by a group like treatment arm. Here we build one in Python with canvasxpress — it computes the survival steps for you from a time column and a censoring column — and the result is interactive and reproducible."
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html#install",
+    "href": "posts/python/kaplan-meier-in-python/index.html#install",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "section": "Install",
+    "text": "Install\npip install canvasxpress"
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html#a-survival-table",
+    "href": "posts/python/kaplan-meier-in-python/index.html#a-survival-table",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "section": "A survival table",
+    "text": "A survival table\nSwap this simulated block for your own data: per subject you need a follow-up time, a censoring indicator (1 = censored, 0 = event), and the grouping variable.\n\nimport numpy as np\n\nrng  = np.random.default_rng(1)\nn    = 200\narm  = rng.choice([\"Treatment\", \"Control\"], n)\nbase = np.where(arm == \"Treatment\", 60, 40)     # treatment survives longer\ntime = np.round(rng.exponential(base), 1)\ncens = rng.binomial(1, 0.3, n)                  # 1 = censored, 0 = event\nsubj = [f\"Subj{i+1}\" for i in range(n)]"
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html#build-the-spec",
+    "href": "posts/python/kaplan-meier-in-python/index.html#build-the-spec",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "section": "Build the spec",
+    "text": "Build the spec\nThe two columns — the time and its matching censor flag — go in as the variable samples, and the arm rides along as a variable annotation. The key is graphType=\"KaplanMeier\" and passing both columns to xAxis.\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    # Subjects are the variables (rows); each row holds [Time, Time-Censor].\n    \"y\": {\"vars\": subj, \"smps\": [\"Time\", \"Time-Censor\"],\n          \"data\": [[t, c] for t, c in zip(time.tolist(), cens.tolist())]},\n    \"z\": {\"Arm\": arm.tolist()},\n}\n\nconfig = {\n    \"graphType\": \"KaplanMeier\",\n    \"xAxis\": [\"Time\", \"Time-Censor\"],\n    \"colorBy\": \"Arm\",\n    \"title\": \"Overall survival by treatment arm\",\n    \"xAxisTitle\": \"Time (weeks)\", \"yAxisTitle\": \"Probability of survival\",\n    \"invertCensored\": True,               # draw censoring ticks\n    \"showKMConfidenceIntervals\": False,\n}\n\ncx = CanvasXpress(render_to=\"km\", data=data, config=config, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nHover any step for the time and survival probability; the tick marks are censored subjects. canvasxpress derives the survival curve from the raw table, so you never precompute the steps — and the same spec re-renders the identical curve from R or JavaScript."
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html#a-common-gotcha",
+    "href": "posts/python/kaplan-meier-in-python/index.html#a-common-gotcha",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
+    "section": "A common gotcha",
+    "text": "A common gotcha\nThe survival transform only fires with graphType=\"KaplanMeier\". A bare \"Scatter2D\" gives a raw scatter of the censor values instead — survival probability is computed by the engine, not a column in your data."
+  },
+  {
+    "objectID": "posts/python/kaplan-meier-in-python/index.html#next",
+    "href": "posts/python/kaplan-meier-in-python/index.html#next",
+    "title": "Kaplan–Meier survival curves in Python with canvasxpress",
     "section": "Next",
     "text": "Next\n\nInteractive volcano plots in Python\nGallery: https://canvasxpress.org/examples.html\nPackage: https://pypi.org/project/canvasxpress/"
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html",
-    "href": "posts/python/volcano-plots-in-python/index.html",
-    "title": "Interactive volcano plots in Python with canvasxpress",
+    "objectID": "posts/python/choropleth-maps-in-python/index.html",
+    "href": "posts/python/choropleth-maps-in-python/index.html",
+    "title": "Choropleth maps in Python with canvasxpress",
     "section": "",
-    "text": "A volcano plot is the workhorse of differential-expression analysis: log fold change on x, statistical significance on y, and the interesting genes pushed to the top corners. Here we build one in Python with canvasxpress — interactive (zoom, hover, filter) and reproducible: the whole figure is one portable specification you can store and re-render from Python, R or JavaScript."
+    "text": "A choropleth map shades each region by a value — emissions, population, votes, incidence. The trick is always the same: join a table of values to a set of map shapes by a common key, then pick a color scale. Here we build one in Python with canvasxpress: you pass one value per country and a topoJSON of boundaries, and the join and coloring happen inside the render, so the result is interactive and reproducible from a single spec."
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html#install",
-    "href": "posts/python/volcano-plots-in-python/index.html#install",
-    "title": "Interactive volcano plots in Python with canvasxpress",
+    "objectID": "posts/python/choropleth-maps-in-python/index.html#install",
+    "href": "posts/python/choropleth-maps-in-python/index.html#install",
+    "title": "Choropleth maps in Python with canvasxpress",
     "section": "Install",
-    "text": "Install\npip install canvasxpress"
+    "text": "Install\npip install canvasxpress pandas"
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html#a-differential-expression-table",
-    "href": "posts/python/volcano-plots-in-python/index.html#a-differential-expression-table",
-    "title": "Interactive volcano plots in Python with canvasxpress",
-    "section": "A differential-expression table",
-    "text": "A differential-expression table\nSwap this simulated block for your own results — the output of any DE pipeline works, as long as you have a log fold change and a significance value per gene.\n\nimport numpy as np\nimport pandas as pd\nfrom scipy.stats import norm\n\nrng = np.random.default_rng(1)\nn = 1000\ngenes = [f\"Gene{i+1}\" for i in range(n)]\n\n# Simulate a realistic volcano: most genes have no real effect, a minority are\n# differentially expressed. Significance follows effect size / standard error, which\n# is what gives a volcano its shape.\nde     = rng.random(n) &lt; 0.12                              # ~12% truly changed\nsign   = rng.choice([-1, 1], n)\neffect = np.where(de, sign * (0.8 + 0.9 * rng.random(n)), 0.0)   # true log2FC\nse     = 0.22 + 0.5 * rng.random(n)                        # per-gene standard error\nlogfc  = effect + rng.normal(0, se)                        # observed log2FC\npval   = 2 * norm.sf(np.abs(logfc / se))                   # z-test p-value\nneglogp = np.minimum(-np.log10(pval), 16)\n\ndf = pd.DataFrame({\"logFC\": logfc.round(3), \"-log-pVal\": neglogp.round(3)}, index=genes)\n\ndef classify(fc, p):\n    if fc &gt; 1 and p &gt; 1.3:   return \"Increased\"\n    if fc &lt; -1 and p &gt; 1.3:  return \"Decreased\"\n    return \"NoChange\"\n\ngroup = [classify(fc, p) for fc, p in zip(df[\"logFC\"], df[\"-log-pVal\"])]\nfold  = (2 ** df[\"logFC\"].abs()).round(2)"
+    "objectID": "posts/python/choropleth-maps-in-python/index.html#one-value-per-region",
+    "href": "posts/python/choropleth-maps-in-python/index.html#one-value-per-region",
+    "title": "Choropleth maps in Python with canvasxpress",
+    "section": "One value per region",
+    "text": "One value per region\nA choropleth needs exactly one measurement per shape. In canvasxpress the columns (smps) are the regions — they match the map by name — and each row (vars) is a variable you can color by. Here it’s CO₂ emissions per country for 2018. We load a prepared table; swap it for your own (any country → value table works).\n\nimport pandas as pd\n\ndat = pd.read_csv(\n    \"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt\",\n    sep=\"\\t\", index_col=0,\n)\nsmp = pd.read_csv(\n    \"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt\",\n    sep=\"\\t\", index_col=0,\n).reindex(dat.columns)        # align annotation to the country order\n\nprint(dat.shape)              # (1, N): one row (CO2) x N countries\ndat.iloc[:, :4]\n\n(1, 198)\n\n\n\n\n\n\n\n\n\nAfghanistan\nAlbania\nAlgeria\nAndorra\n\n\n\n\nCO2\n10.452666\n5.402999\n164.309295\n0.46421"
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html#build-the-spec",
-    "href": "posts/python/volcano-plots-in-python/index.html#build-the-spec",
-    "title": "Interactive volcano plots in Python with canvasxpress",
+    "objectID": "posts/python/choropleth-maps-in-python/index.html#build-the-spec",
+    "href": "posts/python/choropleth-maps-in-python/index.html#build-the-spec",
+    "title": "Choropleth maps in Python with canvasxpress",
     "section": "Build the spec",
-    "text": "Build the spec\ncanvasxpress takes a data object (a value matrix plus annotations) and a config. We put the two measurements as the variable’s samples and carry the regulation call and fold change as variable annotations (z).\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    # Genes are the variables (rows); each row holds [logFC, -log-pVal].\n    \"y\": {\"vars\": genes, \"smps\": [\"logFC\", \"-log-pVal\"],\n          \"data\": [[fc, p] for fc, p in zip(df[\"logFC\"], df[\"-log-pVal\"])]},\n    \"z\": {\"Group\": group, \"FC\": fold.tolist()},\n}\n\nconfig = {\n    \"graphType\": \"Scatter2D\",\n    \"title\": \"Publication-ready volcano plot\",\n    \"xAxis\": [\"logFC\"], \"yAxis\": [\"-log-pVal\"],\n    \"xAxisTitle\": \"log2 fold change\", \"yAxisTitle\": \"-log10 p-value\",\n    \"colorBy\": \"Group\",\n    \"colorKey\": {\"Group\": {\"Increased\": \"rgba(197,27,38,0.75)\",\n                            \"Decreased\": \"rgba(33,102,172,0.75)\",\n                            \"NoChange\":  \"rgba(150,150,150,0.35)\"}},\n    \"sizeBy\": \"FC\", \"sizes\": [3, 6, 9, 12, 15],\n    \"showDecorations\": True,\n    \"decorations\": {\"line\": [\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"x\": 1},\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"x\": -1},\n        {\"color\": \"rgba(120,120,120,0.8)\", \"width\": 1, \"y\": 1.301},\n    ]},\n}\n\ncx = CanvasXpress(render_to=\"volcano\", data=data, config=config, width=650, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nThe chart is interactive — hover a point for its gene and values, drag to zoom, filter by regulation group in the toolbar. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs."
+    "text": "Build the spec\ny carries the matrix (vars = the variable, smps = the countries, data = the values); the optional x block adds per-country annotations (continent, ISO code) for richer tooltips. The country names in smps are what join to the map.\n\nfrom canvasxpress.canvas import CanvasXpress\nfrom canvasxpress.render.jupyter import CXNoteBook\nfrom IPython.display import display\n\ndata = {\n    \"y\": {\n        \"vars\": list(dat.index),            # [\"CO2\"]\n        \"smps\": list(dat.columns),          # country names\n        \"data\": dat.values.tolist(),        # [[values]]\n    },\n    \"x\": {\n        \"Continent\": smp[\"Continent\"].tolist(),\n        \"Code\":      smp[\"Code\"].tolist(),\n    },\n}\n\nconfig = {\n    \"graphType\": \"Map\",\n    \"colorBy\":   \"CO2\",\n    \"topoJSON\":  \"https://www.canvasxpress.org/data/maps/WORLD.json\",\n    \"mapId\":     \"countries\",\n    \"legendPosition\": \"left\",\n    \"theme\": \"solarized\",\n    \"title\": \"CO2 Emissions per Country (2018)\",\n}\n\ncx = CanvasXpress(render_to=\"comap\", data=data, config=config, width=700, height=500)\nfor part in CXNoteBook(cx).render():\n    display(part)\n\n\n\n\n\n\n  \n\n\n\n\n\n\nEach country is shaded by its emissions, the legend maps color to value, and hovering a country shows its name, continent and number. The whole figure is one portable spec you can store, validate and re-render from R or JavaScript."
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html#why-reproducible",
-    "href": "posts/python/volcano-plots-in-python/index.html#why-reproducible",
-    "title": "Interactive volcano plots in Python with canvasxpress",
-    "section": "Why “reproducible”",
-    "text": "Why “reproducible”\nEverything above serializes to one JSON specification — the data and the config. That spec is portable: the identical figure renders from the R (canvasXpress) and JavaScript packages, and it can be validated against a published schema and re-rendered later, so a figure in a paper can be regenerated and audited rather than just viewed."
+    "objectID": "posts/python/choropleth-maps-in-python/index.html#beyond-the-world-map",
+    "href": "posts/python/choropleth-maps-in-python/index.html#beyond-the-world-map",
+    "title": "Choropleth maps in Python with canvasxpress",
+    "section": "Beyond the world map",
+    "text": "Beyond the world map\nPoint topoJSON at a different boundary file to map US states, a single country’s provinces, or a custom region — the join key is just the shape name. Switch colorBy to a categorical column for a qualitative map, add decorations to drop labeled markers on cities, or set mapProjection for an Albers or Mercator view."
   },
   {
-    "objectID": "posts/python/volcano-plots-in-python/index.html#next",
-    "href": "posts/python/volcano-plots-in-python/index.html#next",
-    "title": "Interactive volcano plots in Python with canvasxpress",
+    "objectID": "posts/python/choropleth-maps-in-python/index.html#next",
+    "href": "posts/python/choropleth-maps-in-python/index.html#next",
+    "title": "Choropleth maps in Python with canvasxpress",
     "section": "Next",
-    "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nComing from Plotly/Matplotlib: https://canvasxpress.org/migrate.html\nPackage: https://pypi.org/project/canvasxpress/"
+    "text": "Next\n\nClustered heatmaps in Python\nInteractive volcano plots in Python\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html",
-    "href": "posts/js/volcano-plots-in-javascript/index.html",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
     "section": "",
-    "text": "A volcano plot puts log fold change on x, statistical significance on y, and pushes the interesting genes into the top corners. CanvasXpress is a JavaScript library at heart, so in the browser there’s no wrapper at all — you give a &lt;canvas&gt; a data object and a config, and you get an interactive, reproducible figure. The same spec renders identically from R and Python too."
+    "text": "A choropleth map shades each region by a value — emissions, population, votes, incidence. The trick is always the same: join a table of values to a set of map shapes by a common key, then pick a color scale. CanvasXpress does the join and the coloring inside the render, so in the browser you pass one value per country and a topoJSON of boundaries and get an interactive, reproducible figure."
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
-    "href": "posts/js/volcano-plots-in-javascript/index.html#load-the-library",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html#load-the-library",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html#load-the-library",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
     "section": "Load the library",
-    "text": "Load the library\nDrop one script tag (and the stylesheet) on your page. Here we pin to a released version on a CDN:\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
+    "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
-    "href": "posts/js/volcano-plots-in-javascript/index.html#the-markup-and-the-spec",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
     "section": "The markup and the spec",
-    "text": "The markup and the spec\nGive the page a canvas, then build the data (a value matrix plus annotations) and a config, and call new CanvasXpress(...):\n&lt;canvas id=\"volcano\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // Normal-distribution helpers (no stats library needed in the browser)\n  function gauss() {                        // standard normal via Box–Muller\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n  function normCdf(x) {                      // standard normal CDF via an erf approximation\n    var s = x &lt; 0 ? -1 : 1, ax = Math.abs(x) / Math.SQRT2;\n    var t = 1 / (1 + 0.3275911 * ax);\n    var y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-ax * ax);\n    return 0.5 * (1 + s * y);\n  }\n\n  // Simulate a realistic volcano: most genes unchanged, a minority differentially\n  // expressed; significance follows effect size / standard error. Genes are the\n  // variables (rows); each row holds [logFC, -log-pVal].\n  var genes = [], rows = [], group = [], fc = [];\n  for (var i = 0; i &lt; 1000; i++) {\n    var de = Math.random() &lt; 0.12;                          // ~12% truly changed\n    var sgn = Math.random() &lt; 0.5 ? -1 : 1;\n    var effect = de ? sgn * (0.8 + 0.9 * Math.random()) : 0;\n    var se = 0.22 + 0.5 * Math.random();                    // per-gene standard error\n    var f = effect + se * gauss();                          // observed log2FC\n    var praw = 2 * (1 - normCdf(Math.abs(f / se)));         // z-test p-value\n    var p = Math.min(-Math.log(Math.max(praw, 1e-16)) / Math.LN10, 16);\n    genes.push(\"Gene\" + (i + 1));\n    rows.push([Math.round(f * 1000) / 1000, Math.round(p * 1000) / 1000]);\n    group.push(f &gt; 1 && p &gt; 1.3 ? \"Increased\" : f &lt; -1 && p &gt; 1.3 ? \"Decreased\" : \"NoChange\");\n    fc.push(Math.round(Math.pow(2, Math.abs(f)) * 100) / 100);\n  }\n\n  var data = {\n    y: { vars: genes, smps: [\"logFC\", \"-log-pVal\"], data: rows },\n    z: { Group: group, FC: fc }\n  };\n\n  var config = {\n    graphType: \"Scatter2D\",\n    title: \"Publication-ready volcano plot\",\n    xAxis: [\"logFC\"], yAxis: [\"-log-pVal\"],\n    xAxisTitle: \"log2 fold change\", yAxisTitle: \"-log10 p-value\",\n    colorBy: \"Group\",\n    colorKey: { Group: { Increased: \"rgba(197,27,38,0.75)\",\n                         Decreased: \"rgba(33,102,172,0.75)\",\n                         NoChange:  \"rgba(150,150,150,0.35)\" } },\n    sizeBy: \"FC\", sizes: [3, 6, 9, 12, 15],\n    showDecorations: true,\n    decorations: { line: [\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: 1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, x: -1 },\n      { color: \"rgba(120,120,120,0.8)\", width: 1, y: 1.301 }\n    ] }\n  };\n\n  new CanvasXpress(\"volcano\", data, config);\n&lt;/script&gt;"
+    "text": "The markup and the spec\nThe columns (smps) are the countries — they match the map by name — and the single row (vars) is the variable you color by: CO₂ emissions per country for 2018. We fetch a prepared table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand the matrix to CanvasXpress. Swap the URL for any country → value table of your own.\n&lt;canvas id=\"comap\" width=\"700\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  var DATA = \"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt\";\n  var SMP  = \"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt\";\n\n  // split a tab-separated file into a list of cell-arrays (one per row)\n  function rows(text) {\n    return text.trim().split(\"\\n\").map(function (line) { return line.split(\"\\t\"); });\n  }\n\n  Promise.all([fetch(DATA).then(function (r) { return r.text(); }),\n               fetch(SMP ).then(function (r) { return r.text(); })])\n    .then(function (texts) {\n      var d = rows(texts[0]);                      // [header, [\"CO2\", v1, v2, ...]]\n      var countries = d[0].slice(1);               // header, minus the empty corner cell\n      var values    = d[1].slice(1).map(Number);   // the CO2 values\n\n      var s = rows(texts[1]);                       // header + one row per country\n      var col = {};                                 // header name -&gt; column index\n      s[0].forEach(function (name, i) { col[name] = i; });\n      var byCountry = {};\n      s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });\n      var continent = countries.map(function (c) { return byCountry[c][col[\"Continent\"] + 1]; });\n\n      var data = {\n        y: { vars: [\"CO2\"], smps: countries, data: [values] },\n        x: { Continent: continent }\n      };\n      var config = {\n        graphType: \"Map\",\n        colorBy: \"CO2\",\n        topoJSON: \"https://www.canvasxpress.org/data/maps/WORLD.json\",\n        mapId: \"countries\",\n        legendPosition: \"left\",\n        theme: \"solarized\",\n        title: \"CO2 Emissions per Country (2018)\"\n      };\n      new CanvasXpress(\"comap\", data, config);\n    });\n&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html#live-result",
-    "href": "posts/js/volcano-plots-in-javascript/index.html#live-result",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html#live-result",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html#live-result",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
     "section": "Live result",
-    "text": "Live result\nHere’s exactly that code, running on this page:\n\n\n\n\nHover a point for its gene and values, drag to zoom, or use the toolbar to filter by regulation group. The dashed guides mark the ±1 log2FC and p = 0.05 cutoffs."
+    "text": "Live result\n\n\n\n\nEach country is shaded by its emissions, the legend maps color to value, and hovering a country shows its name, continent and number. The whole figure is one portable spec — data, boundaries and color rule together — that you can re-render from R or Python."
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
-    "href": "posts/js/volcano-plots-in-javascript/index.html#why-reproducible",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
-    "section": "Why “reproducible”",
-    "text": "Why “reproducible”\nThe data and config above are the figure — one portable JSON specification. Save it and the identical plot renders from the R (canvasXpress) and Python (canvasxpress) packages, and it can be validated against a published schema and re-rendered later, so a figure can be regenerated and audited rather than just viewed."
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html#beyond-the-world-map",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html#beyond-the-world-map",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
+    "section": "Beyond the world map",
+    "text": "Beyond the world map\nPoint topoJSON at a different boundary file to map US states, a single country’s provinces, or a custom region — the join key is just the shape name. Switch colorBy to a categorical field for a qualitative map, add decorations to drop labeled markers on cities, or set mapProjection for an Albers or Mercator view."
   },
   {
-    "objectID": "posts/js/volcano-plots-in-javascript/index.html#next",
-    "href": "posts/js/volcano-plots-in-javascript/index.html#next",
-    "title": "Interactive volcano plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/choropleth-maps-in-javascript/index.html#next",
+    "href": "posts/js/choropleth-maps-in-javascript/index.html#next",
+    "title": "Choropleth maps in JavaScript with CanvasXpress",
     "section": "Next",
-    "text": "Next\n\nGallery of examples: https://canvasxpress.org/examples.html\nDocumentation: https://canvasxpress.org/documentation.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
+    "text": "Next\n\nClustered heatmaps in JavaScript\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html"
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html",
-    "href": "posts/js/violin-plots-in-javascript/index.html",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "",
-    "text": "A violin plot shows the full shape of a distribution instead of collapsing it to a box’s quartiles. And a split (half) violin puts one condition on each half so you can compare two groups at the same position. CanvasXpress is a JavaScript library at heart, so in the browser it’s just a data object and a config."
+    "text": "A Sankey (or alluvial) diagram shows how a quantity flows through a sequence of categorical stages — patients moving from a cohort, to a treatment, to an outcome. The width of each stream is the magnitude. CanvasXpress is a JavaScript library at heart, so in the browser it’s just a data object and a config."
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
-    "href": "posts/js/violin-plots-in-javascript/index.html#load-the-library",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#load-the-library",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html#load-the-library",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "Load the library",
     "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
-    "href": "posts/js/violin-plots-in-javascript/index.html#the-markup-and-the-spec",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "The markup and the spec",
-    "text": "The markup and the spec\nA violin is a Boxplot graph with the violin turned on. One measured variable (value) × N observations, with the grouping columns as sample annotations (x). For the split violin, group by both factors, colour by condition, and set violinSide: \"split\".\n&lt;canvas id=\"violin\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;canvas id=\"violinSplit\" width=\"650\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var doses = [\"Low\", \"Medium\", \"High\"], conds = [\"Control\", \"Treated\"];\n  var mus = { Low: 6, Medium: 8, High: 10 };\n  var value = [], Dose = [], Condition = [];\n  doses.forEach(function (d) {\n    conds.forEach(function (co) {\n      var mu = mus[d] + (co === \"Treated\" ? 1.5 : 0);\n      for (var i = 0; i &lt; 40; i++) {\n        value.push(Math.round((mu + 1.2 * gauss()) * 100) / 100);\n        Dose.push(d); Condition.push(co);\n      }\n    });\n  });\n  var ids = value.map(function (_, i) { return \"o\" + (i + 1); });\n\n  var data = { y: { vars: [\"value\"], smps: ids, data: [value] },\n               x: { Dose: Dose, Condition: Condition } };\n\n  // full violin\n  new CanvasXpress(\"violin\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\"], xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Distribution of value by dose\"\n  });\n\n  // split (half) violin comparing conditions\n  new CanvasXpress(\"violinSplit\", data, {\n    graphType: \"Boxplot\", showViolinBoxplot: true, violinScale: \"area\",\n    groupingFactors: [\"Dose\", \"Condition\"], colorBy: \"Condition\",\n    violinSide: \"split\", violinTrim: false, xAxis: [\"value\"], smpTitle: \"Dose\",\n    title: \"Control vs Treated — split violin by dose\"\n  });\n&lt;/script&gt;"
+    "text": "The markup and the spec\nEach row is one path through the stages; the value (Freq) is the single variable, and the stages are sample annotations (x). sankeyAxes lists the stages in order.\n&lt;canvas id=\"sankey\" width=\"700\" height=\"500\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  var cohorts = [\"Cohort A\", \"Cohort B\"],\n      treats  = [\"Drug 1\", \"Drug 2\", \"Placebo\"],\n      outcomes = [\"Response\", \"Stable\", \"Progression\"];\n\n  var Cohort = [], Treatment = [], Outcome = [], Freq = [];\n  cohorts.forEach(function (co) {\n    treats.forEach(function (tr) {\n      outcomes.forEach(function (ou) {\n        var base = ou === \"Response\" ? 40 : ou === \"Stable\" ? 25 : 15;\n        if (tr === \"Placebo\" && ou === \"Response\") base = 12;   // placebo responds less\n        Cohort.push(co); Treatment.push(tr); Outcome.push(ou);\n        Freq.push(base + Math.floor(Math.random() * 16));\n      });\n    });\n  });\n\n  var ids = Freq.map(function (_, i) { return \"r\" + (i + 1); });\n\n  var data = {\n    y: { vars: [\"Freq\"], smps: ids, data: [Freq] },\n    x: { Cohort: Cohort, Treatment: Treatment, Outcome: Outcome }\n  };\n\n  var config = {\n    graphType: \"Sankey\",\n    sankeyAxes: [\"Cohort\", \"Treatment\", \"Outcome\"],\n    xAxis: [\"Freq\"],\n    colorBy: \"Outcome\",\n    sankeyType: \"proportional\",\n    graphOrientation: \"horizontal\",\n    title: \"Patient flow: cohort to treatment to outcome\"\n  };\n\n  new CanvasXpress(\"sankey\", data, config);\n&lt;/script&gt;"
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html#live-result",
-    "href": "posts/js/violin-plots-in-javascript/index.html#live-result",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#live-result",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html#live-result",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "Live result",
-    "text": "Live result\n\n\n\n\n\nHover to read the density and summary stats. violinSide can also be \"lt\" or \"rb\" for a one-sided half violin."
+    "text": "Live result\n\n\n\n\nHover any stream to see the count; the widths are proportional to the frequency. sankeyType can also be \"aligned\" (classic alluvial) or \"equal\"."
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
-    "href": "posts/js/violin-plots-in-javascript/index.html#why-reproducible",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#why-reproducible",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html#why-reproducible",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "Why “reproducible”",
     "text": "Why “reproducible”\nThe data+config is the figure — one portable JSON spec that renders the same from R, Python, or a web page."
   },
   {
-    "objectID": "posts/js/violin-plots-in-javascript/index.html#next",
-    "href": "posts/js/violin-plots-in-javascript/index.html#next",
-    "title": "Violin and half (split) violin plots in JavaScript with CanvasXpress",
+    "objectID": "posts/js/sankey-diagrams-in-javascript/index.html#next",
+    "href": "posts/js/sankey-diagrams-in-javascript/index.html#next",
+    "title": "Sankey / alluvial diagrams in JavaScript with CanvasXpress",
     "section": "Next",
-    "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html"
+    "text": "Next\n\nInteractive volcano plots in JavaScript\nGallery: https://canvasxpress.org/examples.html\nSource & npm: https://github.com/neuhausi/canvasXpress"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "",
+    "text": "The clustered heatmap is the default way to look at an expression matrix: rows and columns reordered by similarity, dendrograms on the margins, and sample metadata alongside. CanvasXpress clusters inside the render, so in the browser you pass a plain matrix and get an interactive, reproducible figure."
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#load-the-library",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Load the library",
+    "text": "Load the library\n&lt;link href=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css\" rel=\"stylesheet\"&gt;\n&lt;script src=\"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@69.6.1/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js\"&gt;&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#the-markup-and-the-spec",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "The markup and the spec",
+    "text": "The markup and the spec\nGenes are the variables (rows), samples the columns; the matrix goes in as data, and the sample annotation becomes a track over the columns. samplesClustered / variablesClustered turn on hierarchical clustering with dendrograms.\n&lt;canvas id=\"heatmap\" width=\"650\" height=\"550\"&gt;&lt;/canvas&gt;\n&lt;script&gt;\n  // standard normal via Box–Muller\n  function gauss() {\n    var u = 0, v = 0;\n    while (u === 0) u = Math.random();\n    while (v === 0) v = Math.random();\n    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);\n  }\n\n  var ng = 40, ns = 30, genes = [], samps = [], cond = [], matrix = [];\n  for (var j = 0; j &lt; ns; j++) { samps.push(\"S\" + (j + 1)); cond.push(j &lt; ns / 2 ? \"Tumor\" : \"Normal\"); }\n  for (var i = 0; i &lt; ng; i++) {\n    genes.push(\"Gene\" + (i + 1));\n    var row = [];\n    for (var k = 0; k &lt; ns; k++) {\n      var val = gauss();\n      if (i &lt; 20 && cond[k] === \"Tumor\")   val += 2;        // first block up in Tumor\n      if (i &gt;= 20 && cond[k] === \"Normal\") val += 2;        // second block up in Normal\n      row.push(Math.round(val * 1000) / 1000);\n    }\n    matrix.push(row);\n  }\n\n  var data = {\n    y: { vars: genes, smps: samps, data: matrix },\n    x: { Condition: cond }\n  };\n\n  var config = {\n    graphType: \"Heatmap\",\n    samplesClustered: true, variablesClustered: true,\n    colorSpectrum: [\"navy\", \"white\", \"firebrick3\"],\n    showSmpDendrogram: true, showVarDendrogram: true,\n    title: \"Clustered expression heatmap\"\n  };\n\n  new CanvasXpress(\"heatmap\", data, config);\n&lt;/script&gt;"
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#live-result",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Live result",
+    "text": "Live result\n\n\n\n\nRows and columns are reordered by similarity, the dendrograms show the clustering, and the samples separate cleanly by condition. Hover a cell for its gene, sample and value; the whole figure is one portable spec you can store, validate and re-render from R or Python."
+  },
+  {
+    "objectID": "posts/js/clustered-heatmap-in-javascript/index.html#next",
+    "href": "posts/js/clustered-heatmap-in-javascript/index.html#next",
+    "title": "Clustered heatmaps in JavaScript with CanvasXpress",
+    "section": "Next",
+    "text": "Next\n\nInteractive volcano plots in JavaScript\nKaplan–Meier survival curves in JavaScript\nGallery: https://canvasxpress.org/examples.html"
   },
   {
     "objectID": "posts/r/kaplan-meier-in-r/index.html",
@@ -704,7 +823,7 @@
     "href": "python.html",
     "title": "CanvasXpress in Python",
     "section": "",
-    "text": "Every post here is runnable Python. This page’s feed (python.xml) is the one syndicated to Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
+    "text": "Every post here is runnable Python. This page’s feed (python.xml) is the one syndicated to Python-bloggers.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nChoropleth maps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nmaps\n\n\nchoropleth\n\n\nvisualization\n\n\n\nColor a world map by a value per country in Python with canvasxpress — join a DataFrame to a topoJSON by name and get an interactive, reproducible choropleth.\n\n\n\n\n\nOct 7, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nSankey / alluvial diagrams in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsankey\n\n\nvisualization\n\n\n\nShow how quantities flow through a sequence of stages — cohort to treatment to outcome — as an interactive Sankey diagram in Python, from one portable spec.\n\n\n\n\n\nSep 27, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nViolin and half (split) violin plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nviolin\n\n\nvisualization\n\n\n\nShow a full distribution per group as a violin, then split it in half to compare two conditions side by side — interactive and reproducible, in Python.\n\n\n\n\n\nSep 26, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nClustered heatmaps in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nheatmap\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild an interactive, clustered gene-expression heatmap with dendrograms and sample annotations from a DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 24, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nKaplan–Meier survival curves in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nsurvival\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nTurn a survival table into an interactive, reproducible Kaplan–Meier plot stratified by treatment arm — with censoring ticks — in a few lines of Python.\n\n\n\n\n\nSep 23, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\n\n\n\n\n\n\nInteractive volcano plots in Python with canvasxpress\n\n\n\n\n\n\nPython\n\n\ncanvasxpress\n\n\nbioinformatics\n\n\nvisualization\n\n\n\nBuild a publication-ready, interactive volcano plot from a differential-expression DataFrame in Python — one portable, reproducible spec.\n\n\n\n\n\nSep 22, 2026\n\n\nIsaac Neuhaus\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",

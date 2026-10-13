@@ -10,7 +10,588 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/js.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Mon, 28 Sep 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 08 Oct 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Choropleth maps in JavaScript with CanvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/js/choropleth-maps-in-javascript/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A choropleth map shades each region by a value — emissions, population, votes, incidence. The trick is always the same: join a table of values to a set of map shapes by a common key, then pick a color scale. CanvasXpress does the join and the coloring inside the render, so in the browser you pass one value per country and a topoJSON of boundaries and get an interactive, reproducible figure.</p>
+<section id="load-the-library" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-library">Load the library</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb1-1"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">link</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> href</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css"</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> rel</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stylesheet"</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;</span></span>
+<span id="cb1-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">script</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> src</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;&lt;/</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">script</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;</span></span></code></pre></div>
+</section>
+<section id="the-markup-and-the-spec" class="level2">
+<h2 class="anchored" data-anchor-id="the-markup-and-the-spec">The markup and the spec</h2>
+<p>The <strong>columns</strong> (<code>smps</code>) are the countries — they match the map by name — and the single <strong>row</strong> (<code>vars</code>) is the variable you color by: CO₂ emissions per country for 2018. We fetch a prepared table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand the matrix to CanvasXpress. Swap the URL for any <code>country → value</code> table of your own.</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">canvas</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"comap"</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> width</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"700"</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"> height</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"500"</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;&lt;/</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">canvas</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;</span></span>
+<span id="cb2-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">script</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;</span></span>
+<span id="cb2-3">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> DATA <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-4">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> SMP  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-5"></span>
+<span id="cb2-6">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// split a tab-separated file into a list of cell-arrays (one per row)</span></span>
+<span id="cb2-7">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rows</span>(text) {</span>
+<span id="cb2-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">trim</span>()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">split</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (line) { <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> line<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">split</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\t</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-9">  }</span>
+<span id="cb2-10"></span>
+<span id="cb2-11">  <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Promise</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all</span>([<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fetch</span>(DATA)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">then</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (r) { <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> r<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">text</span>()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-12">               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fetch</span>(SMP )<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">then</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (r) { <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> r<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">text</span>()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })])</span>
+<span id="cb2-13">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">then</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (texts) {</span>
+<span id="cb2-14">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rows</span>(texts[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span>                      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// [header, ["CO2", v1, v2, ...]]</span></span>
+<span id="cb2-15">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> countries <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span>               <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// header, minus the empty corner cell</span></span>
+<span id="cb2-16">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> values    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Number</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span>   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// the CO2 values</span></span>
+<span id="cb2-17"></span>
+<span id="cb2-18">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> s <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rows</span>(texts[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span>                       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// header + one row per country</span></span>
+<span id="cb2-19">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> col <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {}<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span>                                 <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// header name -&gt; column index</span></span>
+<span id="cb2-20">      s[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">forEach</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) { col[name] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-21">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> byCountry <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {}<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-22">      s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">forEach</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (r) { byCountry[r[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-23">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> continent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> countries<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> (c) { <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> byCountry[c][col[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Continent"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-24"></span>
+<span id="cb2-25">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb2-26">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">vars</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CO2"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">smps</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> countries<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">data</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [values] }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-27">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Continent</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> continent }</span>
+<span id="cb2-28">      }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-29">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">var</span> config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb2-30">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">graphType</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Map"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-31">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">colorBy</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CO2"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-32">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">topoJSON</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.canvasxpress.org/data/maps/WORLD.json"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-33">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">mapId</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"countries"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-34">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">legendPosition</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-35">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">theme</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"solarized"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-36">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">title</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CO2 Emissions per Country (2018)"</span></span>
+<span id="cb2-37">      }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-38">      <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">new</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">CanvasXpress</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"comap"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> config)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-39">    })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-40"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&lt;/</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">script</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">&gt;</span></span></code></pre></div>
+</section>
+<section id="live-result" class="level2">
+<h2 class="anchored" data-anchor-id="live-result">Live result</h2>
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="comapLive" width="700" height="500"></canvas>
+<script>
+(function () {
+  var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
+  var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
+  function rows(text) {
+    return text.trim().split("\n").map(function (line) { return line.split("\t"); });
+  }
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    Promise.all([fetch(DATA).then(function (r) { return r.text(); }),
+                 fetch(SMP ).then(function (r) { return r.text(); })])
+      .then(function (texts) {
+        var d = rows(texts[0]);
+        var countries = d[0].slice(1);
+        var values    = d[1].slice(1).map(Number);
+        var s = rows(texts[1]);
+        var col = {};
+        s[0].forEach(function (name, i) { col[name] = i; });
+        var byCountry = {};
+        s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
+        var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
+        new CanvasXpress("comapLive",
+          { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
+          { graphType: "Map", colorBy: "CO2",
+            topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+            mapId: "countries", legendPosition: "left", theme: "solarized",
+            title: "CO2 Emissions per Country (2018)" });
+      });
+  }
+  draw();
+})();
+</script>
+<p>Each country is shaded by its emissions, the legend maps color to value, and hovering a country shows its name, continent and number. The whole figure is one portable spec — data, boundaries and color rule together — that you can re-render from R or Python.</p>
+</section>
+<section id="beyond-the-world-map" class="level2">
+<h2 class="anchored" data-anchor-id="beyond-the-world-map">Beyond the world map</h2>
+<p>Point <code>topoJSON</code> at a different boundary file to map US states, a single country’s provinces, or a custom region — the join key is just the shape name. Switch <code>colorBy</code> to a categorical field for a qualitative map, add <code>decorations</code> to drop labeled markers on cities, or set <code>mapProjection</code> for an Albers or Mercator view.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../clustered-heatmap-in-javascript/">Clustered heatmaps in JavaScript</a></li>
+<li><a href="../volcano-plots-in-javascript/">Interactive volcano plots in JavaScript</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>JavaScript</category>
+  <category>CanvasXpress</category>
+  <category>maps</category>
+  <category>choropleth</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/js/choropleth-maps-in-javascript/</guid>
+  <pubDate>Thu, 08 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/js/choropleth-maps-in-javascript/thumbnail.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Sankey / alluvial diagrams in JavaScript with CanvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
