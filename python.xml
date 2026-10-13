@@ -20,7 +20,7 @@
 
 
 
-<p>A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most common map in data analysis and the easiest to get <em>subtly wrong</em>. The mechanics are simple: join a table of values to a set of shapes by a common key, then map value to colour. The judgement is in the rest — what you encode, how you class it, and which palette you choose. Here we build one in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> and treat those choices as first-class. The join and the colouring happen inside the render, so every figure is one portable spec you can re-run from Python, R or the browser.</p>
+<p>A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most common map in data analysis and the easiest to get <em>subtly wrong</em>: most “my map is all one colour” complaints are not rendering bugs but scale bugs. Here we build a choropleth in Python with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> that stays vivid and honest on exactly the kind of heavy-tailed data that flattens naive maps. The join and the colouring happen inside the render, so every figure is one portable spec you can re-run from Python, R or the browser.</p>
 <section id="install" class="level2">
 <h2 class="anchored" data-anchor-id="install">Install</h2>
 <div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
@@ -35,7 +35,7 @@ font-style: inherit;">pip</span> install canvasxpress pandas</span></code></pre>
 <section id="one-value-per-region" class="level2">
 <h2 class="anchored" data-anchor-id="one-value-per-region">One value per region</h2>
 <p>A choropleth needs exactly one measurement per shape. In canvasxpress the <strong>columns</strong> (<code>smps</code>) are the regions — they match the map by name — and each <strong>row</strong> (<code>vars</code>) is a variable you can colour by. Here it’s CO₂ emissions per country for 2018. We load a prepared table; swap it for your own (any <code>country → value</code> table works).</p>
-<div id="f9b2d39c" class="cell" data-execution_count="1">
+<div id="1d78e58c" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -125,10 +125,10 @@ font-style: inherit;">4</span>]</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="a-first-map-one-continuous-ramp" class="level2">
-<h2 class="anchored" data-anchor-id="a-first-map-one-continuous-ramp">A first map: one continuous ramp</h2>
-<p><code>y</code> carries the matrix (<code>vars</code> = the variable, <code>smps</code> = the countries, <code>data</code> = the values); the optional <code>x</code> block adds per-country annotations (continent, ISO code) for richer tooltips. The country names in <code>smps</code> are what join to the map.</p>
-<div id="d8ffed38" class="cell" data-execution_count="2">
+<section id="the-map-quantile-classes-on-a-viridis-ramp" class="level2">
+<h2 class="anchored" data-anchor-id="the-map-quantile-classes-on-a-viridis-ramp">The map: quantile classes on a viridis ramp</h2>
+<p><code>y</code> carries the matrix (<code>vars</code> = the variable, <code>smps</code> = the countries, <code>data</code> = the values); the optional <code>x</code> block adds per-country annotations (continent, ISO code) for richer tooltips. The two choices that make this map <em>work</em> are in the colour scale: a seven-stop viridis <code>colorSpectrum</code>, and <code>colorSpectrumBreaksMethod = "quantile"</code>, which puts an equal number of countries in every colour class. On skewed data that guarantee is what keeps all seven colours on the map.</p>
+<div id="f4223f77" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
@@ -209,31 +209,64 @@ font-style: inherit;">"https://www.canvasxpress.org/data/maps/WORLD.json"</span>
 background-color: null;
 font-style: inherit;">"mapId"</span>:     <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"co2Continuous"</span>,</span>
+font-style: inherit;">"co2Quantile"</span>,</span>
 <span id="cb4-22">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"legendPosition"</span>: <span class="st" style="color: #20794D;
+font-style: inherit;">"colorSpectrum"</span>: [<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"left"</span>,</span>
-<span id="cb4-23">    <span class="st" style="color: #20794D;
+font-style: inherit;">"#440154"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"theme"</span>: <span class="st" style="color: #20794D;
+font-style: inherit;">"#443983"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"solarized"</span>,</span>
+font-style: inherit;">"#31688e"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#21918c"</span>,</span>
+<span id="cb4-23">                      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#35b779"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#90d743"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#fde725"</span>],</span>
 <span id="cb4-24">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+font-style: inherit;">"colorSpectrumBreaksMethod"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>,</span>
+<span id="cb4-25">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mapColor"</span>:        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#d9dde3"</span>,</span>
+<span id="cb4-26">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mapOutlineColor"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ffffff"</span>,</span>
+<span id="cb4-27">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"legendPosition"</span>:  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>,</span>
+<span id="cb4-28">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>:    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"CO2 emissions per country (2018)"</span>,</span>
-<span id="cb4-25">}</span>
-<span id="cb4-26"></span>
-<span id="cb4-27">cx <span class="op" style="color: #5E5E5E;
+<span id="cb4-29">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"subtitle"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Seven quantile classes: each colour holds about 28 of 198 countries"</span>,</span>
+<span id="cb4-30">}</span>
+<span id="cb4-31"></span>
+<span id="cb4-32">cx <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"co2cont"</span>, data<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"co2quant"</span>, data<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -241,26 +274,26 @@ font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">700</span>, height<span class="op" style="color: #5E5E5E;
+font-style: inherit;">760</span>, height<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">500</span>)</span>
-<span id="cb4-28"><span class="cf" style="color: #003B4F;
+font-style: inherit;">520</span>)</span>
+<span id="cb4-33"><span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
-<span id="cb4-29">    display(part)</span></code></pre></div>
+<span id="cb4-34">    display(part)</span></code></pre></div>
 <div class="cell-output cell-output-display">
 
 </div>
 <div class="cell-output cell-output-display">
 
 <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
-  <div><canvas id="co2cont" width="700" height="500"></canvas></div>
+  <div><canvas id="co2quant" width="760" height="520"></canvas></div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
@@ -338,21 +371,21 @@ new Promise((cssResolve, cssReject) => {
     
 try {
   // 1. Get the chart object using the HTML element ID
-  let myChart = CanvasXpress.getObject("co2cont");
+  let myChart = CanvasXpress.getObject("co2quant");
   
   // 2. Check if the chart exists before trying to delete it
   if (myChart) {
     myChart.destroy();
-    console.log("Chart co2cont removed for re-rendering.");
+    console.log("Chart co2quant removed for re-rendering.");
   } else {
-    console.log("Chart co2cont ready for rendering.");
+    console.log("Chart co2quant ready for rendering.");
   }
 } catch (error) {
   // 3. Handle any unexpected errors safely
-  console.error("Chart co2cont could not be cleaned for re-rendering:", error);
+  console.error("Chart co2quant could not be cleaned for re-rendering:", error);
 }
 
-var chart_co2cont = new CanvasXpress({"renderTo": "co2cont", "data": {"y": {"vars": ["CO2"], "smps": ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Anguilla", "Antigua & Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Polynesia", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Democratic People's Republic of Korea", "The former Yugoslav Republic of Macedonia", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "Sao Tome and Principe", "Saudi Arabia", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "Republic of Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"], "data": [[10.452666, 5.402999, 164.309295, 0.46421, 37.678605, 0.147145, 0.505574, 185.029897, 6.296603, 0.943234, 415.953947, 66.719678, 37.488394, 2.03001, 31.594487, 85.718805, 1.207134, 61.871676, 100.207836, 0.612205, 7.759753, 0.648945, 1.662172, 22.345503, 22.086102, 6.815418, 466.649304, 0.173555, 9.560399, 43.551599, 4.140342, 0.568028, 15.479031, 7.566796, 586.504635, 0.609509, 0.300478, 1.008035, 85.829114, 9956.568523, 92.228209, 0.245927, 3.518309, 0.072706, 8.249118, 17.718646, 26.084446, 7.332762, 104.411211, 2.231343, 34.65143, 0.389975, 25.305221, 41.817989, 251.460913, 6.018265, 5.90578, 0.708769, 17.710953, 16.184949, 2.123769, 45.849349, 331.725446, 0.780633, 4.803117, 0.56324, 9.862173, 755.362342, 14.479998, 71.797869, 0.511728, 0.278597, 19.411335, 3.032114, 0.308612, 2.342628, 3.366964, 10.470701, 42.505723, 49.628491, 3.674529, 2591.323739, 576.58439, 755.402186, 211.270294, 38.803394, 62.212641, 348.085029, 8.009662, 1135.688, 24.923803, 319.647412, 17.136703, 0.068879, 104.217567, 10.16888, 32.26245, 7.859287, 27.565431, 2.425558, 1.27446, 45.205986, 0.14375, 13.669492, 9.56852, 2.216456, 4.187806, 1.470252, 249.144498, 1.565092, 3.273276, 1.531581, 0.153065, 3.934804, 4.901611, 451.080829, 5.877784, 64.508256, 2.123147, 65.367444, 8.383478, 26.095603, 4.154302, 0.049746, 13.410432, 160.170147, 8.20904, 35.080341, 5.377193, 2.093847, 136.078346, 0.007653, 38.162935, 6.980909, 43.817657, 71.029916, 247.425382, 12.096333, 6.786146, 8.103032, 54.210259, 138.924391, 337.705742, 51.482481, 109.24468, 76.951219, 1691.360426, 1.080098, 0.011319, 0.249014, 0.362202, 0.079232, 0.264106, 0.267864, 0.126126, 576.757836, 46.0531, 0.60536, 0.987559, 38.28806, 36.087837, 14.487844, 0.298477, 0.658329, 634.934068, 1.539884, 269.654254, 22.973233, 22.372399, 2.551817, 41.766183, 36.895485, 25.877689, 273.104667, 7.473265, 11.501889, 292.452995, 0.520422, 3.167303, 0.164545, 37.865571, 30.357093, 419.194747, 78.034724, 0.01148, 5.384767, 231.694165, 188.541366, 380.138559, 5424.881502, 6.251839, 113.93837, 0.145412, 129.596274, 211.774129, 9.945288, 6.930094, 11.340575]]}, "x": {"Continent": ["Asia", "Europe", "Africa", "Europe", "Africa", "North America", "North America", "South America", "Asia", "North America", "Oceania", "Europe", "Europe", "North America", "Asia", "Asia", "North America", "Europe", "Europe", "North America", "Africa", "North America", "Asia", "South America", "Europe", "Africa", "South America", "North America", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "North America", "Africa", "Africa", "Africa", "South America", "Asia", "South America", "Africa", "Africa", "Oceania", "Central America", "Europe", "North America", "Europe", "Europe", "Africa", "Europe", "Africa", "North America", "South America", "Africa", "Central America", "Africa", "Africa", "Europe", "Africa", "Oceania", "Europe", "Europe", "Oceania", "Africa", "Africa", "Asia", "Europe", "Africa", "Europe", "North America", "North America", "Central America", "Africa", "Africa", "South America", "North America", "Central America", "Asia", "Europe", "Europe", "Asia", "Asia", "Asia", "Asia", "Europe", "Asia", "Europe", "North America", "Asia", "Asia", "Asia", "Africa", "Oceania", "Asia", "Asia", "Asia", "Europe", "Asia", "Africa", "Africa", "Africa", "Europe", "Europe", "Europe", "Asia", "Africa", "Africa", "Asia", "Asia", "Africa", "Europe", "Oceania", "Africa", "Africa", "North America", "Europe", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "Oceania", "Asia", "Europe", "Oceania", "Oceania", "Central America", "Africa", "Africa", "Oceania", "Asia", "Europe", "Europe", "Asia", "Asia", "Central America", "Oceania", "South America", "South America", "Asia", "Europe", "Europe", "Africa", "Europe", "Asia", "Africa", "Africa", "North America", "North America", "North America", "North America", "Oceania", "Africa", "Asia", "Europe", "Africa", "Africa", "Asia", "Europe", "Europe", "Oceania", "Africa", "Asia", "Africa", "Europe", "Asia", "Africa", "South America", "Europe", "Europe", "Asia", "Asia", "Asia", "Africa", "Asia", "Asia", "Africa", "Oceania", "North America", "Africa", "Asia", "Asia", "Oceania", "Africa", "Europe", "Asia", "Europe", "North America", "South America", "Asia", "Oceania", "South America", "Asia", "Asia", "Africa", "Africa"], "Code": ["AFG", "ALB", "DZA", "AND", "AGO", "AIA", "ATG", "ARG", "ARM", "ABW", "AUS", "AUT", "AZE", "BHS", "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BMU", "BTN", "BOL", "BIH", "BWA", "BRA", "VGB", "BRN", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "TCD", "CHL", "CHN", "COL", "COM", "COG", "COK", "CRI", "HRV", "CUB", "CYP", "CZE", "COD", "DNK", "DJI", "DOM", "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "ETH", "FJI", "FIN", "FRA", "PYF", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRL", "GRD", "GTM", "GIN", "GNB", "GUY", "HTI", "HND", "HKG", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ", "IRL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KIR", "KWT", "KGZ", "LAO", "LVA", "LBN", "LSO", "LBR", "LBY", "LIE", "LTU", "LUX", "MAC", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT", "MHL", "MRT", "MUS", "MEX", "MDA", "MNG", "MNE", "MAR", "MOZ", "MMR", "NAM", "NRU", "NPL", "NLD", "NCL", "NZL", "NIC", "NER", "NGA", "NIU", "PRK", "MKD", "NOR", "OMN", "PAK", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT", "QAT", "ROU", "RUS", "RWA", "SHN", "KNA", "LCA", "SPM", "VCT", "WSM", "STP", "SAU", "SRB", "SYC", "SLE", "SGP", "SVK", "SVN", "SLB", "SOM", "KOR", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE", "CHE", "SYR", "TWN", "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM", "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN", "VNM", "YEM", "ZMB", "ZWE"]}, "z": null}, "config": {"graphType": "Map", "colorBy": "CO2", "topoJSON": "https://www.canvasxpress.org/data/maps/WORLD.json", "mapId": "co2Continuous", "legendPosition": "left", "theme": "solarized", "title": "CO2 emissions per country (2018)"}, "events": null}); 
+var chart_co2quant = new CanvasXpress({"renderTo": "co2quant", "data": {"y": {"vars": ["CO2"], "smps": ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Anguilla", "Antigua & Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Polynesia", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Democratic People's Republic of Korea", "The former Yugoslav Republic of Macedonia", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "Sao Tome and Principe", "Saudi Arabia", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "Republic of Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"], "data": [[10.452666, 5.402999, 164.309295, 0.46421, 37.678605, 0.147145, 0.505574, 185.029897, 6.296603, 0.943234, 415.953947, 66.719678, 37.488394, 2.03001, 31.594487, 85.718805, 1.207134, 61.871676, 100.207836, 0.612205, 7.759753, 0.648945, 1.662172, 22.345503, 22.086102, 6.815418, 466.649304, 0.173555, 9.560399, 43.551599, 4.140342, 0.568028, 15.479031, 7.566796, 586.504635, 0.609509, 0.300478, 1.008035, 85.829114, 9956.568523, 92.228209, 0.245927, 3.518309, 0.072706, 8.249118, 17.718646, 26.084446, 7.332762, 104.411211, 2.231343, 34.65143, 0.389975, 25.305221, 41.817989, 251.460913, 6.018265, 5.90578, 0.708769, 17.710953, 16.184949, 2.123769, 45.849349, 331.725446, 0.780633, 4.803117, 0.56324, 9.862173, 755.362342, 14.479998, 71.797869, 0.511728, 0.278597, 19.411335, 3.032114, 0.308612, 2.342628, 3.366964, 10.470701, 42.505723, 49.628491, 3.674529, 2591.323739, 576.58439, 755.402186, 211.270294, 38.803394, 62.212641, 348.085029, 8.009662, 1135.688, 24.923803, 319.647412, 17.136703, 0.068879, 104.217567, 10.16888, 32.26245, 7.859287, 27.565431, 2.425558, 1.27446, 45.205986, 0.14375, 13.669492, 9.56852, 2.216456, 4.187806, 1.470252, 249.144498, 1.565092, 3.273276, 1.531581, 0.153065, 3.934804, 4.901611, 451.080829, 5.877784, 64.508256, 2.123147, 65.367444, 8.383478, 26.095603, 4.154302, 0.049746, 13.410432, 160.170147, 8.20904, 35.080341, 5.377193, 2.093847, 136.078346, 0.007653, 38.162935, 6.980909, 43.817657, 71.029916, 247.425382, 12.096333, 6.786146, 8.103032, 54.210259, 138.924391, 337.705742, 51.482481, 109.24468, 76.951219, 1691.360426, 1.080098, 0.011319, 0.249014, 0.362202, 0.079232, 0.264106, 0.267864, 0.126126, 576.757836, 46.0531, 0.60536, 0.987559, 38.28806, 36.087837, 14.487844, 0.298477, 0.658329, 634.934068, 1.539884, 269.654254, 22.973233, 22.372399, 2.551817, 41.766183, 36.895485, 25.877689, 273.104667, 7.473265, 11.501889, 292.452995, 0.520422, 3.167303, 0.164545, 37.865571, 30.357093, 419.194747, 78.034724, 0.01148, 5.384767, 231.694165, 188.541366, 380.138559, 5424.881502, 6.251839, 113.93837, 0.145412, 129.596274, 211.774129, 9.945288, 6.930094, 11.340575]]}, "x": {"Continent": ["Asia", "Europe", "Africa", "Europe", "Africa", "North America", "North America", "South America", "Asia", "North America", "Oceania", "Europe", "Europe", "North America", "Asia", "Asia", "North America", "Europe", "Europe", "North America", "Africa", "North America", "Asia", "South America", "Europe", "Africa", "South America", "North America", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "North America", "Africa", "Africa", "Africa", "South America", "Asia", "South America", "Africa", "Africa", "Oceania", "Central America", "Europe", "North America", "Europe", "Europe", "Africa", "Europe", "Africa", "North America", "South America", "Africa", "Central America", "Africa", "Africa", "Europe", "Africa", "Oceania", "Europe", "Europe", "Oceania", "Africa", "Africa", "Asia", "Europe", "Africa", "Europe", "North America", "North America", "Central America", "Africa", "Africa", "South America", "North America", "Central America", "Asia", "Europe", "Europe", "Asia", "Asia", "Asia", "Asia", "Europe", "Asia", "Europe", "North America", "Asia", "Asia", "Asia", "Africa", "Oceania", "Asia", "Asia", "Asia", "Europe", "Asia", "Africa", "Africa", "Africa", "Europe", "Europe", "Europe", "Asia", "Africa", "Africa", "Asia", "Asia", "Africa", "Europe", "Oceania", "Africa", "Africa", "North America", "Europe", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "Oceania", "Asia", "Europe", "Oceania", "Oceania", "Central America", "Africa", "Africa", "Oceania", "Asia", "Europe", "Europe", "Asia", "Asia", "Central America", "Oceania", "South America", "South America", "Asia", "Europe", "Europe", "Africa", "Europe", "Asia", "Africa", "Africa", "North America", "North America", "North America", "North America", "Oceania", "Africa", "Asia", "Europe", "Africa", "Africa", "Asia", "Europe", "Europe", "Oceania", "Africa", "Asia", "Africa", "Europe", "Asia", "Africa", "South America", "Europe", "Europe", "Asia", "Asia", "Asia", "Africa", "Asia", "Asia", "Africa", "Oceania", "North America", "Africa", "Asia", "Asia", "Oceania", "Africa", "Europe", "Asia", "Europe", "North America", "South America", "Asia", "Oceania", "South America", "Asia", "Asia", "Africa", "Africa"], "Code": ["AFG", "ALB", "DZA", "AND", "AGO", "AIA", "ATG", "ARG", "ARM", "ABW", "AUS", "AUT", "AZE", "BHS", "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BMU", "BTN", "BOL", "BIH", "BWA", "BRA", "VGB", "BRN", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "TCD", "CHL", "CHN", "COL", "COM", "COG", "COK", "CRI", "HRV", "CUB", "CYP", "CZE", "COD", "DNK", "DJI", "DOM", "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "ETH", "FJI", "FIN", "FRA", "PYF", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRL", "GRD", "GTM", "GIN", "GNB", "GUY", "HTI", "HND", "HKG", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ", "IRL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KIR", "KWT", "KGZ", "LAO", "LVA", "LBN", "LSO", "LBR", "LBY", "LIE", "LTU", "LUX", "MAC", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT", "MHL", "MRT", "MUS", "MEX", "MDA", "MNG", "MNE", "MAR", "MOZ", "MMR", "NAM", "NRU", "NPL", "NLD", "NCL", "NZL", "NIC", "NER", "NGA", "NIU", "PRK", "MKD", "NOR", "OMN", "PAK", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT", "QAT", "ROU", "RUS", "RWA", "SHN", "KNA", "LCA", "SPM", "VCT", "WSM", "STP", "SAU", "SRB", "SYC", "SLE", "SGP", "SVK", "SVN", "SLB", "SOM", "KOR", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE", "CHE", "SYR", "TWN", "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM", "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN", "VNM", "YEM", "ZMB", "ZWE"]}, "z": null}, "config": {"graphType": "Map", "colorBy": "CO2", "topoJSON": "https://www.canvasxpress.org/data/maps/WORLD.json", "mapId": "co2Quantile", "colorSpectrum": ["#440154", "#443983", "#31688e", "#21918c", "#35b779", "#90d743", "#fde725"], "colorSpectrumBreaksMethod": "quantile", "mapColor": "#d9dde3", "mapOutlineColor": "#ffffff", "legendPosition": "bottom", "title": "CO2 emissions per country (2018)", "subtitle": "Seven quantile classes: each colour holds about 28 of 198 countries"}, "events": null}); 
 ;
 
  
@@ -365,13 +398,13 @@ var chart_co2cont = new CanvasXpress({"renderTo": "co2cont", "data": {"y": {"var
 </script>
 </div>
 </div>
-<p>It renders — but most of the world is the same pale colour. That is not a bug; it is the data. Emissions are <strong>heavy-tailed</strong>: a few countries dwarf everyone else, so a linear ramp spends almost its whole range on the top few and flattens the rest into one band. A continuous ramp is honest only when the variable is roughly uniform or near-normal.</p>
+<p>Every band of the ramp is doing work: the darkest purples are the smallest emitters, the yellows the largest, and the legend’s break values tell you the class edges are <em>data-driven</em>, not evenly spaced. Hover any country for its name, continent and value.</p>
 </section>
-<section id="class-a-skewed-scale-with-natural-breaks" class="level2">
-<h2 class="anchored" data-anchor-id="class-a-skewed-scale-with-natural-breaks">Class a skewed scale with natural breaks</h2>
-<p>When the data is skewed, <strong>class</strong> it: cut the range into a handful of bins, one colour each. <code>colorSpectrumBreaksMethod = "jenks"</code> picks class edges that minimise within-class variance (Jenks natural breaks) — it finds the gaps the data actually has instead of slicing the range evenly. The <code>data</code>/<code>x</code> blocks are unchanged; only the colour configuration differs.</p>
-<div id="157f765d" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">classed <span class="op" style="color: #5E5E5E;
+<section id="why-not-just-a-plain-linear-ramp" class="level2">
+<h2 class="anchored" data-anchor-id="why-not-just-a-plain-linear-ramp">Why not just a plain linear ramp?</h2>
+<p>Because the data is <strong>heavy-tailed</strong> — a few countries emit thousands of megatonnes while most emit almost nothing. On a linear scale, <strong>195 of these 198 countries fall into the bottom fifth of the range</strong>, so a continuous ramp paints nearly the whole world one pale tone and spends its colour on two or three outliers:</p>
+<div id="54fe8306" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">linear <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {</span>
 <span id="cb5-2">    <span class="st" style="color: #20794D;
@@ -393,63 +426,40 @@ font-style: inherit;">"https://www.canvasxpress.org/data/maps/WORLD.json"</span>
 background-color: null;
 font-style: inherit;">"mapId"</span>:     <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"co2Classed"</span>,</span>
+font-style: inherit;">"co2Linear"</span>,</span>
 <span id="cb5-6">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"colorSpectrum"</span>: [<span class="st" style="color: #20794D;
+font-style: inherit;">"legendPosition"</span>: <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"#fff7ec"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#fdd49e"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#fc8d59"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#d7301f"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#7f0000"</span>],</span>
+font-style: inherit;">"left"</span>,</span>
 <span id="cb5-7">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"colorSpectrumBreaksMethod"</span>: <span class="st" style="color: #20794D;
+font-style: inherit;">"theme"</span>: <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"jenks"</span>,</span>
+font-style: inherit;">"solarized"</span>,</span>
 <span id="cb5-8">    <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"mapColor"</span>:        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#e5e7eb"</span>,</span>
-<span id="cb5-9">    <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"mapOutlineColor"</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#ffffff"</span>,</span>
-<span id="cb5-10">    <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"legendPosition"</span>:  <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"bottom"</span>,</span>
-<span id="cb5-11">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"title"</span>:    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"CO2 emissions per country (2018), classed by natural breaks"</span>,</span>
-<span id="cb5-12">    <span class="st" style="color: #20794D;
+font-style: inherit;">"The same data on a plain linear ramp"</span>,</span>
+<span id="cb5-9">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"subtitle"</span>: <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Five Jenks classes — a single continuous ramp collapses this to one tone"</span>,</span>
-<span id="cb5-13">}</span>
-<span id="cb5-14"></span>
-<span id="cb5-15">cx <span class="op" style="color: #5E5E5E;
+font-style: inherit;">"195 of 198 countries sit in the bottom fifth of the scale - the map goes flat"</span>,</span>
+<span id="cb5-10">}</span>
+<span id="cb5-11"></span>
+<span id="cb5-12">cx <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"co2cls"</span>, data<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"co2lin"</span>, data<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span>classed, width<span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span>linear, width<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
@@ -457,22 +467,22 @@ font-style: inherit;">700</span>, height<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">500</span>)</span>
-<span id="cb5-16"><span class="cf" style="color: #003B4F;
+font-style: inherit;">480</span>)</span>
+<span id="cb5-13"><span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
-<span id="cb5-17">    display(part)</span></code></pre></div>
+<span id="cb5-14">    display(part)</span></code></pre></div>
 <div class="cell-output cell-output-display">
 
 </div>
 <div class="cell-output cell-output-display">
 
 <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
-  <div><canvas id="co2cls" width="700" height="500"></canvas></div>
+  <div><canvas id="co2lin" width="700" height="480"></canvas></div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
@@ -550,21 +560,21 @@ new Promise((cssResolve, cssReject) => {
     
 try {
   // 1. Get the chart object using the HTML element ID
-  let myChart = CanvasXpress.getObject("co2cls");
+  let myChart = CanvasXpress.getObject("co2lin");
   
   // 2. Check if the chart exists before trying to delete it
   if (myChart) {
     myChart.destroy();
-    console.log("Chart co2cls removed for re-rendering.");
+    console.log("Chart co2lin removed for re-rendering.");
   } else {
-    console.log("Chart co2cls ready for rendering.");
+    console.log("Chart co2lin ready for rendering.");
   }
 } catch (error) {
   // 3. Handle any unexpected errors safely
-  console.error("Chart co2cls could not be cleaned for re-rendering:", error);
+  console.error("Chart co2lin could not be cleaned for re-rendering:", error);
 }
 
-var chart_co2cls = new CanvasXpress({"renderTo": "co2cls", "data": {"y": {"vars": ["CO2"], "smps": ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Anguilla", "Antigua & Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Polynesia", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Democratic People's Republic of Korea", "The former Yugoslav Republic of Macedonia", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "Sao Tome and Principe", "Saudi Arabia", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "Republic of Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"], "data": [[10.452666, 5.402999, 164.309295, 0.46421, 37.678605, 0.147145, 0.505574, 185.029897, 6.296603, 0.943234, 415.953947, 66.719678, 37.488394, 2.03001, 31.594487, 85.718805, 1.207134, 61.871676, 100.207836, 0.612205, 7.759753, 0.648945, 1.662172, 22.345503, 22.086102, 6.815418, 466.649304, 0.173555, 9.560399, 43.551599, 4.140342, 0.568028, 15.479031, 7.566796, 586.504635, 0.609509, 0.300478, 1.008035, 85.829114, 9956.568523, 92.228209, 0.245927, 3.518309, 0.072706, 8.249118, 17.718646, 26.084446, 7.332762, 104.411211, 2.231343, 34.65143, 0.389975, 25.305221, 41.817989, 251.460913, 6.018265, 5.90578, 0.708769, 17.710953, 16.184949, 2.123769, 45.849349, 331.725446, 0.780633, 4.803117, 0.56324, 9.862173, 755.362342, 14.479998, 71.797869, 0.511728, 0.278597, 19.411335, 3.032114, 0.308612, 2.342628, 3.366964, 10.470701, 42.505723, 49.628491, 3.674529, 2591.323739, 576.58439, 755.402186, 211.270294, 38.803394, 62.212641, 348.085029, 8.009662, 1135.688, 24.923803, 319.647412, 17.136703, 0.068879, 104.217567, 10.16888, 32.26245, 7.859287, 27.565431, 2.425558, 1.27446, 45.205986, 0.14375, 13.669492, 9.56852, 2.216456, 4.187806, 1.470252, 249.144498, 1.565092, 3.273276, 1.531581, 0.153065, 3.934804, 4.901611, 451.080829, 5.877784, 64.508256, 2.123147, 65.367444, 8.383478, 26.095603, 4.154302, 0.049746, 13.410432, 160.170147, 8.20904, 35.080341, 5.377193, 2.093847, 136.078346, 0.007653, 38.162935, 6.980909, 43.817657, 71.029916, 247.425382, 12.096333, 6.786146, 8.103032, 54.210259, 138.924391, 337.705742, 51.482481, 109.24468, 76.951219, 1691.360426, 1.080098, 0.011319, 0.249014, 0.362202, 0.079232, 0.264106, 0.267864, 0.126126, 576.757836, 46.0531, 0.60536, 0.987559, 38.28806, 36.087837, 14.487844, 0.298477, 0.658329, 634.934068, 1.539884, 269.654254, 22.973233, 22.372399, 2.551817, 41.766183, 36.895485, 25.877689, 273.104667, 7.473265, 11.501889, 292.452995, 0.520422, 3.167303, 0.164545, 37.865571, 30.357093, 419.194747, 78.034724, 0.01148, 5.384767, 231.694165, 188.541366, 380.138559, 5424.881502, 6.251839, 113.93837, 0.145412, 129.596274, 211.774129, 9.945288, 6.930094, 11.340575]]}, "x": {"Continent": ["Asia", "Europe", "Africa", "Europe", "Africa", "North America", "North America", "South America", "Asia", "North America", "Oceania", "Europe", "Europe", "North America", "Asia", "Asia", "North America", "Europe", "Europe", "North America", "Africa", "North America", "Asia", "South America", "Europe", "Africa", "South America", "North America", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "North America", "Africa", "Africa", "Africa", "South America", "Asia", "South America", "Africa", "Africa", "Oceania", "Central America", "Europe", "North America", "Europe", "Europe", "Africa", "Europe", "Africa", "North America", "South America", "Africa", "Central America", "Africa", "Africa", "Europe", "Africa", "Oceania", "Europe", "Europe", "Oceania", "Africa", "Africa", "Asia", "Europe", "Africa", "Europe", "North America", "North America", "Central America", "Africa", "Africa", "South America", "North America", "Central America", "Asia", "Europe", "Europe", "Asia", "Asia", "Asia", "Asia", "Europe", "Asia", "Europe", "North America", "Asia", "Asia", "Asia", "Africa", "Oceania", "Asia", "Asia", "Asia", "Europe", "Asia", "Africa", "Africa", "Africa", "Europe", "Europe", "Europe", "Asia", "Africa", "Africa", "Asia", "Asia", "Africa", "Europe", "Oceania", "Africa", "Africa", "North America", "Europe", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "Oceania", "Asia", "Europe", "Oceania", "Oceania", "Central America", "Africa", "Africa", "Oceania", "Asia", "Europe", "Europe", "Asia", "Asia", "Central America", "Oceania", "South America", "South America", "Asia", "Europe", "Europe", "Africa", "Europe", "Asia", "Africa", "Africa", "North America", "North America", "North America", "North America", "Oceania", "Africa", "Asia", "Europe", "Africa", "Africa", "Asia", "Europe", "Europe", "Oceania", "Africa", "Asia", "Africa", "Europe", "Asia", "Africa", "South America", "Europe", "Europe", "Asia", "Asia", "Asia", "Africa", "Asia", "Asia", "Africa", "Oceania", "North America", "Africa", "Asia", "Asia", "Oceania", "Africa", "Europe", "Asia", "Europe", "North America", "South America", "Asia", "Oceania", "South America", "Asia", "Asia", "Africa", "Africa"], "Code": ["AFG", "ALB", "DZA", "AND", "AGO", "AIA", "ATG", "ARG", "ARM", "ABW", "AUS", "AUT", "AZE", "BHS", "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BMU", "BTN", "BOL", "BIH", "BWA", "BRA", "VGB", "BRN", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "TCD", "CHL", "CHN", "COL", "COM", "COG", "COK", "CRI", "HRV", "CUB", "CYP", "CZE", "COD", "DNK", "DJI", "DOM", "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "ETH", "FJI", "FIN", "FRA", "PYF", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRL", "GRD", "GTM", "GIN", "GNB", "GUY", "HTI", "HND", "HKG", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ", "IRL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KIR", "KWT", "KGZ", "LAO", "LVA", "LBN", "LSO", "LBR", "LBY", "LIE", "LTU", "LUX", "MAC", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT", "MHL", "MRT", "MUS", "MEX", "MDA", "MNG", "MNE", "MAR", "MOZ", "MMR", "NAM", "NRU", "NPL", "NLD", "NCL", "NZL", "NIC", "NER", "NGA", "NIU", "PRK", "MKD", "NOR", "OMN", "PAK", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT", "QAT", "ROU", "RUS", "RWA", "SHN", "KNA", "LCA", "SPM", "VCT", "WSM", "STP", "SAU", "SRB", "SYC", "SLE", "SGP", "SVK", "SVN", "SLB", "SOM", "KOR", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE", "CHE", "SYR", "TWN", "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM", "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN", "VNM", "YEM", "ZMB", "ZWE"]}, "z": null}, "config": {"graphType": "Map", "colorBy": "CO2", "topoJSON": "https://www.canvasxpress.org/data/maps/WORLD.json", "mapId": "co2Classed", "colorSpectrum": ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"], "colorSpectrumBreaksMethod": "jenks", "mapColor": "#e5e7eb", "mapOutlineColor": "#ffffff", "legendPosition": "bottom", "title": "CO2 emissions per country (2018), classed by natural breaks", "subtitle": "Five Jenks classes \u2014 a single continuous ramp collapses this to one tone"}, "events": null}); 
+var chart_co2lin = new CanvasXpress({"renderTo": "co2lin", "data": {"y": {"vars": ["CO2"], "smps": ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Anguilla", "Antigua & Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Polynesia", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Democratic People's Republic of Korea", "The former Yugoslav Republic of Macedonia", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "Sao Tome and Principe", "Saudi Arabia", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "Republic of Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"], "data": [[10.452666, 5.402999, 164.309295, 0.46421, 37.678605, 0.147145, 0.505574, 185.029897, 6.296603, 0.943234, 415.953947, 66.719678, 37.488394, 2.03001, 31.594487, 85.718805, 1.207134, 61.871676, 100.207836, 0.612205, 7.759753, 0.648945, 1.662172, 22.345503, 22.086102, 6.815418, 466.649304, 0.173555, 9.560399, 43.551599, 4.140342, 0.568028, 15.479031, 7.566796, 586.504635, 0.609509, 0.300478, 1.008035, 85.829114, 9956.568523, 92.228209, 0.245927, 3.518309, 0.072706, 8.249118, 17.718646, 26.084446, 7.332762, 104.411211, 2.231343, 34.65143, 0.389975, 25.305221, 41.817989, 251.460913, 6.018265, 5.90578, 0.708769, 17.710953, 16.184949, 2.123769, 45.849349, 331.725446, 0.780633, 4.803117, 0.56324, 9.862173, 755.362342, 14.479998, 71.797869, 0.511728, 0.278597, 19.411335, 3.032114, 0.308612, 2.342628, 3.366964, 10.470701, 42.505723, 49.628491, 3.674529, 2591.323739, 576.58439, 755.402186, 211.270294, 38.803394, 62.212641, 348.085029, 8.009662, 1135.688, 24.923803, 319.647412, 17.136703, 0.068879, 104.217567, 10.16888, 32.26245, 7.859287, 27.565431, 2.425558, 1.27446, 45.205986, 0.14375, 13.669492, 9.56852, 2.216456, 4.187806, 1.470252, 249.144498, 1.565092, 3.273276, 1.531581, 0.153065, 3.934804, 4.901611, 451.080829, 5.877784, 64.508256, 2.123147, 65.367444, 8.383478, 26.095603, 4.154302, 0.049746, 13.410432, 160.170147, 8.20904, 35.080341, 5.377193, 2.093847, 136.078346, 0.007653, 38.162935, 6.980909, 43.817657, 71.029916, 247.425382, 12.096333, 6.786146, 8.103032, 54.210259, 138.924391, 337.705742, 51.482481, 109.24468, 76.951219, 1691.360426, 1.080098, 0.011319, 0.249014, 0.362202, 0.079232, 0.264106, 0.267864, 0.126126, 576.757836, 46.0531, 0.60536, 0.987559, 38.28806, 36.087837, 14.487844, 0.298477, 0.658329, 634.934068, 1.539884, 269.654254, 22.973233, 22.372399, 2.551817, 41.766183, 36.895485, 25.877689, 273.104667, 7.473265, 11.501889, 292.452995, 0.520422, 3.167303, 0.164545, 37.865571, 30.357093, 419.194747, 78.034724, 0.01148, 5.384767, 231.694165, 188.541366, 380.138559, 5424.881502, 6.251839, 113.93837, 0.145412, 129.596274, 211.774129, 9.945288, 6.930094, 11.340575]]}, "x": {"Continent": ["Asia", "Europe", "Africa", "Europe", "Africa", "North America", "North America", "South America", "Asia", "North America", "Oceania", "Europe", "Europe", "North America", "Asia", "Asia", "North America", "Europe", "Europe", "North America", "Africa", "North America", "Asia", "South America", "Europe", "Africa", "South America", "North America", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "North America", "Africa", "Africa", "Africa", "South America", "Asia", "South America", "Africa", "Africa", "Oceania", "Central America", "Europe", "North America", "Europe", "Europe", "Africa", "Europe", "Africa", "North America", "South America", "Africa", "Central America", "Africa", "Africa", "Europe", "Africa", "Oceania", "Europe", "Europe", "Oceania", "Africa", "Africa", "Asia", "Europe", "Africa", "Europe", "North America", "North America", "Central America", "Africa", "Africa", "South America", "North America", "Central America", "Asia", "Europe", "Europe", "Asia", "Asia", "Asia", "Asia", "Europe", "Asia", "Europe", "North America", "Asia", "Asia", "Asia", "Africa", "Oceania", "Asia", "Asia", "Asia", "Europe", "Asia", "Africa", "Africa", "Africa", "Europe", "Europe", "Europe", "Asia", "Africa", "Africa", "Asia", "Asia", "Africa", "Europe", "Oceania", "Africa", "Africa", "North America", "Europe", "Asia", "Europe", "Africa", "Africa", "Asia", "Africa", "Oceania", "Asia", "Europe", "Oceania", "Oceania", "Central America", "Africa", "Africa", "Oceania", "Asia", "Europe", "Europe", "Asia", "Asia", "Central America", "Oceania", "South America", "South America", "Asia", "Europe", "Europe", "Africa", "Europe", "Asia", "Africa", "Africa", "North America", "North America", "North America", "North America", "Oceania", "Africa", "Asia", "Europe", "Africa", "Africa", "Asia", "Europe", "Europe", "Oceania", "Africa", "Asia", "Africa", "Europe", "Asia", "Africa", "South America", "Europe", "Europe", "Asia", "Asia", "Asia", "Africa", "Asia", "Asia", "Africa", "Oceania", "North America", "Africa", "Asia", "Asia", "Oceania", "Africa", "Europe", "Asia", "Europe", "North America", "South America", "Asia", "Oceania", "South America", "Asia", "Asia", "Africa", "Africa"], "Code": ["AFG", "ALB", "DZA", "AND", "AGO", "AIA", "ATG", "ARG", "ARM", "ABW", "AUS", "AUT", "AZE", "BHS", "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BMU", "BTN", "BOL", "BIH", "BWA", "BRA", "VGB", "BRN", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "TCD", "CHL", "CHN", "COL", "COM", "COG", "COK", "CRI", "HRV", "CUB", "CYP", "CZE", "COD", "DNK", "DJI", "DOM", "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "ETH", "FJI", "FIN", "FRA", "PYF", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRL", "GRD", "GTM", "GIN", "GNB", "GUY", "HTI", "HND", "HKG", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ", "IRL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KIR", "KWT", "KGZ", "LAO", "LVA", "LBN", "LSO", "LBR", "LBY", "LIE", "LTU", "LUX", "MAC", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT", "MHL", "MRT", "MUS", "MEX", "MDA", "MNG", "MNE", "MAR", "MOZ", "MMR", "NAM", "NRU", "NPL", "NLD", "NCL", "NZL", "NIC", "NER", "NGA", "NIU", "PRK", "MKD", "NOR", "OMN", "PAK", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT", "QAT", "ROU", "RUS", "RWA", "SHN", "KNA", "LCA", "SPM", "VCT", "WSM", "STP", "SAU", "SRB", "SYC", "SLE", "SGP", "SVK", "SVN", "SLB", "SOM", "KOR", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE", "CHE", "SYR", "TWN", "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM", "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN", "VNM", "YEM", "ZMB", "ZWE"]}, "z": null}, "config": {"graphType": "Map", "colorBy": "CO2", "topoJSON": "https://www.canvasxpress.org/data/maps/WORLD.json", "mapId": "co2Linear", "legendPosition": "left", "theme": "solarized", "title": "The same data on a plain linear ramp", "subtitle": "195 of 198 countries sit in the bottom fifth of the scale - the map goes flat"}, "events": null}); 
 ;
 
  
@@ -577,13 +587,18 @@ var chart_co2cls = new CanvasXpress({"renderTo": "co2cls", "data": {"y": {"vars"
 </script>
 </div>
 </div>
-<p>Five classes is a good default (three to seven is the usable range). Swap <code>"jenks"</code> for <code>"quantile"</code> to put an equal <em>number of regions</em> in each class instead of equal-variance breaks — quantile classing guarantees every colour is used and is the right choice when you care about ranking regions rather than their absolute spacing.</p>
+<p>This is the single most common choropleth failure. The cure is <strong>classing</strong>:</p>
+<ul>
+<li><code>"colorSpectrumBreaksMethod": "quantile"</code> — equal <em>counts</em> per class. Every colour is used, by construction. The right default for skewed data and for “which regions rank high/low” questions.</li>
+<li><code>"colorSpectrumBreaksMethod": "jenks"</code> — natural breaks that minimise within-class variance. Best when the data has genuine clusters with gaps between them; on smoothly heavy-tailed data like this it piles almost everything into the bottom class, so check the legend before you trust it.</li>
+<li>Three to seven classes is the usable range — beyond that, readers cannot match colours to the legend.</li>
+</ul>
 </section>
 <section id="choose-the-palette-on-purpose" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-palette-on-purpose">Choose the palette on purpose</h2>
 <p>The palette is the scale’s grammar, not decoration:</p>
 <ul>
-<li><p><strong>Sequential</strong> (light → dark of one hue, as above) for a quantity that only goes up: counts, rates, concentrations.</p></li>
+<li><p><strong>Sequential</strong> (dark → light of ordered hues, like viridis above) for a quantity that only goes up: counts, rates, concentrations.</p></li>
 <li><p><strong>Diverging</strong> (two hues meeting at a neutral midpoint) when values are meaningful <em>above and below a reference</em>: change vs.&nbsp;last year, difference from a target, a signed index. Give a three-colour <code>colorSpectrum</code> and pin the midpoint with <code>colorSpectrumZeroValue</code>:</p>
 <div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -610,14 +625,14 @@ background-color: null;
 font-style: inherit;"># value mapped to the middle colour</span></span></code></pre></div>
 <p>Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a “normal” the data does not have.</p></li>
 </ul>
-<p>Reach for colour-blind-safe ramps (ColorBrewer, viridis) and keep the <em>same</em> scale across small multiples so maps stay comparable. A rainbow ramp has no perceptual order, so readers cannot tell which end means “more”.</p>
+<p>Viridis and the ColorBrewer ramps are colour-blind-safe and perceptually ordered; a rainbow ramp is neither, so readers cannot tell which end means “more”. Keep the <em>same</em> scale across small multiples so maps stay comparable.</p>
 </section>
 <section id="polish-legend-labels-and-base-styling" class="level2">
 <h2 class="anchored" data-anchor-id="polish-legend-labels-and-base-styling">Polish: legend, labels and base styling</h2>
 <ul>
 <li><code>subtitle</code> / <code>source</code> — caption units and provenance.</li>
 <li><code>"legendNumberFormat": {"style": "decimal", "decimals": 1, "suffix": "%"}</code> — format legend ticks.</li>
-<li><code>mapColor</code> / <code>mapOutlineColor</code> — fill for <strong>no-data</strong> regions and the shape borders, so missing data reads as missing rather than as a value.</li>
+<li><code>mapColor</code> / <code>mapOutlineColor</code> — the fill for <strong>no-data</strong> regions (a neutral grey) and the shape borders, so missing data reads as missing rather than as a value.</li>
 <li><code>"showMapLabels": True</code> — draw region names (best on few-region maps; clutters a world map).</li>
 <li><code>"legendInside": True</code> — float the legend over empty ocean to reclaim width.</li>
 </ul>
@@ -652,7 +667,7 @@ font-style: inherit;"># value mapped to the middle colour</span></span></code></
   <category>visualization</category>
   <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/choropleth-maps-in-python/</guid>
   <pubDate>Wed, 07 Oct 2026 04:00:00 GMT</pubDate>
-  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/choropleth-maps-in-python/thumbnail.png" medium="image" type="image/png" height="144" width="144"/>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/choropleth-maps-in-python/thumbnail.png" medium="image" type="image/png" height="112" width="144"/>
 </item>
 <item>
   <title>Sankey / alluvial diagrams in Python with canvasxpress</title>

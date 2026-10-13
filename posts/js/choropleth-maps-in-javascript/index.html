@@ -8,7 +8,7 @@
 
 <meta name="author" content="Isaac Neuhaus">
 <meta name="dcterms.date" content="2026-10-08">
-<meta name="description" content="Build an honest, interactive choropleth in the browser with CanvasXpress — join your data to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and choose a sequential vs diverging palette.">
+<meta name="description" content="Build a rich, honest, interactive choropleth in the browser with CanvasXpress — quantile classes and a viridis ramp that survive heavy-tailed data, plus the area-bias trap and sequential vs diverging palettes.">
 
 <title>Choropleth maps in JavaScript with CanvasXpress – CanvasXpress Recipes</title>
 <style>
@@ -174,9 +174,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#first-the-trap-colour-encodes-a-rate-not-a-count" id="toc-first-the-trap-colour-encodes-a-rate-not-a-count" class="nav-link active" data-scroll-target="#first-the-trap-colour-encodes-a-rate-not-a-count">First, the trap: colour encodes a <em>rate</em>, not a <em>count</em></a></li>
   <li><a href="#load-the-library" id="toc-load-the-library" class="nav-link" data-scroll-target="#load-the-library">Load the library</a></li>
   <li><a href="#the-markup-and-the-spec" id="toc-the-markup-and-the-spec" class="nav-link" data-scroll-target="#the-markup-and-the-spec">The markup and the spec</a></li>
-  <li><a href="#live-result-one-continuous-ramp" id="toc-live-result-one-continuous-ramp" class="nav-link" data-scroll-target="#live-result-one-continuous-ramp">Live result: one continuous ramp</a></li>
-  <li><a href="#class-a-skewed-scale-with-natural-breaks" id="toc-class-a-skewed-scale-with-natural-breaks" class="nav-link" data-scroll-target="#class-a-skewed-scale-with-natural-breaks">Class a skewed scale with natural breaks</a></li>
-  <li><a href="#live-result-classed-by-natural-breaks" id="toc-live-result-classed-by-natural-breaks" class="nav-link" data-scroll-target="#live-result-classed-by-natural-breaks">Live result: classed by natural breaks</a></li>
+  <li><a href="#live-result" id="toc-live-result" class="nav-link" data-scroll-target="#live-result">Live result</a></li>
+  <li><a href="#why-not-just-a-plain-linear-ramp" id="toc-why-not-just-a-plain-linear-ramp" class="nav-link" data-scroll-target="#why-not-just-a-plain-linear-ramp">Why not just a plain linear ramp?</a></li>
   <li><a href="#choose-the-palette-on-purpose" id="toc-choose-the-palette-on-purpose" class="nav-link" data-scroll-target="#choose-the-palette-on-purpose">Choose the palette on purpose</a></li>
   <li><a href="#beyond-the-world-map" id="toc-beyond-the-world-map" class="nav-link" data-scroll-target="#beyond-the-world-map">Beyond the world map</a></li>
   <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next">Next</a></li>
@@ -200,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Build an honest, interactive choropleth in the browser with CanvasXpress — join your data to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and choose a sequential vs diverging palette.
+    Build a rich, honest, interactive choropleth in the browser with CanvasXpress — quantile classes and a viridis ramp that survive heavy-tailed data, plus the area-bias trap and sequential vs diverging palettes.
   </div>
 </div>
 
@@ -229,7 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most common map in data analysis and the easiest to get <em>subtly wrong</em>. The mechanics are simple: join a table of values to a set of shapes by a common key, then map value to colour. The judgement is in the rest — what you encode, how you class it, and which palette you choose. CanvasXpress does the join and the colouring inside the render, so in the browser you pass one value per region and a topoJSON of boundaries and get an interactive, reproducible figure.</p>
+<p>A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most common map in data analysis and the easiest to get <em>subtly wrong</em>: most “my map is all one colour” complaints are not rendering bugs but scale bugs. CanvasXpress does the join and the colouring inside the render, so in the browser you pass one value per region and a topoJSON of boundaries and get an interactive, reproducible figure — and with the right colour scale it stays vivid on exactly the kind of heavy-tailed data that flattens naive maps.</p>
 <section id="first-the-trap-colour-encodes-a-rate-not-a-count" class="level2">
 <h2 class="anchored" data-anchor-id="first-the-trap-colour-encodes-a-rate-not-a-count">First, the trap: colour encodes a <em>rate</em>, not a <em>count</em></h2>
 <p>A choropleth fills an <strong>area</strong>, and area is a size channel your eye cannot help reading. Shade regions by a raw count — total cases, total emissions, total sales — and big, populous regions light up simply because they are big and populous. You have drawn a population map with extra steps. The fix is almost always to map a <strong>rate or density</strong> (per capita, per 100k); reserve raw counts for a proportional-symbol map, where a sized bubble carries the count honestly.</p>
@@ -241,8 +240,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="the-markup-and-the-spec" class="level2">
 <h2 class="anchored" data-anchor-id="the-markup-and-the-spec">The markup and the spec</h2>
-<p>The <strong>columns</strong> (<code>smps</code>) are the regions — they match the map by name — and the single <strong>row</strong> (<code>vars</code>) is the variable you colour by: CO₂ emissions per country for 2018. We fetch a prepared table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand the matrix to CanvasXpress. Swap the URL for any <code>country → value</code> table of your own.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">"co2cont"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"700"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"500"</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
+<p>The <strong>columns</strong> (<code>smps</code>) are the regions — they match the map by name — and the single <strong>row</strong> (<code>vars</code>) is the variable you colour by: CO₂ emissions per country for 2018. We fetch a prepared table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand the matrix to CanvasXpress. The two choices that make this map <em>work</em> are in the colour scale: a seven-stop viridis <code>colorSpectrum</code>, and <code>colorSpectrumBreaksMethod: "quantile"</code>, which puts an equal number of countries in every colour class — on skewed data that guarantee is what keeps all seven colours on the map.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">"co2quant"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"760"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"520"</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> DATA <span class="op">=</span> <span class="st">"https://www.canvasxpress.org/data/r/cX-CO2-dat.txt"</span><span class="op">;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> SMP  <span class="op">=</span> <span class="st">"https://www.canvasxpress.org/data/r/cX-CO2-smp.txt"</span><span class="op">;</span></span>
@@ -274,20 +273,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">graphType</span><span class="op">:</span> <span class="st">"Map"</span><span class="op">,</span></span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">colorBy</span><span class="op">:</span> <span class="st">"CO2"</span><span class="op">,</span></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">topoJSON</span><span class="op">:</span> <span class="st">"https://www.canvasxpress.org/data/maps/WORLD.json"</span><span class="op">,</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">mapId</span><span class="op">:</span> <span class="st">"co2Continuous"</span><span class="op">,</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">legendPosition</span><span class="op">:</span> <span class="st">"left"</span><span class="op">,</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">theme</span><span class="op">:</span> <span class="st">"solarized"</span><span class="op">,</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>        <span class="dt">title</span><span class="op">:</span> <span class="st">"CO2 emissions per country (2018)"</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      }<span class="op">;</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">CanvasXpress</span>(<span class="st">"co2cont"</span><span class="op">,</span> data<span class="op">,</span> config)<span class="op">;</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">mapId</span><span class="op">:</span> <span class="st">"co2Quantile"</span><span class="op">,</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">colorSpectrum</span><span class="op">:</span> [<span class="st">"#440154"</span><span class="op">,</span> <span class="st">"#443983"</span><span class="op">,</span> <span class="st">"#31688e"</span><span class="op">,</span> <span class="st">"#21918c"</span><span class="op">,</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"#35b779"</span><span class="op">,</span> <span class="st">"#90d743"</span><span class="op">,</span> <span class="st">"#fde725"</span>]<span class="op">,</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>        <span class="dt">colorSpectrumBreaksMethod</span><span class="op">:</span> <span class="st">"quantile"</span><span class="op">,</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">mapColor</span><span class="op">:</span> <span class="st">"#d9dde3"</span><span class="op">,</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">mapOutlineColor</span><span class="op">:</span> <span class="st">"#ffffff"</span><span class="op">,</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">legendPosition</span><span class="op">:</span> <span class="st">"bottom"</span><span class="op">,</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">title</span><span class="op">:</span> <span class="st">"CO2 emissions per country (2018)"</span><span class="op">,</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="dt">subtitle</span><span class="op">:</span> <span class="st">"Seven quantile classes: each colour holds about 28 of 198 countries"</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>      }<span class="op">;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">CanvasXpress</span>(<span class="st">"co2quant"</span><span class="op">,</span> data<span class="op">,</span> config)<span class="op">;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="live-result-one-continuous-ramp" class="level2">
-<h2 class="anchored" data-anchor-id="live-result-one-continuous-ramp">Live result: one continuous ramp</h2>
+<section id="live-result" class="level2">
+<h2 class="anchored" data-anchor-id="live-result">Live result</h2>
 <link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
-<canvas id="co2contLive" width="700" height="500"></canvas>
+<canvas id="co2quantLive" width="760" height="520"></canvas>
 <script>
 (function () {
   var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
@@ -309,94 +313,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         var byCountry = {};
         s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
         var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
-        new CanvasXpress("co2contLive",
+        new CanvasXpress("co2quantLive",
           { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
           { graphType: "Map", colorBy: "CO2",
             topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
-            mapId: "co2Continuous", legendPosition: "left", theme: "solarized",
-            title: "CO2 emissions per country (2018)" });
+            mapId: "co2Quantile",
+            colorSpectrum: ["#440154", "#443983", "#31688e", "#21918c",
+                            "#35b779", "#90d743", "#fde725"],
+            colorSpectrumBreaksMethod: "quantile",
+            mapColor: "#d9dde3", mapOutlineColor: "#ffffff", legendPosition: "bottom",
+            title: "CO2 emissions per country (2018)",
+            subtitle: "Seven quantile classes: each colour holds about 28 of 198 countries" });
       });
   }
   draw();
 })();
 </script>
-<p>Most of the world is the same pale colour. That is not a bug; it is the data. Emissions are <strong>heavy-tailed</strong> — a few countries dwarf everyone else — so a linear ramp spends almost its whole range on the top few and flattens the rest into one band.</p>
+<p>Every band of the ramp is doing work: the darkest purples are the smallest emitters, the yellows the largest, and the legend’s break values tell you the class edges are <em>data-driven</em>, not evenly spaced. Hover any country for its name, continent and value.</p>
 </section>
-<section id="class-a-skewed-scale-with-natural-breaks" class="level2">
-<h2 class="anchored" data-anchor-id="class-a-skewed-scale-with-natural-breaks">Class a skewed scale with natural breaks</h2>
-<p>When the data is skewed, <strong>class</strong> it: cut the range into a handful of bins, one colour each. Set a multi-stop <code>colorSpectrum</code> and <code>colorSpectrumBreaksMethod: "jenks"</code> — Jenks natural breaks place the class edges where the data actually has gaps, so the middle of the distribution finally gets colours of its own. Only the colour config changes; the fetched data is identical.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">"co2cls"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"700"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"500"</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...fetch and parse exactly as above, then:</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> config <span class="op">=</span> {</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">graphType</span><span class="op">:</span> <span class="st">"Map"</span><span class="op">,</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorBy</span><span class="op">:</span> <span class="st">"CO2"</span><span class="op">,</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">topoJSON</span><span class="op">:</span> <span class="st">"https://www.canvasxpress.org/data/maps/WORLD.json"</span><span class="op">,</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">mapId</span><span class="op">:</span> <span class="st">"co2Classed"</span><span class="op">,</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorSpectrum</span><span class="op">:</span> [<span class="st">"#fff7ec"</span><span class="op">,</span> <span class="st">"#fdd49e"</span><span class="op">,</span> <span class="st">"#fc8d59"</span><span class="op">,</span> <span class="st">"#d7301f"</span><span class="op">,</span> <span class="st">"#7f0000"</span>]<span class="op">,</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">colorSpectrumBreaksMethod</span><span class="op">:</span> <span class="st">"jenks"</span><span class="op">,</span>       <span class="co">// or "quantile"</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">mapColor</span><span class="op">:</span> <span class="st">"#e5e7eb"</span><span class="op">,</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">mapOutlineColor</span><span class="op">:</span> <span class="st">"#ffffff"</span><span class="op">,</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legendPosition</span><span class="op">:</span> <span class="st">"bottom"</span><span class="op">,</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span><span class="op">:</span> <span class="st">"CO2 emissions per country (2018), classed by natural breaks"</span><span class="op">,</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">subtitle</span><span class="op">:</span> <span class="st">"Five Jenks classes — a single continuous ramp collapses this to one tone"</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span> <span class="fu">CanvasXpress</span>(<span class="st">"co2cls"</span><span class="op">,</span> data<span class="op">,</span> config)<span class="op">;</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="live-result-classed-by-natural-breaks" class="level2">
-<h2 class="anchored" data-anchor-id="live-result-classed-by-natural-breaks">Live result: classed by natural breaks</h2>
-<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
-<canvas id="co2clsLive" width="700" height="500"></canvas>
+<section id="why-not-just-a-plain-linear-ramp" class="level2">
+<h2 class="anchored" data-anchor-id="why-not-just-a-plain-linear-ramp">Why not just a plain linear ramp?</h2>
+<p>Because the data is <strong>heavy-tailed</strong> — a few countries emit thousands of megatonnes while most emit almost nothing. On a linear scale, <strong>195 of these 198 countries fall into the bottom fifth of the range</strong>, so a continuous ramp paints nearly the whole world one pale tone and spends its colour on two or three outliers. See for yourself — same data, default scale:</p>
+<canvas id="co2linLive" width="700" height="480"></canvas>
 <script>
 (function () {
   var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
-  var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
   function rows(text) {
     return text.trim().split("\n").map(function (line) { return line.split("\t"); });
   }
   function draw() {
     if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
-    Promise.all([fetch(DATA).then(function (r) { return r.text(); }),
-                 fetch(SMP ).then(function (r) { return r.text(); })])
-      .then(function (texts) {
-        var d = rows(texts[0]);
-        var countries = d[0].slice(1);
-        var values    = d[1].slice(1).map(Number);
-        var s = rows(texts[1]);
-        var col = {};
-        s[0].forEach(function (name, i) { col[name] = i; });
-        var byCountry = {};
-        s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
-        var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
-        new CanvasXpress("co2clsLive",
-          { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
-          { graphType: "Map", colorBy: "CO2",
-            topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
-            mapId: "co2Classed",
-            colorSpectrum: ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"],
-            colorSpectrumBreaksMethod: "jenks",
-            mapColor: "#e5e7eb", mapOutlineColor: "#ffffff", legendPosition: "bottom",
-            title: "CO2 emissions per country (2018), classed by natural breaks",
-            subtitle: "Five Jenks classes — a single continuous ramp collapses this to one tone" });
-      });
+    fetch(DATA).then(function (r) { return r.text(); }).then(function (text) {
+      var d = rows(text);
+      var countries = d[0].slice(1);
+      var values    = d[1].slice(1).map(Number);
+      new CanvasXpress("co2linLive",
+        { y: { vars: ["CO2"], smps: countries, data: [values] } },
+        { graphType: "Map", colorBy: "CO2",
+          topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+          mapId: "co2Linear", legendPosition: "left", theme: "solarized",
+          title: "The same data on a plain linear ramp",
+          subtitle: "195 of 198 countries sit in the bottom fifth of the scale - the map goes flat" });
+    });
   }
   draw();
 })();
 </script>
-<p>Five classes is a good default (three to seven is the usable range). Swap <code>"jenks"</code> for <code>"quantile"</code> to put an equal <em>number of regions</em> in each class — quantile classing guarantees every colour is used and is the right choice when you care about ranking regions rather than their absolute spacing.</p>
+<p>This is the single most common choropleth failure. The cure is <strong>classing</strong>:</p>
+<ul>
+<li><code>colorSpectrumBreaksMethod: "quantile"</code> — equal <em>counts</em> per class. Every colour is used, by construction. The right default for skewed data and for “which regions rank high/low” questions.</li>
+<li><code>colorSpectrumBreaksMethod: "jenks"</code> — natural breaks that minimise within-class variance. Best when the data has genuine clusters with gaps between them; on smoothly heavy-tailed data like this it piles almost everything into the bottom class, so check the legend before you trust it.</li>
+<li>Three to seven classes is the usable range — beyond that, readers cannot match colours to the legend.</li>
+</ul>
 </section>
 <section id="choose-the-palette-on-purpose" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-palette-on-purpose">Choose the palette on purpose</h2>
 <p>The palette is the scale’s grammar, not decoration:</p>
 <ul>
-<li><p><strong>Sequential</strong> (light → dark of one hue, as above) for a quantity that only goes up: counts, rates, concentrations.</p></li>
+<li><p><strong>Sequential</strong> (dark → light of ordered hues, like viridis above) for a quantity that only goes up: counts, rates, concentrations.</p></li>
 <li><p><strong>Diverging</strong> (two hues meeting at a neutral midpoint) when values are meaningful <em>above and below a reference</em>: change vs.&nbsp;last year, difference from a target, a signed index. Use a three-colour <code>colorSpectrum</code> and pin the midpoint:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>colorBy<span class="op">:</span> <span class="st">"Change"</span><span class="op">,</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>colorSpectrum<span class="op">:</span> [<span class="st">"#2166ac"</span><span class="op">,</span> <span class="st">"#f7f7f7"</span><span class="op">,</span> <span class="st">"#b2182b"</span>]<span class="op">,</span>  <span class="co">// blue - neutral - red</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>colorSpectrumZeroValue<span class="op">:</span> <span class="dv">0</span>                           <span class="co">// value mapped to the middle colour</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a “normal” the data does not have. Prefer colour-blind-safe ramps (ColorBrewer, viridis) and keep the <em>same</em> scale across small multiples so maps stay comparable.</p></li>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>colorBy<span class="op">:</span> <span class="st">"Change"</span><span class="op">,</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>colorSpectrum<span class="op">:</span> [<span class="st">"#2166ac"</span><span class="op">,</span> <span class="st">"#f7f7f7"</span><span class="op">,</span> <span class="st">"#b2182b"</span>]<span class="op">,</span>  <span class="co">// blue - neutral - red</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>colorSpectrumZeroValue<span class="op">:</span> <span class="dv">0</span>                           <span class="co">// value mapped to the middle colour</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a “normal” the data does not have. Viridis and the ColorBrewer ramps are colour-blind-safe and perceptually ordered; a rainbow ramp is neither. Keep the <em>same</em> scale across small multiples so maps stay comparable.</p></li>
 </ul>
 </section>
 <section id="beyond-the-world-map" class="level2">
@@ -405,7 +384,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Other boundaries.</strong> Point <code>topoJSON</code> at any shape file — US states, a country’s provinces, counties, custom districts. The join key is just the shape name.</li>
 <li><strong>Projection.</strong> <code>mapProjection: "albers"</code> (equal-area) or <code>"mercator"</code>. Equal-area projections matter for choropleths: Mercator inflates high latitudes and exaggerates their visual weight.</li>
 <li><strong>Categorical maps.</strong> Point <code>colorBy</code> at a categorical field for a qualitative choropleth with a discrete legend.</li>
-<li><strong>Polish.</strong> <code>legendNumberFormat</code> formats the ticks, <code>legendInside</code> floats the legend over ocean, <code>showMapLabels</code> draws region names (best on few-region maps), and <code>decorations</code> drops labelled markers on cities.</li>
+<li><strong>Polish.</strong> <code>legendNumberFormat</code> formats the ticks, <code>legendInside</code> floats the legend over ocean, <code>showMapLabels</code> draws region names (best on few-region maps), <code>mapColor</code> sets the no-data fill so missing reads as missing, and <code>decorations</code> drops labelled markers on cities.</li>
 </ul>
 <p>The whole figure — data, boundaries, classing rule and palette — is one portable spec you can re-render from R or Python.</p>
 </section>
