@@ -1,6 +1,6 @@
 ---
 title: "Choropleth maps in Python with canvasxpress"
-description: "Color a world map by a value per country in Python with canvasxpress — join a DataFrame to a topoJSON by name and get an interactive, reproducible choropleth."
+description: "Build an honest, interactive choropleth in Python with canvasxpress — join a DataFrame to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and choose a sequential vs diverging palette."
 author: "Isaac Neuhaus"
 date: "2026-10-07"
 categories: [Python, canvasxpress, maps, choropleth, visualization]
@@ -8,12 +8,13 @@ image: "thumbnail.png"
 jupyter: python3
 ---
 
-A choropleth map shades each region by a value — emissions, population, votes, incidence. The
-trick is always the same: join a table of values to a set of map shapes by a common key, then
-pick a color scale. Here we build one in Python with
-[canvasxpress](https://pypi.org/project/canvasxpress/): you pass one value per country and a
-topoJSON of boundaries, and the join and coloring happen inside the render, so the result is
-interactive and reproducible from a single spec.
+A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most
+common map in data analysis and the easiest to get *subtly wrong*. The mechanics are simple: join a
+table of values to a set of shapes by a common key, then map value to colour. The judgement is in
+the rest — what you encode, how you class it, and which palette you choose. Here we build one in
+Python with [canvasxpress](https://pypi.org/project/canvasxpress/) and treat those choices as
+first-class. The join and the colouring happen inside the render, so every figure is one portable
+spec you can re-run from Python, R or the browser.
 
 ## Install
 
@@ -21,12 +22,23 @@ interactive and reproducible from a single spec.
 pip install canvasxpress pandas
 ```
 
+## First, the trap: colour encodes a *rate*, not a *count*
+
+A choropleth fills an **area**, and area is a size channel your eye cannot help reading. Shade
+regions by a raw count — total cases, total emissions, total sales — and big, populous regions light
+up simply because they are big and populous. You have drawn a population map with extra steps.
+
+The fix is almost always to map a **rate or density**: cases per 100k, emissions per capita, sales
+per store. Reserve raw counts for a *proportional-symbol* map (a sized bubble at each centroid),
+where the size channel carries the count honestly. Decide which question you are answering before
+you pick the geometry — this one choice prevents most misleading maps.
+
 ## One value per region
 
-A choropleth needs exactly one measurement per shape. In canvasxpress the **columns** (`smps`)
-are the regions — they match the map by name — and each **row** (`vars`) is a variable you can
-color by. Here it's CO₂ emissions per country for 2018. We load a prepared table; swap it for
-your own (any `country → value` table works).
+A choropleth needs exactly one measurement per shape. In canvasxpress the **columns** (`smps`) are
+the regions — they match the map by name — and each **row** (`vars`) is a variable you can colour by.
+Here it's CO₂ emissions per country for 2018. We load a prepared table; swap it for your own (any
+`country → value` table works).
 
 ```{python}
 import pandas as pd
@@ -44,7 +56,7 @@ print(dat.shape)              # (1, N): one row (CO2) x N countries
 dat.iloc[:, :4]
 ```
 
-## Build the spec
+## A first map: one continuous ramp
 
 `y` carries the matrix (`vars` = the variable, `smps` = the countries, `data` = the values); the
 optional `x` block adds per-country annotations (continent, ISO code) for richer tooltips. The
@@ -71,30 +83,102 @@ config = {
     "graphType": "Map",
     "colorBy":   "CO2",
     "topoJSON":  "https://www.canvasxpress.org/data/maps/WORLD.json",
-    "mapId":     "countries",
+    "mapId":     "co2Continuous",
     "legendPosition": "left",
     "theme": "solarized",
-    "title": "CO2 Emissions per Country (2018)",
+    "title": "CO2 emissions per country (2018)",
 }
 
-cx = CanvasXpress(render_to="comap", data=data, config=config, width=700, height=500)
+cx = CanvasXpress(render_to="co2cont", data=data, config=config, width=700, height=500)
 for part in CXNoteBook(cx).render():
     display(part)
 ```
 
-Each country is shaded by its emissions, the legend maps color to value, and hovering a country
-shows its name, continent and number. The whole figure is one portable spec you can store,
-validate and re-render from R or JavaScript.
+It renders — but most of the world is the same pale colour. That is not a bug; it is the data.
+Emissions are **heavy-tailed**: a few countries dwarf everyone else, so a linear ramp spends almost
+its whole range on the top few and flattens the rest into one band. A continuous ramp is honest only
+when the variable is roughly uniform or near-normal.
+
+## Class a skewed scale with natural breaks
+
+When the data is skewed, **class** it: cut the range into a handful of bins, one colour each.
+`colorSpectrumBreaksMethod = "jenks"` picks class edges that minimise within-class variance (Jenks
+natural breaks) — it finds the gaps the data actually has instead of slicing the range evenly. The
+`data`/`x` blocks are unchanged; only the colour configuration differs.
+
+```{python}
+classed = {
+    "graphType": "Map",
+    "colorBy":   "CO2",
+    "topoJSON":  "https://www.canvasxpress.org/data/maps/WORLD.json",
+    "mapId":     "co2Classed",
+    "colorSpectrum": ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"],
+    "colorSpectrumBreaksMethod": "jenks",
+    "mapColor":        "#e5e7eb",
+    "mapOutlineColor": "#ffffff",
+    "legendPosition":  "bottom",
+    "title":    "CO2 emissions per country (2018), classed by natural breaks",
+    "subtitle": "Five Jenks classes — a single continuous ramp collapses this to one tone",
+}
+
+cx = CanvasXpress(render_to="co2cls", data=data, config=classed, width=700, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Five classes is a good default (three to seven is the usable range). Swap `"jenks"` for `"quantile"`
+to put an equal *number of regions* in each class instead of equal-variance breaks — quantile
+classing guarantees every colour is used and is the right choice when you care about ranking regions
+rather than their absolute spacing.
+
+## Choose the palette on purpose
+
+The palette is the scale's grammar, not decoration:
+
+- **Sequential** (light → dark of one hue, as above) for a quantity that only goes up: counts, rates,
+  concentrations.
+- **Diverging** (two hues meeting at a neutral midpoint) when values are meaningful *above and below
+  a reference*: change vs. last year, difference from a target, a signed index. Give a three-colour
+  `colorSpectrum` and pin the midpoint with `colorSpectrumZeroValue`:
+
+  ```python
+  "colorBy": "Change",
+  "colorSpectrum": ["#2166ac", "#f7f7f7", "#b2182b"],  # blue - neutral - red
+  "colorSpectrumZeroValue": 0,                          # value mapped to the middle colour
+  ```
+
+  Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a
+  "normal" the data does not have.
+
+Reach for colour-blind-safe ramps (ColorBrewer, viridis) and keep the *same* scale across small
+multiples so maps stay comparable. A rainbow ramp has no perceptual order, so readers cannot tell
+which end means "more".
+
+## Polish: legend, labels and base styling
+
+- `subtitle` / `source` — caption units and provenance.
+- `"legendNumberFormat": {"style": "decimal", "decimals": 1, "suffix": "%"}` — format legend ticks.
+- `mapColor` / `mapOutlineColor` — fill for **no-data** regions and the shape borders, so missing
+  data reads as missing rather than as a value.
+- `"showMapLabels": True` — draw region names (best on few-region maps; clutters a world map).
+- `"legendInside": True` — float the legend over empty ocean to reclaim width.
 
 ## Beyond the world map
 
-Point `topoJSON` at a different boundary file to map US states, a single country's provinces, or
-a custom region — the join key is just the shape name. Switch `colorBy` to a categorical column
-for a qualitative map, add `decorations` to drop labeled markers on cities, or set
-`mapProjection` for an Albers or Mercator view.
+- **Other boundaries.** Point `topoJSON` at any shape file — US states, a country's provinces,
+  counties, custom districts. The join key is just the shape name.
+- **Projection.** `"mapProjection": "albers"` (equal-area) or `"mercator"`. Equal-area projections
+  matter for choropleths: Mercator inflates high latitudes and exaggerates their visual weight.
+- **Categorical maps.** Point `colorBy` at a categorical column for a qualitative choropleth with a
+  discrete legend.
+- **Markers.** Add `decorations` to drop labelled points on cities or call out specific regions.
+
+The whole figure — data, boundaries, classing rule and palette — is one portable spec you can store,
+validate and re-render from R or JavaScript.
 
 ## Next
 
+- [Choropleth maps in R](../choropleth-maps-in-r/)
+- [Choropleth maps in JavaScript](../choropleth-maps-in-javascript/)
 - [Clustered heatmaps in Python](../clustered-heatmap-in-python/)
-- [Interactive volcano plots in Python](../volcano-plots-in-python/)
 - Gallery: <https://canvasxpress.org/examples.html>

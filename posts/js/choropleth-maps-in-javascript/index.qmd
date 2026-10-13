@@ -1,34 +1,43 @@
 ---
 title: "Choropleth maps in JavaScript with CanvasXpress"
-description: "Color a world map by a value per country in the browser with CanvasXpress — join your data to a topoJSON by name and get an interactive, reproducible choropleth."
+description: "Build an honest, interactive choropleth in the browser with CanvasXpress — join your data to a topoJSON, avoid the area-bias trap, class a skewed scale with natural breaks, and choose a sequential vs diverging palette."
 author: "Isaac Neuhaus"
 date: "2026-10-08"
 categories: [JavaScript, CanvasXpress, maps, choropleth, visualization]
 image: "thumbnail.png"
 ---
 
-A choropleth map shades each region by a value — emissions, population, votes, incidence. The
-trick is always the same: join a table of values to a set of map shapes by a common key, then
-pick a color scale. CanvasXpress does the join and the coloring inside the render, so in the
-browser you pass one value per country and a topoJSON of boundaries and get an interactive,
-reproducible figure.
+A choropleth shades each region by a value — emissions, incidence, turnout, income. It is the most
+common map in data analysis and the easiest to get *subtly wrong*. The mechanics are simple: join a
+table of values to a set of shapes by a common key, then map value to colour. The judgement is in
+the rest — what you encode, how you class it, and which palette you choose. CanvasXpress does the
+join and the colouring inside the render, so in the browser you pass one value per region and a
+topoJSON of boundaries and get an interactive, reproducible figure.
+
+## First, the trap: colour encodes a *rate*, not a *count*
+
+A choropleth fills an **area**, and area is a size channel your eye cannot help reading. Shade
+regions by a raw count — total cases, total emissions, total sales — and big, populous regions light
+up simply because they are big and populous. You have drawn a population map with extra steps. The
+fix is almost always to map a **rate or density** (per capita, per 100k); reserve raw counts for a
+proportional-symbol map, where a sized bubble carries the count honestly.
 
 ## Load the library
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
 ```
 
 ## The markup and the spec
 
-The **columns** (`smps`) are the countries — they match the map by name — and the single **row**
-(`vars`) is the variable you color by: CO₂ emissions per country for 2018. We fetch a prepared
-table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand
-the matrix to CanvasXpress. Swap the URL for any `country → value` table of your own.
+The **columns** (`smps`) are the regions — they match the map by name — and the single **row**
+(`vars`) is the variable you colour by: CO₂ emissions per country for 2018. We fetch a prepared
+table and a small annotation table (continent, ISO code), parse the tab-separated text, and hand the
+matrix to CanvasXpress. Swap the URL for any `country → value` table of your own.
 
 ```html
-<canvas id="comap" width="700" height="500"></canvas>
+<canvas id="co2cont" width="700" height="500"></canvas>
 <script>
   var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
   var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
@@ -60,22 +69,22 @@ the matrix to CanvasXpress. Swap the URL for any `country → value` table of yo
         graphType: "Map",
         colorBy: "CO2",
         topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
-        mapId: "countries",
+        mapId: "co2Continuous",
         legendPosition: "left",
         theme: "solarized",
-        title: "CO2 Emissions per Country (2018)"
+        title: "CO2 emissions per country (2018)"
       };
-      new CanvasXpress("comap", data, config);
+      new CanvasXpress("co2cont", data, config);
     });
 </script>
 ```
 
-## Live result
+## Live result: one continuous ramp
 
 ```{=html}
-<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.1.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
-<canvas id="comapLive" width="700" height="500"></canvas>
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="co2contLive" width="700" height="500"></canvas>
 <script>
 (function () {
   var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
@@ -97,12 +106,12 @@ the matrix to CanvasXpress. Swap the URL for any `country → value` table of yo
         var byCountry = {};
         s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
         var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
-        new CanvasXpress("comapLive",
+        new CanvasXpress("co2contLive",
           { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
           { graphType: "Map", colorBy: "CO2",
             topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
-            mapId: "countries", legendPosition: "left", theme: "solarized",
-            title: "CO2 Emissions per Country (2018)" });
+            mapId: "co2Continuous", legendPosition: "left", theme: "solarized",
+            title: "CO2 emissions per country (2018)" });
       });
   }
   draw();
@@ -110,19 +119,124 @@ the matrix to CanvasXpress. Swap the URL for any `country → value` table of yo
 </script>
 ```
 
-Each country is shaded by its emissions, the legend maps color to value, and hovering a country
-shows its name, continent and number. The whole figure is one portable spec — data, boundaries
-and color rule together — that you can re-render from R or Python.
+Most of the world is the same pale colour. That is not a bug; it is the data. Emissions are
+**heavy-tailed** — a few countries dwarf everyone else — so a linear ramp spends almost its whole
+range on the top few and flattens the rest into one band.
+
+## Class a skewed scale with natural breaks
+
+When the data is skewed, **class** it: cut the range into a handful of bins, one colour each. Set a
+multi-stop `colorSpectrum` and `colorSpectrumBreaksMethod: "jenks"` — Jenks natural breaks place the
+class edges where the data actually has gaps, so the middle of the distribution finally gets colours
+of its own. Only the colour config changes; the fetched data is identical.
+
+```html
+<canvas id="co2cls" width="700" height="500"></canvas>
+<script>
+  // ...fetch and parse exactly as above, then:
+  var config = {
+    graphType: "Map",
+    colorBy: "CO2",
+    topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+    mapId: "co2Classed",
+    colorSpectrum: ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"],
+    colorSpectrumBreaksMethod: "jenks",       // or "quantile"
+    mapColor: "#e5e7eb",
+    mapOutlineColor: "#ffffff",
+    legendPosition: "bottom",
+    title: "CO2 emissions per country (2018), classed by natural breaks",
+    subtitle: "Five Jenks classes — a single continuous ramp collapses this to one tone"
+  };
+  new CanvasXpress("co2cls", data, config);
+</script>
+```
+
+## Live result: classed by natural breaks
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@71.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="co2clsLive" width="700" height="500"></canvas>
+<script>
+(function () {
+  var DATA = "https://www.canvasxpress.org/data/r/cX-CO2-dat.txt";
+  var SMP  = "https://www.canvasxpress.org/data/r/cX-CO2-smp.txt";
+  function rows(text) {
+    return text.trim().split("\n").map(function (line) { return line.split("\t"); });
+  }
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    Promise.all([fetch(DATA).then(function (r) { return r.text(); }),
+                 fetch(SMP ).then(function (r) { return r.text(); })])
+      .then(function (texts) {
+        var d = rows(texts[0]);
+        var countries = d[0].slice(1);
+        var values    = d[1].slice(1).map(Number);
+        var s = rows(texts[1]);
+        var col = {};
+        s[0].forEach(function (name, i) { col[name] = i; });
+        var byCountry = {};
+        s.slice(1).forEach(function (r) { byCountry[r[0]] = r; });
+        var continent = countries.map(function (c) { return byCountry[c][col["Continent"] + 1]; });
+        new CanvasXpress("co2clsLive",
+          { y: { vars: ["CO2"], smps: countries, data: [values] }, x: { Continent: continent } },
+          { graphType: "Map", colorBy: "CO2",
+            topoJSON: "https://www.canvasxpress.org/data/maps/WORLD.json",
+            mapId: "co2Classed",
+            colorSpectrum: ["#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"],
+            colorSpectrumBreaksMethod: "jenks",
+            mapColor: "#e5e7eb", mapOutlineColor: "#ffffff", legendPosition: "bottom",
+            title: "CO2 emissions per country (2018), classed by natural breaks",
+            subtitle: "Five Jenks classes — a single continuous ramp collapses this to one tone" });
+      });
+  }
+  draw();
+})();
+</script>
+```
+
+Five classes is a good default (three to seven is the usable range). Swap `"jenks"` for `"quantile"`
+to put an equal *number of regions* in each class — quantile classing guarantees every colour is used
+and is the right choice when you care about ranking regions rather than their absolute spacing.
+
+## Choose the palette on purpose
+
+The palette is the scale's grammar, not decoration:
+
+- **Sequential** (light → dark of one hue, as above) for a quantity that only goes up: counts, rates,
+  concentrations.
+- **Diverging** (two hues meeting at a neutral midpoint) when values are meaningful *above and below
+  a reference*: change vs. last year, difference from a target, a signed index. Use a three-colour
+  `colorSpectrum` and pin the midpoint:
+
+  ```js
+  colorBy: "Change",
+  colorSpectrum: ["#2166ac", "#f7f7f7", "#b2182b"],  // blue - neutral - red
+  colorSpectrumZeroValue: 0                           // value mapped to the middle colour
+  ```
+
+  Never use a diverging palette for a purely positive quantity — the neutral midpoint invents a
+  "normal" the data does not have. Prefer colour-blind-safe ramps (ColorBrewer, viridis) and keep the
+  *same* scale across small multiples so maps stay comparable.
 
 ## Beyond the world map
 
-Point `topoJSON` at a different boundary file to map US states, a single country's provinces, or
-a custom region — the join key is just the shape name. Switch `colorBy` to a categorical field
-for a qualitative map, add `decorations` to drop labeled markers on cities, or set
-`mapProjection` for an Albers or Mercator view.
+- **Other boundaries.** Point `topoJSON` at any shape file — US states, a country's provinces,
+  counties, custom districts. The join key is just the shape name.
+- **Projection.** `mapProjection: "albers"` (equal-area) or `"mercator"`. Equal-area projections
+  matter for choropleths: Mercator inflates high latitudes and exaggerates their visual weight.
+- **Categorical maps.** Point `colorBy` at a categorical field for a qualitative choropleth with a
+  discrete legend.
+- **Polish.** `legendNumberFormat` formats the ticks, `legendInside` floats the legend over ocean,
+  `showMapLabels` draws region names (best on few-region maps), and `decorations` drops labelled
+  markers on cities.
+
+The whole figure — data, boundaries, classing rule and palette — is one portable spec you can
+re-render from R or Python.
 
 ## Next
 
+- [Choropleth maps in R](../choropleth-maps-in-r/)
+- [Choropleth maps in Python](../choropleth-maps-in-python/)
 - [Clustered heatmaps in JavaScript](../clustered-heatmap-in-javascript/)
-- [Interactive volcano plots in JavaScript](../volcano-plots-in-javascript/)
 - Gallery: <https://canvasxpress.org/examples.html>
