@@ -1,0 +1,120 @@
+---
+title: "Interactive network graphs in JavaScript with CanvasXpress"
+description: "Build a draggable, force-directed network in the browser from nodes and edges — interactive and reproducible from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-31"
+categories: [JavaScript, CanvasXpress, network, visualization]
+image: "thumbnail.png"
+---
+
+A network graph shows **relationships**: nodes connected by edges, laid out so connected things sit
+near each other. In the browser the common answer is to hand-roll a force simulation in D3 — a few
+hundred lines. CanvasXpress is a JavaScript library at heart, so the whole thing is a `data` object
+of nodes and edges plus a `config`.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Nodes carry `id`, `name`, `group`; edges carry `id1`, `id2`, `value`. `colorNodeBy` colours by
+community and `networkLayoutType: "forceDirected"` runs the physics.
+
+```html
+<canvas id="network" width="650" height="500"></canvas>
+<script>
+  var groups = ["Alpha", "Beta", "Gamma"], nodes = [], byGroup = {}, k = 0;
+  groups.forEach(function (g) {
+    byGroup[g] = [];
+    for (var i = 0; i < 7; i++) {
+      var nid = "n" + k; nodes.push({ id: nid, name: g + (i + 1), group: g });
+      byGroup[g].push(nid); k++;
+    }
+  });
+
+  var edges = [];
+  groups.forEach(function (g) {                         // dense within a community
+    var m = byGroup[g];
+    for (var i = 0; i < m.length; i++)
+      for (var j = i + 1; j < m.length; j++)
+        if (Math.random() < 0.5)
+          edges.push({ id1: m[i], id2: m[j], value: 1 + Math.floor(Math.random() * 5) });
+  });
+  for (var e = 0; e < 6; e++) {                         // a few cross-community links
+    var pair = groups.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 2);
+    var a = byGroup[pair[0]], b = byGroup[pair[1]];
+    edges.push({ id1: a[Math.floor(Math.random() * a.length)],
+                 id2: b[Math.floor(Math.random() * b.length)], value: 1 });
+  }
+
+  var config = {
+    graphType: "Network",
+    networkLayoutType: "forceDirected",
+    colorNodeBy: "group",
+    nodeSize: 25,
+    showAnimation: true,
+    title: "A small community network"
+  };
+
+  new CanvasXpress("network", { nodes: nodes, edges: edges }, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="networkLive" width="650" height="500"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var groups = ["Alpha", "Beta", "Gamma"], nodes = [], byGroup = {}, k = 0;
+    groups.forEach(function (g) {
+      byGroup[g] = [];
+      for (var i = 0; i < 7; i++) {
+        var nid = "n" + k; nodes.push({ id: nid, name: g + (i + 1), group: g });
+        byGroup[g].push(nid); k++;
+      }
+    });
+    var edges = [];
+    groups.forEach(function (g) {
+      var m = byGroup[g];
+      for (var i = 0; i < m.length; i++)
+        for (var j = i + 1; j < m.length; j++)
+          if (Math.random() < 0.5)
+            edges.push({ id1: m[i], id2: m[j], value: 1 + Math.floor(Math.random() * 5) });
+    });
+    for (var e = 0; e < 6; e++) {
+      var pair = groups.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 2);
+      var a = byGroup[pair[0]], b = byGroup[pair[1]];
+      edges.push({ id1: a[Math.floor(Math.random() * a.length)],
+                   id2: b[Math.floor(Math.random() * b.length)], value: 1 });
+    }
+    new CanvasXpress("networkLive", { nodes: nodes, edges: edges },
+      { graphType: "Network", networkLayoutType: "forceDirected", colorNodeBy: "group",
+        nodeSize: 25, showAnimation: true, title: "A small community network" });
+  }
+  draw();
+})();
+</script>
+```
+
+Drag any node and the layout settles around it; hover to read the label. The three communities
+separate on their own because within-group edges outnumber the cross-group ones.
+
+## Why "reproducible"
+
+The nodes, edges and `config` **are** the figure — one portable JSON spec that renders the same from
+R, Python, or a web page.
+
+## Next
+
+- [Sankey / alluvial diagrams in JavaScript](../sankey-diagrams-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

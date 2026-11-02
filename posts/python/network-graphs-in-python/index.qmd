@@ -1,0 +1,85 @@
+---
+title: "Interactive network graphs in Python with canvasxpress"
+description: "Build a draggable, force-directed network from nodes and edges in Python — interactive and reproducible from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-30"
+categories: [Python, canvasxpress, network, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A network graph shows **relationships**: nodes connected by edges, laid out so connected things sit
+near each other. The usual Python reach is `networkx` + matplotlib (static) or `pyvis`. Here we build
+one with [canvasxpress](https://pypi.org/project/canvasxpress/) — draggable, hover-labelled,
+force-directed, and reproducible from a single portable spec.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The data shape
+
+canvasXpress builds a network from two lists: **nodes** (`id`, `name`, `group`) and **edges**
+(`id1`, `id2`, `value`). Swap this simulated three-community graph for your own.
+
+```{python}
+import random
+random.seed(1)
+
+groups = ["Alpha", "Beta", "Gamma"]
+nodes, by_group = [], {g: [] for g in groups}
+k = 0
+for g in groups:
+    for i in range(7):
+        nid = f"n{k}"; nodes.append({"id": nid, "name": f"{g}{i+1}", "group": g})
+        by_group[g].append(nid); k += 1
+
+edges = []
+for g in groups:                                   # dense within a community
+    m = by_group[g]
+    for i in range(len(m)):
+        for j in range(i + 1, len(m)):
+            if random.random() < 0.5:
+                edges.append({"id1": m[i], "id2": m[j], "value": random.randint(1, 5)})
+for _ in range(6):                                 # a few cross-community links
+    g1, g2 = random.sample(groups, 2)
+    edges.append({"id1": random.choice(by_group[g1]), "id2": random.choice(by_group[g2]), "value": 1})
+```
+
+## The plot
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+data = {"nodes": nodes, "edges": edges}
+config = {
+    "graphType": "Network",
+    "networkLayoutType": "forceDirected",
+    "colorNodeBy": "group",
+    "nodeSize": 25,
+    "showAnimation": True,
+    "title": "A small community network",
+}
+
+cx = CanvasXpress(render_to="network", data=data, config=config, width=650, height=500)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Drag any node and the layout settles around it; hover to read the label. The three communities
+separate on their own because within-group edges outnumber the cross-group ones.
+
+## Why "reproducible"
+
+The nodes, edges and `config` **are** the figure — one portable JSON spec that renders the identical
+network from R or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Sankey / alluvial diagrams in Python](../sankey-diagrams-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>

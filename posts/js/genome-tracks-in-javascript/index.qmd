@@ -1,0 +1,126 @@
+---
+title: "Genome browser tracks in JavaScript with CanvasXpress"
+description: "Stack coverage and gene-model tracks over genomic coordinates in the browser — an interactive, zoomable view from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-31"
+categories: [JavaScript, CanvasXpress, genome, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+A genome browser view stacks **tracks** that share one coordinate axis: coverage, gene models,
+variants. Building one in the browser by hand is a lot of SVG and coordinate math. CanvasXpress is a
+JavaScript library at heart, so the whole view is a `data` object of tracks plus a `config`.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Four tracks that share one coordinate axis: **gene models** (`box`, multi-exon, connected),
+**coverage across three tissues** (`bar`), an **expression heatmap** (`heatmap`), and **variant
+markers** (`triangle`).
+
+```html
+<canvas id="genome" width="760" height="520"></canvas>
+<script>
+  // Gene models: each gene is a set of exon [start, end] intervals, drawn connected.
+  var genes = [];
+  for (var j = 0; j < 4; j++) {
+    var start = 40 + j * 120, nex = 2 + Math.floor(Math.random() * 3), exons = [];
+    for (var k = 0; k < nex; k++) exons.push([start + k * 30, start + k * 30 + 18]);
+    genes.push({ id: "GENE" + (j + 1), dir: j % 2 === 0 ? "right" : "left",
+                 fill: "rgb(70,130,220)", outline: "rgb(0,0,0)", data: exons });
+  }
+
+  // Coverage and expression: one entry per binned position, three tissues each.
+  var coverage = [], express = [], rnd = function (a, b) { return a + Math.floor(Math.random() * (b - a + 1)); };
+  for (var i = 0; i < 22; i++) {
+    var o = 50 + i * 22;
+    coverage.push({ id: "p" + i, offset: o, data: [rnd(8, 45), rnd(8, 45), rnd(8, 45)] });
+    express.push({ id: "p" + i, offset: o,
+                   data: [Math.round(Math.random() * 4 - 2), Math.round(Math.random() * 4 - 2),
+                          Math.round(Math.random() * 4 - 2)] });
+  }
+
+  // Variants: point markers at genomic positions.
+  var snps = [];
+  for (var s = 0; s < 9; s++)
+    snps.push({ id: "rs" + (1000 + s), offset: rnd(45, 520), fill: "rgb(200,40,40)", outline: "rgb(0,0,0)" });
+
+  var data = { tracks: [
+    { name: "Genes (exon models)", type: "box", connect: true, data: genes },
+    { name: "Coverage — Heart / Liver / Kidney", type: "bar", height: 120,
+      fill: "rgb(80,80,200)", outline: "rgb(60,60,60)", data: coverage },
+    { name: "Expression (z-score)", type: "heatmap", height: 90, data: express },
+    { name: "SNPs", type: "triangle", data: snps }
+  ]};
+
+  var config = { graphType: "Genome", background: "rgb(245,245,245)", featureStaggered: true,
+                 title: "Multi-track genome browser: genes, coverage, expression and variants" };
+
+  new CanvasXpress("genome", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="genomeLive" width="760" height="520"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var rnd = function (a, b) { return a + Math.floor(Math.random() * (b - a + 1)); };
+    var genes = [];
+    for (var j = 0; j < 4; j++) {
+      var start = 40 + j * 120, nex = 2 + Math.floor(Math.random() * 3), exons = [];
+      for (var k = 0; k < nex; k++) exons.push([start + k * 30, start + k * 30 + 18]);
+      genes.push({ id: "GENE" + (j + 1), dir: j % 2 === 0 ? "right" : "left",
+                   fill: "rgb(70,130,220)", outline: "rgb(0,0,0)", data: exons });
+    }
+    var coverage = [], express = [];
+    for (var i = 0; i < 22; i++) {
+      var o = 50 + i * 22;
+      coverage.push({ id: "p" + i, offset: o, data: [rnd(8, 45), rnd(8, 45), rnd(8, 45)] });
+      express.push({ id: "p" + i, offset: o,
+                     data: [Math.round(Math.random() * 4 - 2), Math.round(Math.random() * 4 - 2),
+                            Math.round(Math.random() * 4 - 2)] });
+    }
+    var snps = [];
+    for (var s = 0; s < 9; s++)
+      snps.push({ id: "rs" + (1000 + s), offset: rnd(45, 520), fill: "rgb(200,40,40)", outline: "rgb(0,0,0)" });
+    new CanvasXpress("genomeLive",
+      { tracks: [
+        { name: "Genes (exon models)", type: "box", connect: true, data: genes },
+        { name: "Coverage — Heart / Liver / Kidney", type: "bar", height: 120,
+          fill: "rgb(80,80,200)", outline: "rgb(60,60,60)", data: coverage },
+        { name: "Expression (z-score)", type: "heatmap", height: 90, data: express },
+        { name: "SNPs", type: "triangle", data: snps } ] },
+      { graphType: "Genome", background: "rgb(245,245,245)", featureStaggered: true,
+        title: "Multi-track genome browser: genes, coverage, expression and variants" });
+  }
+  draw();
+})();
+</script>
+```
+
+Scroll/drag to pan and zoom into a region; every track stays locked to the shared coordinate axis,
+so the gene models, coverage, expression and variants line up position-for-position. Swap each track
+for your own pileup, annotation and VCF-derived data.
+
+## Why "reproducible"
+
+The tracks and `config` **are** the figure — one portable JSON spec that renders the same from R,
+Python, or a web page.
+
+## Next
+
+- [Interactive network graphs in JavaScript](../network-graphs-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

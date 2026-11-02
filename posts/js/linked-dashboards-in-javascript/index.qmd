@@ -1,0 +1,133 @@
+---
+title: "An interactive NGS sequencing-QC dashboard in JavaScript with CanvasXpress"
+description: "Triage a 96-sample sequencing run in the browser: an overview QC heatmap plus linked, cross-filtering panels that flag failing samples and batch effects — from portable specs, no framework."
+author: "Isaac Neuhaus"
+date: "2026-10-31"
+categories: [JavaScript, CanvasXpress, dashboard, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+After a sequencing run you get a QC table — one row per sample, a dozen metrics — and you need to
+answer three questions fast: **which samples fail, is a whole batch off, and are the failures
+correlated?** A single scatter can't do it; you want several views that **talk to each other** —
+select a suspicious sample in one and see it light up in the rest. In the browser that usually means
+wiring event handlers between chart libraries by hand. CanvasXpress does it for you: give every panel
+the same **broadcast group** and a selection broadcasts to all of them. Here we build a real QC
+dashboard for 96 RNA/exome samples.
+
+## Load the library and the data
+
+The 96-sample QC table is published next to this post as a small JS object,
+[`qc-data.js`](qc-data.js) — `QC_DATA` is a sample-centric CanvasXpress `data` object (each sample is
+a point; `z` holds its lane/batch/library).
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<script src="qc-data.js"></script>
+```
+
+## The panels
+
+The overview heatmap transposes the data to metrics × samples and z-scores each metric. The four
+triage panels read `QC_DATA` directly and all share `broadcastGroup: "qc"` — select points in one and
+the same samples re-mark in the rest.
+
+```html
+<canvas id="qcHeat" width="820" height="420"></canvas>
+<canvas id="qcMap" width="640" height="360"></canvas>
+<canvas id="qcContam" width="640" height="360"></canvas>
+<canvas id="qcQ30" width="640" height="360"></canvas>
+<canvas id="qcReads" width="820" height="300"></canvas>
+<script>
+  var metrics = QC_DATA.y.smps, samples = QC_DATA.y.vars, rows = QC_DATA.y.data;
+
+  // Overview: transpose to metrics x samples and z-score each metric.
+  var hmData = metrics.map(function (_, c) {
+    var col = rows.map(function (r) { return r[c]; });
+    var mean = col.reduce(function (a, b) { return a + b; }, 0) / col.length;
+    var sd = Math.sqrt(col.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / col.length) || 1;
+    return col.map(function (v) { return Math.round((v - mean) / sd * 100) / 100; });
+  });
+  new CanvasXpress("qcHeat",
+    { y: { vars: metrics, smps: samples, data: hmData },
+      x: { Batch: QC_DATA.z.Batch, Library: QC_DATA.z.Library } },
+    { graphType: "Heatmap", samplesClustered: true, variablesClustered: true,
+      colorSpectrum: ["navy", "white", "firebrick3"],
+      title: "QC metrics (z-scored) — 96 samples clustered" });
+
+  // Linked triage panels (same QC_DATA, shared broadcast group).
+  function panel(id, cfg) {
+    new CanvasXpress(id, QC_DATA, Object.assign({ broadcast: true, broadcastGroup: "qc" }, cfg));
+  }
+  panel("qcMap", { graphType: "Scatter2D", xAxis: ["pct_duplication"], yAxis: ["pct_mapped"],
+    colorBy: "Batch", sizeBy: "total_reads", title: "Mapping rate vs duplication — select bottom-right" });
+  panel("qcContam", { graphType: "Scatter2D", xAxis: ["pct_mapped"], yAxis: ["contamination_freemix"],
+    colorBy: "Batch", title: "Contamination (freemix) vs mapping rate" });
+  panel("qcQ30", { graphType: "Scatter2D", xAxis: ["gc_content"], yAxis: ["pct_q30"],
+    colorBy: "Library", title: "Q30 vs GC content, coloured by library" });
+  panel("qcReads", { graphType: "Bar", graphOrientation: "vertical", xAxis: ["total_reads"],
+    colorBy: "Batch", title: "Total reads per sample (flag the short ones)" });
+</script>
+```
+
+## Live result
+
+Drag a selection box across the bad cluster in the mapping-vs-duplication panel — the other panels
+restrict to the same samples so you can read their contamination, library and depth.
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<script src="qc-data.js"></script>
+<canvas id="qcHeatLive" width="820" height="420"></canvas>
+<canvas id="qcMapLive" width="640" height="360"></canvas>
+<canvas id="qcContamLive" width="640" height="360"></canvas>
+<canvas id="qcQ30Live" width="640" height="360"></canvas>
+<canvas id="qcReadsLive" width="820" height="300"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined" || typeof QC_DATA === "undefined") { return setTimeout(draw, 60); }
+    var metrics = QC_DATA.y.smps, samples = QC_DATA.y.vars, rows = QC_DATA.y.data;
+    var hmData = metrics.map(function (_, c) {
+      var col = rows.map(function (r) { return r[c]; });
+      var mean = col.reduce(function (a, b) { return a + b; }, 0) / col.length;
+      var sd = Math.sqrt(col.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / col.length) || 1;
+      return col.map(function (v) { return Math.round((v - mean) / sd * 100) / 100; });
+    });
+    new CanvasXpress("qcHeatLive",
+      { y: { vars: metrics, smps: samples, data: hmData },
+        x: { Batch: QC_DATA.z.Batch, Library: QC_DATA.z.Library } },
+      { graphType: "Heatmap", samplesClustered: true, variablesClustered: true,
+        colorSpectrum: ["navy", "white", "firebrick3"],
+        title: "QC metrics (z-scored) — 96 samples clustered" });
+    function panel(id, cfg) {
+      new CanvasXpress(id, QC_DATA, Object.assign({ broadcast: true, broadcastGroup: "qc" }, cfg));
+    }
+    panel("qcMapLive", { graphType: "Scatter2D", xAxis: ["pct_duplication"], yAxis: ["pct_mapped"],
+      colorBy: "Batch", sizeBy: "total_reads", title: "Mapping rate vs duplication — select bottom-right" });
+    panel("qcContamLive", { graphType: "Scatter2D", xAxis: ["pct_mapped"], yAxis: ["contamination_freemix"],
+      colorBy: "Batch", title: "Contamination (freemix) vs mapping rate" });
+    panel("qcQ30Live", { graphType: "Scatter2D", xAxis: ["gc_content"], yAxis: ["pct_q30"],
+      colorBy: "Library", title: "Q30 vs GC content, coloured by library" });
+    panel("qcReadsLive", { graphType: "Bar", graphOrientation: "vertical", xAxis: ["total_reads"],
+      colorBy: "Batch", title: "Total reads per sample (flag the short ones)" });
+  }
+  draw();
+})();
+</script>
+```
+
+The cross-filter is one shared `broadcastGroup` — no framework, no event wiring. Each panel stays a
+portable `data` + `config` spec.
+
+## Why "reproducible"
+
+The same specs reproduce the dashboard from R, Python, or a web page, against the same QC table.
+
+## Next
+
+- [Interactive network graphs in JavaScript](../network-graphs-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

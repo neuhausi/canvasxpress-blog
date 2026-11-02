@@ -1,0 +1,127 @@
+---
+title: "An interactive NGS sequencing-QC dashboard in Python with canvasxpress"
+description: "Triage a 96-sample sequencing run in Python: an overview QC heatmap plus linked, cross-filtering panels that flag failing samples and batch effects — from portable specs, no Dash."
+author: "Isaac Neuhaus"
+date: "2026-10-30"
+categories: [Python, canvasxpress, dashboard, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+After a sequencing run you get a QC table — one row per sample, a dozen metrics — and you need to
+answer three questions fast: **which samples fail, is a whole batch off, and are the failures
+correlated?** A single scatter can't do it; you want several views that **talk to each other** —
+select a suspicious sample in one and see it light up in the rest. In Python that usually means Dash
+or Streamlit (a server, callbacks). canvasXpress does it client-side: give every panel the same
+**broadcast group** and a selection broadcasts to all of them. Here we build a real QC dashboard for
+96 RNA/exome samples.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The QC table
+
+96 samples with mapping rate, duplication, Q30, GC, insert size and contamination (VerifyBamID
+`freemix`), plus lane / batch / library annotations. (Download: [`ngs-qc.csv`](ngs-qc.csv).)
+
+```{python}
+import csv, statistics as st
+
+rows = list(csv.DictReader(open("ngs-qc.csv")))
+metrics = ["total_reads", "pct_mapped", "pct_duplication", "pct_q30",
+           "gc_content", "insert_size", "contamination_freemix"]
+
+samples = [r["sample"] for r in rows]
+annot   = {"Lane": [r["lane"] for r in rows], "Batch": [r["batch"] for r in rows],
+           "Library": [r["library"] for r in rows]}
+raw = {m: [float(r[m]) for r in rows] for m in metrics}
+print(len(samples), "samples,", len(metrics), "metrics")
+```
+
+## Overview — a clustered QC heatmap
+
+Z-score each metric and cluster: outlier samples and any batch/library structure jump out at a
+glance. This is the "is anything wrong, and where" view. Here the matrix is metrics × samples.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+z = {m: [(v - st.mean(raw[m])) / (st.pstdev(raw[m]) or 1) for v in raw[m]] for m in metrics}
+hm = {"y": {"vars": metrics, "smps": samples, "data": [[round(x, 2) for x in z[m]] for m in metrics]},
+      "x": {"Batch": annot["Batch"], "Library": annot["Library"]}}
+
+cx = CanvasXpress(render_to="qcHeat", data=hm, width=820, height=420, config={
+    "graphType": "Heatmap", "samplesClustered": True, "variablesClustered": True,
+    "colorSpectrum": ["navy", "white", "firebrick3"],
+    "title": "QC metrics (z-scored) — 96 samples clustered"})
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+## The linked triage dashboard
+
+Four panels over the **same samples**, all sharing `broadcastGroup: "qc"`. The sample is the unit, so
+each sample is a point and its lane/batch/library live in the per-sample annotation `z`. Select points
+in any panel and the same samples re-mark everywhere.
+
+```{python}
+# Sample-centric: vars = samples (points), smps = metrics (axes), z = per-sample annotations.
+data = {"y": {"vars": samples, "smps": metrics, "data": [[raw[m][i] for m in metrics] for i in range(len(samples))]},
+        "z": annot}
+
+def panel(cfg, cid, w=640, h=360):
+    cfg = {**cfg, "broadcast": True, "broadcastGroup": "qc"}
+    cx = CanvasXpress(render_to=cid, data=data, config=cfg, width=w, height=h)
+    for part in CXNoteBook(cx).render():
+        display(part)
+```
+
+### 1 — Mapping rate vs duplication (the triage plot)
+
+Bubble size is depth; failing libraries fall to the **bottom-right**. Lasso them here.
+
+```{python}
+panel({"graphType": "Scatter2D", "xAxis": ["pct_duplication"], "yAxis": ["pct_mapped"],
+       "colorBy": "Batch", "sizeBy": "total_reads",
+       "title": "Mapping rate vs duplication — select the bottom-right"}, "qcMap")
+```
+
+### 2 — Contamination vs mapping
+
+```{python}
+panel({"graphType": "Scatter2D", "xAxis": ["pct_mapped"], "yAxis": ["contamination_freemix"],
+       "colorBy": "Batch", "title": "Contamination (freemix) vs mapping rate"}, "qcContam")
+```
+
+### 3 — Q30 vs GC, by library prep
+
+```{python}
+panel({"graphType": "Scatter2D", "xAxis": ["gc_content"], "yAxis": ["pct_q30"],
+       "colorBy": "Library", "title": "Q30 vs GC content, coloured by library"}, "qcQ30")
+```
+
+### 4 — Sequencing depth per sample
+
+```{python}
+panel({"graphType": "Bar", "graphOrientation": "vertical", "xAxis": ["total_reads"],
+       "colorBy": "Batch", "title": "Total reads per sample (flag the short ones)"}, "qcReads", w=820, h=300)
+```
+
+Lasso the bad cluster in panel 1 and panels 2–4 immediately restrict to those samples — you can read
+their contamination, library and depth without a single callback. The "wiring" is one shared group id.
+
+## Why "reproducible"
+
+Each panel is a portable `data` + `config` spec; the cross-filter is just a shared `broadcastGroup`.
+The same specs reproduce the dashboard from R or JavaScript, against the same `ngs-qc.csv`.
+
+## Next
+
+- [Interactive network graphs in Python](../network-graphs-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>

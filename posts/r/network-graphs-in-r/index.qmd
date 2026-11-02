@@ -1,0 +1,76 @@
+---
+title: "Interactive network graphs in R with canvasXpress"
+description: "Build a draggable, force-directed network from a node and edge table in R — interactive and reproducible from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-29"
+categories: [R, canvasXpress, network, visualization]
+image: "thumbnail.png"
+---
+
+A network graph shows **relationships**: nodes connected by edges, laid out so that connected
+things sit near each other. The usual R reach is `igraph` or `networkD3`, but here we build one with
+[canvasXpress](https://canvasxpress.org) — draggable, hover-labelled, force-directed, and
+**reproducible**, because the whole figure is one portable `data` + `config` spec.
+
+## The data shape
+
+canvasXpress builds a network from two tables: **nodes** (`id`, `name`, `group`) and **edges**
+(`id1`, `id2`, `value`). Swap this simulated three-community graph for your own.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(1)
+grp   <- rep(c("Alpha", "Beta", "Gamma"), each = 7)
+ids   <- paste0("n", seq_along(grp))
+nodes <- data.frame(id = ids, name = paste0(grp, ave(grp, grp, FUN = seq_along)),
+                    group = grp, stringsAsFactors = FALSE)
+
+# Dense within a community, sparse between communities — the structure a layout reveals.
+e1 <- c(); e2 <- c(); ev <- c()
+for (g in unique(grp)) {
+  m <- ids[grp == g]
+  for (i in seq_along(m)) for (j in seq_along(m))
+    if (i < j && runif(1) < 0.5) { e1 <- c(e1, m[i]); e2 <- c(e2, m[j]); ev <- c(ev, sample(1:5, 1)) }
+}
+for (k in 1:6) {                                     # a few cross-community links
+  pair <- sample(unique(grp), 2)
+  e1 <- c(e1, sample(ids[grp == pair[1]], 1)); e2 <- c(e2, sample(ids[grp == pair[2]], 1)); ev <- c(ev, 1)
+}
+edges <- data.frame(id1 = e1, id2 = e2, value = ev, stringsAsFactors = FALSE)
+```
+
+## The plot
+
+Pass the two tables as `nodeData` and `edgeData`; `colorNodeBy` colours by the community, and
+`networkLayoutType = "forceDirected"` runs the physics simulation.
+
+```{r}
+canvasXpress(
+  nodeData          = nodes,
+  edgeData          = edges,
+  graphType         = "Network",
+  networkLayoutType = "forceDirected",
+  colorNodeBy       = "group",
+  nodeSize          = 25,
+  showAnimation     = TRUE,
+  title             = "A small community network",
+  width             = 650,
+  height            = 500
+)
+```
+
+Drag any node and the layout settles around it; hover to read the label. The three communities
+separate on their own because within-group edges outnumber the cross-group ones.
+
+## Why "reproducible"
+
+The nodes, edges and `config` **are** the figure — one portable specification. The same spec renders
+the identical network from Python or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Sankey / alluvial diagrams in R](../sankey-diagrams-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://github.com/neuhausi/canvasXpress>

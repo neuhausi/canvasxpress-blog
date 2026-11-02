@@ -1,0 +1,119 @@
+---
+title: "An interactive NGS sequencing-QC dashboard in R with canvasXpress"
+description: "Triage a 96-sample sequencing run in R: an overview QC heatmap plus linked, cross-filtering panels that flag failing samples and batch effects — from portable specs, no Shiny."
+author: "Isaac Neuhaus"
+date: "2026-10-29"
+categories: [R, canvasXpress, dashboard, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+After a sequencing run you get a QC table — one row per sample, a dozen metrics — and you need to
+answer three questions fast: **which samples fail, is a whole batch off, and are the failures
+correlated?** A single scatter can't do it; you want several views that **talk to each other** —
+select a suspicious sample in one and see it light up in the rest. In R that usually means Shiny (a
+server, reactive wiring). canvasXpress does it client-side: give every panel the same **broadcast
+group** and a selection broadcasts to all of them. Here we build a real QC dashboard for 96 RNA/exome
+samples.
+
+## The QC table
+
+96 samples with mapping rate, duplication, Q30, GC, insert size and contamination (VerifyBamID
+`freemix`), plus lane / batch / library annotations. (Download:
+[`ngs-qc.csv`](ngs-qc.csv).)
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+qc <- read.csv("ngs-qc.csv", stringsAsFactors = FALSE)
+metrics <- c("total_reads", "pct_mapped", "pct_duplication", "pct_q30",
+             "gc_content", "insert_size", "contamination_freemix")
+
+m        <- as.matrix(qc[, metrics]); rownames(m) <- qc$sample
+annot    <- data.frame(Lane = qc$lane, Batch = qc$batch, Library = qc$library,
+                      row.names = qc$sample)
+head(qc[, c("sample", "batch", "library", "pct_mapped", "pct_duplication",
+            "contamination_freemix")], 4)
+```
+
+## Overview — a clustered QC heatmap
+
+Z-score each metric and cluster: outlier samples and any batch/library structure jump out at a
+glance. This is the "is anything wrong, and where" view.
+
+```{r}
+canvasXpress(
+  data = t(scale(m)), smpAnnot = annot,
+  graphType = "Heatmap", samplesClustered = TRUE, variablesClustered = TRUE,
+  colorSpectrum = list("navy", "white", "firebrick3"),
+  title = "QC metrics (z-scored) — 96 samples clustered",
+  width = 820, height = 420
+)
+```
+
+## The linked triage dashboard
+
+Four panels over the **same samples**, all sharing `broadcastGroup = "qc"`. The sample is the unit,
+so each sample is a point (`varAnnot` carries its lane/batch/library). Select points in any panel —
+drag a box in a scatter, click a bar — and the same samples re-mark everywhere.
+
+```{r}
+qc_panel <- function(cfg, ...) {
+  do.call(canvasXpress, c(list(data = m, varAnnot = annot,
+                               broadcast = TRUE, broadcastGroup = "qc"), cfg, list(...)))
+}
+```
+
+### 1 — Mapping rate vs duplication (the triage plot)
+
+Bubble size is depth; failing libraries fall to the **bottom-right** (low mapping, high
+duplication). Lasso them here.
+
+```{r}
+qc_panel(list(graphType = "Scatter2D", xAxis = list("pct_duplication"),
+              yAxis = list("pct_mapped"), colorBy = "Batch", sizeBy = "total_reads",
+              title = "Mapping rate vs duplication — select the bottom-right"),
+         width = 640, height = 360)
+```
+
+### 2 — Contamination vs mapping
+
+```{r}
+qc_panel(list(graphType = "Scatter2D", xAxis = list("pct_mapped"),
+              yAxis = list("contamination_freemix"), colorBy = "Batch",
+              title = "Contamination (freemix) vs mapping rate"),
+         width = 640, height = 360)
+```
+
+### 3 — Q30 vs GC, by library prep
+
+```{r}
+qc_panel(list(graphType = "Scatter2D", xAxis = list("gc_content"),
+              yAxis = list("pct_q30"), colorBy = "Library",
+              title = "Q30 vs GC content, coloured by library"),
+         width = 640, height = 360)
+```
+
+### 4 — Sequencing depth per sample
+
+```{r}
+qc_panel(list(graphType = "Bar", graphOrientation = "vertical",
+              xAxis = list("total_reads"), colorBy = "Batch",
+              title = "Total reads per sample (flag the short ones)"),
+         width = 820, height = 300)
+```
+
+Put the four panels on one page (this document, a Shiny app, a flex layout). Lasso the bad cluster
+in panel 1 and panels 2–4 immediately restrict to those samples — you can read their contamination,
+their library, and their depth without a single callback. The "wiring" is one shared group id.
+
+## Why "reproducible"
+
+Each panel is a portable `data` + `config` spec; the cross-filter is just a shared `broadcastGroup`.
+The same specs reproduce the dashboard from Python or JavaScript, against the same `ngs-qc.csv`.
+
+## Next
+
+- [Interactive network graphs in R](../network-graphs-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://github.com/neuhausi/canvasXpress>

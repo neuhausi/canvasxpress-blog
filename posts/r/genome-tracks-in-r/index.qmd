@@ -1,0 +1,88 @@
+---
+title: "Genome browser tracks in R with canvasXpress"
+description: "Stack coverage and gene-model tracks over genomic coordinates in R — an interactive, zoomable browser view from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-29"
+categories: [R, canvasXpress, genome, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+A genome browser view stacks **tracks** that share one coordinate axis: coverage, gene models,
+variants. In R this usually means `Gviz` or `ggbio`. Here we build an interactive, zoomable view
+with [canvasXpress](https://canvasxpress.org) — and the whole thing is one portable spec.
+
+## The data shape
+
+A Genome figure is a list of **tracks** that share one coordinate axis — each with a `type`. Real
+browser views stack several: here we build four — **gene models** (`box`, multi-exon, connected),
+**coverage across three tissues** (`bar`), an **expression heatmap** (`heatmap`), and **variant
+markers** (`triangle`).
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(3)
+
+# Gene models: each gene is a set of exon [start, end] intervals, drawn connected.
+genes <- lapply(0:3, function(j) {
+  start <- 40 + j * 120
+  exons <- lapply(0:(sample(2:4, 1) - 1), function(k) list(start + k * 30, start + k * 30 + 18))
+  list(id = paste0("GENE", j + 1), dir = if (j %% 2 == 0) "right" else "left",
+       fill = "rgb(70,130,220)", outline = "rgb(0,0,0)", data = exons)
+})
+
+# Coverage and expression: one entry per binned position, three tissues each.
+offsets  <- 50 + (0:21) * 22
+coverage <- lapply(seq_along(offsets), function(i)
+  list(id = paste0("p", i), offset = offsets[i],
+       data = list(sample(8:45, 1), sample(8:45, 1), sample(8:45, 1))))
+express  <- lapply(seq_along(offsets), function(i)
+  list(id = paste0("p", i), offset = offsets[i],
+       data = list(round(rnorm(1), 2), round(rnorm(1), 2), round(rnorm(1), 2))))
+
+# Variants: point markers at genomic positions.
+snps <- lapply(0:8, function(k)
+  list(id = paste0("rs", 1000 + k), offset = sample(45:520, 1),
+       fill = "rgb(200,40,40)", outline = "rgb(0,0,0)"))
+
+genome <- list(tracks = list(
+  list(name = "Genes (exon models)", type = "box", connect = TRUE, data = genes),
+  list(name = "Coverage — Heart / Liver / Kidney", type = "bar", height = 120,
+       fill = "rgb(80,80,200)", outline = "rgb(60,60,60)", data = coverage),
+  list(name = "Expression (z-score)", type = "heatmap", height = 90, data = express),
+  list(name = "SNPs", type = "triangle", data = snps)
+))
+```
+
+## The plot
+
+The Genome graph type is passed through to the engine as-is; `featureStaggered` spreads crowded
+features so labels stay legible.
+
+```{r}
+canvasXpress(
+  data            = genome,
+  graphType       = "Genome",
+  background       = "rgb(245,245,245)",
+  featureStaggered = TRUE,
+  title            = "Multi-track genome browser: genes, coverage, expression and variants",
+  width            = 760,
+  height           = 520
+)
+```
+
+Scroll/drag to pan and zoom into a region; every track stays locked to the shared coordinate axis,
+so the gene models, coverage, expression and variants line up position-for-position. Swap each track
+for your own pileup, annotation and VCF-derived data.
+
+## Why "reproducible"
+
+The tracks and `config` **are** the figure — one portable spec that renders the identical browser
+view from Python or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Interactive network graphs in R](../network-graphs-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://github.com/neuhausi/canvasXpress>
