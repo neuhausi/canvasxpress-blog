@@ -33,6 +33,10 @@
     <lastmod>2026-11-02T13:23:43.220Z</lastmod>
   </url>
   <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/r/network-graphs-in-r/index.html</loc>
+    <lastmod>2026-11-02T12:55:33.165Z</lastmod>
+  </url>
+  <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/clustered-heatmap-in-javascript/index.html</loc>
     <lastmod>2026-09-22T21:23:39.209Z</lastmod>
   </url>
@@ -49,12 +53,20 @@
     <lastmod>2026-11-02T13:11:29.914Z</lastmod>
   </url>
   <url>
-    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/kaplan-meier-in-javascript/index.html</loc>
-    <lastmod>2026-09-22T21:23:16.936Z</lastmod>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/network-graphs-in-javascript/index.html</loc>
+    <lastmod>2026-11-02T12:56:08.501Z</lastmod>
+  </url>
+  <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/circos-plots-in-javascript/index.html</loc>
+    <lastmod>2026-11-02T13:46:17.258Z</lastmod>
   </url>
   <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/python/genome-tracks-in-python/index.html</loc>
     <lastmod>2026-11-02T13:10:58.967Z</lastmod>
+  </url>
+  <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/python/oncoprint-in-python/index.html</loc>
+    <lastmod>2026-11-02T13:45:02.888Z</lastmod>
   </url>
   <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/python/linked-dashboards-in-python/index.html</loc>
@@ -85,12 +97,20 @@
     <lastmod>2026-09-22T21:17:51.489Z</lastmod>
   </url>
   <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/python/circos-plots-in-python/index.html</loc>
+    <lastmod>2026-11-02T13:45:56.977Z</lastmod>
+  </url>
+  <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/python/choropleth-maps-in-python/index.html</loc>
     <lastmod>2026-10-13T02:23:30.885Z</lastmod>
   </url>
   <url>
-    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/network-graphs-in-javascript/index.html</loc>
-    <lastmod>2026-11-02T12:56:08.501Z</lastmod>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/kaplan-meier-in-javascript/index.html</loc>
+    <lastmod>2026-09-22T21:23:16.936Z</lastmod>
+  </url>
+  <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/oncoprint-in-javascript/index.html</loc>
+    <lastmod>2026-11-02T13:45:25.147Z</lastmod>
   </url>
   <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/js/choropleth-maps-in-javascript/index.html</loc>
@@ -105,8 +125,12 @@
     <lastmod>2026-09-28T14:09:46.533Z</lastmod>
   </url>
   <url>
-    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/r/network-graphs-in-r/index.html</loc>
-    <lastmod>2026-11-02T12:55:33.165Z</lastmod>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/r/circos-plots-in-r/index.html</loc>
+    <lastmod>2026-11-02T13:45:42.270Z</lastmod>
+  </url>
+  <url>
+    <loc>https://neuhausi.github.io/canvasxpress-blog/posts/r/oncoprint-in-r/index.html</loc>
+    <lastmod>2026-11-02T13:44:47.096Z</lastmod>
   </url>
   <url>
     <loc>https://neuhausi.github.io/canvasxpress-blog/posts/r/choropleth-maps-in-r/index.html</loc>

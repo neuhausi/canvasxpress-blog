@@ -1243,6 +1243,617 @@ font-style: inherit;">520</span></span>
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/genome-tracks-in-r/thumbnail.png" medium="image" type="image/png" height="272" width="144"/>
 </item>
 <item>
+  <title>Oncoprints (mutation landscapes) in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/oncoprint-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>An oncoprint is the standard way to show a <strong>mutation landscape</strong>: genes down one axis, tumours along the other, each cell stacking the alterations that gene carries in that sample — copy-number amplification/deletion plus mutation type — with per-gene (or per-sample) frequencies alongside. In R the usual tool is <code>ComplexHeatmap::oncoPrint</code>. Here we build an interactive one with <a href="https://canvasxpress.org">canvasXpress</a>, from a single portable spec.</p>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>An oncoprint is a <code>Heatmap</code> with <strong>overlay matrices</strong>: a base matrix (<code>y</code>, here expression) plus same-shaped layers for copy-number (<code>data2</code>) and mutation (<code>data3</code>). Each overlay cell is a string like <code>"Amplification"</code>, <code>"Missense"</code>, or <code>""</code> for none.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb1-4">genes   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP53"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"KRAS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PIK3CA"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PTEN"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EGFR"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BRAF"</span>,</span>
+<span id="cb1-5">             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"APC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RB1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NF1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MYC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CDKN2A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ARID1A"</span>)</span>
+<span id="cb1-6">samples <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sprintf</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"T%02d"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">28</span>)</span>
+<span id="cb1-7">mutrate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">setNames</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pmax</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> (<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_along</span>(genes) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(genes))), genes)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">base <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(genes) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(samples)), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb1-10">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(genes), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(genes, samples))</span>
+<span id="cb1-11"></span>
+<span id="cb1-12">CNA <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Amplification"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Deletion"</span>); MUT <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Missense"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nonsense"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Truncating"</span>)</span>
+<span id="cb1-13">cna <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mut <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(genes), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(samples), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(genes, samples))</span>
+<span id="cb1-14"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (g <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> genes) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (s <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> samples) {</span>
+<span id="cb1-15">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> mutrate[g])       mut[g, s] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(MUT, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-16">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> mutrate[g] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) cna[g, s] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(CNA, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-17">}</span>
+<span id="cb1-18"></span>
+<span id="cb1-19">smpAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Subtype =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Basal"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Luminal"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HER2"</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(samples), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">replace =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>),</span>
+<span id="cb1-20">                      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> samples)</span>
+<span id="cb1-21">varAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Pathway =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TSG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Oncogene"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(genes)),</span>
+<span id="cb1-22">                      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> genes)</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p>Pass the overlays in a named <code>data</code> list and point <code>oncoprintCNA</code> / <code>oncoprintMUT</code> at them. <code>xAxis</code> lists the samples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb2-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data          =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> base, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data2 =</span> cna, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data3 =</span> mut),</span>
+<span id="cb2-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot      =</span> smpAnnot, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">varAnnot =</span> varAnnot,</span>
+<span id="cb2-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType     =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Heatmap"</span>,</span>
+<span id="cb2-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">oncoprintCNA  =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data2"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">oncoprintMUT =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data3"</span>,</span>
+<span id="cb2-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">overlaysThickness =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb2-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xAxis         =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.list</span>(samples),</span>
+<span id="cb2-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title         =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mutation landscape: 12 genes across 28 tumours"</span>,</span>
+<span id="cb2-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width         =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">820</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">440</span></span>
+<span id="cb2-10">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-f507e1075fa7679317df" style="width:100%;height:348px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f507e1075fa7679317df">{"x":{"data":{"y":{"data2":[["","","","","","Amplification","","","","","","","","Amplification","Deletion","","Amplification","","","","","","","Amplification","","","",""],["","Amplification","","","","Deletion","","","","","Deletion","","","","","Amplification","Amplification","","Deletion","Deletion","","Amplification","","","","","","Deletion"],["","Deletion","Deletion","","","Amplification","","Deletion","Amplification","Deletion","","","","","","","Amplification","","Deletion","","","","","","","","",""],["","Deletion","","Deletion","","","","Deletion","","","","","","","","","Deletion","","","","","","","","","","",""],["Amplification","","Deletion","","","","Amplification","","","","","","Amplification","Amplification","","","","","","","","","","","","","",""],["","","","","","","","","","","","","","","","","","Deletion","","","Amplification","","","","","","",""],["","","","","","Deletion","","","","","","","","","","","","","","","Deletion","","","","","","",""],["","","","","","","","","","","","","","","","","","","","","Deletion","","","","","","",""],["","","","","Amplification","","","Amplification","","","","","","","","Amplification","","","","","","","","","","","",""],["","","","","","","","","","","","","Deletion","","Deletion","","","","","","","","","","","","",""],["","","","","","","","","","","","","","","","","","","","Deletion","","","","","","","",""],["","","","","","","","","","","","","","","","","","","","","","","","","","","",""]],"data3":[["Missense","","Missense","Missense","Truncating","","Nonsense","Missense","","","Missense","Missense","","Nonsense","Nonsense","","Missense","Truncating","","Missense","","Truncating","","","","Nonsense","Missense","Truncating"],["","","","Nonsense","","Truncating","Nonsense","Truncating","","","Nonsense","","Missense","Missense","","Missense","","Missense","","","","Nonsense","","","","Missense","",""],["","","","","","","","Missense","","","Nonsense","","","","","","Missense","","","","","","","","Nonsense","Nonsense","","Missense"],["Nonsense","","","Truncating","","Truncating","","Truncating","Nonsense","","","Truncating","","","Nonsense","","","","Missense","","Nonsense","Missense","Missense","","Truncating","Truncating","Truncating",""],["","","","","","","Nonsense","","","","Missense","","","","Missense","","","Nonsense","Truncating","Truncating","","","Nonsense","","","Missense","",""],["","Missense","Truncating","","","","","Missense","","","","","Nonsense","","","Missense","Truncating","","","Truncating","Missense","","","Truncating","","","",""],["","Truncating","","","","","Missense","","Missense","Nonsense","","","Truncating","","","","","","","","","","","","","Nonsense","",""],["","","","","Truncating","","","","","","Missense","","Missense","","","","","","","","Missense","Nonsense","","","Missense","","Missense",""],["","","","","","","","","Nonsense","","","","","","","","","","","Nonsense","","","Missense","","","","","Missense"],["","","","","","","Truncating","","","","","","Missense","","","","","","","","","Missense","","","Missense","Nonsense","",""],["","","","","","","","","","","","","Truncating","Truncating","","","","","","","","","","","","","",""],["","","","","","","","","","","","Missense","","","","","","","","","","","Missense","","","","",""]],"smps":["T01","T02","T03","T04","T05","T06","T07","T08","T09","T10","T11","T12","T13","T14","T15","T16","T17","T18","T19","T20","T21","T22","T23","T24","T25","T26","T27","T28"],"vars":["TP53","KRAS","PIK3CA","PTEN","EGFR","BRAF","APC","RB1","NF1","MYC","CDKN2A","ARID1A"],"data":[[-0.84,-1.08,0.82,-1.01,-0.72,-1.14,0.35,0.68,-0.35,-0.75,1.17,-1.24,-0.31,-0.34,-0.02,2.18,-0.51,0.28,-0.14,-0.88,0.3,0.16,0.07,-1.34,1.85,1.21,0.77,-0.94],[1.38,-0.16,-0.29,-2,-0.07,0.85,0.03,-0.71,-0.54,1.28,0.88,-0.1,-0.42,1.2,-0.49,-0.68,0.45,0.41,1.42,-3.5,-0.12,-0.39,2.2,0.15,-0.69,0.19,-1.09,-1.11],[-1.26,-1.07,1.42,-1.76,1.46,-0.58,0.41,2.39,-0.18,-0.95,-1.32,0.73,0.1,-0.44,-1.44,0.75,-0.19,0.61,0.49,-0.38,-0.06,-1.84,0.8,0.29,-0.22,1.96,0.07,0.63],[0.07,-0.14,1.5,-0.14,0.19,0.5,-0.16,-0.47,-0.06,1.62,-1.64,0.46,-0.23,0.19,0.14,0.97,1.34,0.94,0.6,0.98,1.47,-1.54,-0.54,-0.12,0.68,0.14,1.61,-0.23],[1.71,-0.6,-0.66,1.55,1.02,-0.76,0.97,-0.08,-2,2.6,1.06,0.29,-1.42,-2.62,-1.23,-1.26,0.82,-0.37,0.21,-0.56,-1.48,-0.59,-1.6,0.13,0.52,-1.58,1.23,-1.37],[-0.6,-2.18,-0.85,-0.8,-0.59,-0.34,0.12,-0.52,1.14,0.14,0.29,-1.07,-0.39,2.25,-1.75,-0.28,0.08,0.74,-0.03,-0.63,-0.68,-0.85,-0.73,-0.77,0.08,-0.8,-0.38,-0.75],[-0.47,0.24,0.32,-0.07,-0.11,-2.1,0.19,0.93,0.68,-1.35,-0.4,0.65,0.95,0.09,-0.04,-0.19,-0.65,1.22,2.03,-0.53,0.46,0.78,-0.36,-1.01,0.05,1.22,-1.35,-1.13],[-0.64,-0.26,1.11,1.9,-0.92,-0.3,-0.56,-1.06,0.21,0.8,1.24,0.3,0.75,1.63,0.33,-0.38,0.73,0.63,-0.37,1.9,-0.18,-0.03,-0.99,0.97,-0.74,-0.37,0.36,-0.22],[-0.29,0.9,2.22,-0.46,0.75,-1.27,0.5,0.56,-0.06,-1.55,-1.37,-0.8,-0.52,-0.51,1.57,0.74,-0.11,0.53,-1.58,1.4,-1.16,-1.46,-0.73,-0.42,0.97,-0.16,-0.36,-0.13],[0.14,0.94,1.22,0.56,-0.11,-0.28,-1.74,0.9,0.89,0.46,-1.44,-0.03,0.81,-0.66,-1.07,-1.17,-0.3,-0.47,-0.12,-0.75,0.41,0.09,1.47,-0.83,0.98,0.56,1.37,-0.82],[1.23,1.47,1.48,-0.89,-0.06,-0.2,0.98,0.99,-0.23,0.05,1.35,2.18,-0.61,-0.04,0.92,0.67,0.99,0.82,-1.8,-0.31,-0.26,0.98,1.86,1.4,0.19,-0.86,0.29,0.47],[-0.8,0.71,0.95,-0.46,0.23,-0.23,-0.02,0.38,-1.97,-0.2,-1.98,0.96,1.24,-0.12,-0.59,0.37,-0.78,-0.43,-0.48,1.17,-0.27,-0.6,0,0.02,0.27,1.24,0.71,-0.87]]},"x":{"Subtype":["Luminal","Basal","Luminal","HER2","Basal","HER2","Basal","Basal","HER2","Basal","Luminal","Basal","Luminal","Basal","Basal","Basal","HER2","HER2","Basal","Basal","Luminal","HER2","HER2","HER2","Luminal","Luminal","HER2","Basal"]},"z":{"Pathway":["TSG","Oncogene","TSG","Oncogene","TSG","Oncogene","TSG","Oncogene","TSG","Oncogene","TSG","Oncogene"]}},"config":{"graphType":"Heatmap","isR":true,"oncoprintCNA":"data2","oncoprintMUT":"data3","overlaysThickness":100,"xAxis":["T01","T02","T03","T04","T05","T06","T07","T08","T09","T10","T11","T12","T13","T14","T15","T16","T17","T18","T19","T20","T21","T22","T23","T24","T25","T26","T27","T28"],"title":"Mutation landscape: 12 genes across 28 tumours"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>canvasXpress sorts the waterfall for you and shows the alteration frequency per row. Hover a cell to read the exact alteration; swap the overlays for your own MAF / CNA calls.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The base matrix, the overlays and the <code>config</code> <strong>are</strong> the figure — one portable spec. The same spec renders the identical oncoprint from Python or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../clustered-heatmap-in-r/">A clustered heatmap in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>oncoprint</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/oncoprint-in-r/</guid>
+  <pubDate>Mon, 26 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/oncoprint-in-r/thumbnail.png" medium="image" type="image/png" height="73" width="144"/>
+</item>
+<item>
+  <title>Circular (Circos-style) multi-track plots in R with canvasXpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/circos-plots-in-r/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A circular (Circos-style) plot wraps a genome — or any ordered set of segments — into a ring, stacks several <strong>data tracks</strong> around it, and draws <strong>ribbons</strong> for relationships between positions. In R the reference is <code>circlize</code>. Here we build an interactive one with <a href="https://canvasxpress.org">canvasXpress</a>, from a single portable spec.</p>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>The matrix is <strong>tracks × segments</strong> (rows are the tracks you draw, columns are the positions around the ring). A sample annotation segments the ring (here into chromosomes), and <code>circularConnections</code> is a list of <code>[colour, from, to]</code> ribbons.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(canvasXpress)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb1-4">segments <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"s"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">80</span>)</span>
+<span id="cb1-5">tracks   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Expression"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Methylation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CopyNumber"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Density"</span>)</span>
+<span id="cb1-6">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(tracks) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(segments)), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb1-7">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(tracks), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimnames =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(tracks, segments))</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">smpAnnot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Region =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chr"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">row.names =</span> segments)</span>
+<span id="cb1-10"></span>
+<span id="cb1-11">cols  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(220,40,40)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(40,120,220)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(40,160,60)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(240,150,20)"</span>)</span>
+<span id="cb1-12">conns <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(i)</span>
+<span id="cb1-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(cols, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(segments, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(segments, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)))</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p><code>circularTrackGraphType</code> picks a renderer per track (<code>bar</code>, <code>heatmap</code>, <code>line</code>, <code>dot</code>), <code>circularTrackGraphWeight</code> sets each track’s radial thickness, and <code>segregateSamplesBy</code> splits the ring by the annotation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">canvasXpress</span>(</span>
+<span id="cb2-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data      =</span> y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">smpAnnot =</span> smpAnnot,</span>
+<span id="cb2-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graphType =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Circular"</span>,</span>
+<span id="cb2-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">circularConnections     =</span> conns,</span>
+<span id="cb2-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">circularTrackGraphType  =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bar"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dot"</span>),</span>
+<span id="cb2-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">circularTrackGraphWeight =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>),</span>
+<span id="cb2-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">circularTrackName        =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>),</span>
+<span id="cb2-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">segregateSamplesBy       =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Region"</span>),</span>
+<span id="cb2-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title     =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Circos-style multi-track plot with connections"</span>,</span>
+<span id="cb2-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width     =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">560</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">560</span></span>
+<span id="cb2-11">)</span></code></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-edcd429b618c657e7983" style="width:100%;height:650px;" class="canvasXpress html-widget"></div>
+<script type="application/json" data-for="htmlwidget-edcd429b618c657e7983">{"x":{"data":{"y":{"vars":["Expression","Methylation","CopyNumber","Density"],"smps":["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15","s16","s17","s18","s19","s20","s21","s22","s23","s24","s25","s26","s27","s28","s29","s30","s31","s32","s33","s34","s35","s36","s37","s38","s39","s40","s41","s42","s43","s44","s45","s46","s47","s48","s49","s50","s51","s52","s53","s54","s55","s56","s57","s58","s59","s60","s61","s62","s63","s64","s65","s66","s67","s68","s69","s70","s71","s72","s73","s74","s75","s76","s77","s78","s79","s80"],"data":[[-0.08,0.74,-3.01,0.42,1.51,1.28,1.74,0.6,-1.55,0.84,0.36,0.61,0.27,0.59,-0.78,0.56,-0.27,0.4,0.78,-2.9,0.24,-1.68,0.6,-0.5,0.33,0.3,0.03,0.17,0.55,0.26,-1.14,0.48,-1.36,-1.5,0.44,1.34,0.08,-1.03,0.23,0.72,0.32,1.56,-0.38,-0.36,0.77,-1.25,2.19,-0.2,-0.9,0.56,-0.58,-0.02,0.77,0.35,-0.36,-0.87,-0.42,0.17,-0.31,-0.38,-1.04,-0.64,-0.04,-1.34,0.64,-0.35,1.32,-0.53,0.94,-1.66,-2.52,-1.07,0,0.93,0.3,-0.94,-1.47,0.29,0.78,-2.3],[0.84,-0.11,-0.59,-1.29,-0.27,-0.01,-1.11,-2.02,-0.77,-0.7,-0.61,-1.96,-0.64,-0.1,-0.6,0.09,-1.08,-1.6,-0.48,0.58,-0.79,1.22,-3.01,-0.62,-0.04,-1.9,-0.49,0.57,-1.09,1.44,-1.72,0.14,0.84,-1.35,0.5,2.44,-0.7,-0.42,0.26,-0.69,0.58,0.2,0.74,0.99,0.94,-0.38,0.08,-1.04,-0.8,-1.33,-0.22,0.89,-0.98,-0.73,0.16,-1.3,-0.04,1.48,-0.18,-0.61,0.02,0.91,0.28,-0.16,-0.85,0.41,0.42,-1.38,-0.66,-0.24,0.56,0.19,0.51,0.87,-0.5,-1.32,0.3,1.31,-1.08,-0.4],[-0.46,-0.17,-0.76,0.07,1.56,-0.4,-1.06,1.51,1.26,-0.06,0.23,-0.66,1.08,0.97,-1.5,-1.78,-0.49,-1.47,0.09,2.38,-1.09,-0.1,0.77,-1.35,-0.64,-1.65,0.61,-0.16,1.45,-1.19,-0.37,-1.73,2.23,-2.4,1.43,0.68,0.6,0.16,-0.34,0.66,-1.41,-0.39,-1.18,-0.27,-1.05,0.21,2.11,-0.13,1.32,-1.92,1.2,-0.03,0.53,0.71,-1.39,0.89,0.14,-1.55,0.84,-0.85,0.86,-0.58,1.03,-0.25,-0.72,-0.54,-0.74,-0.41,0.46,-0.73,-0.37,-0.7,-0.23,-1.62,0.17,-0.84,0.48,-0.3,0.59,1.13],[-0.55,-1.09,0.29,-0.81,-0.24,0.02,1.95,0.96,0.43,0.47,-0.26,0.28,-0.37,0.58,0.75,-1.11,1.64,1.04,0.6,-0.65,2.04,-0.95,1.57,0.77,-0.07,-1.78,-0.36,-0.84,1.39,-0.3,1.82,0.28,0.17,0.79,-1.83,-1.97,0.8,-0.56,0.3,1.73,-1,0.92,0.28,0.48,1.01,-0.12,1.03,-0.58,1.04,0.02,-1.36,-0.88,0.93,-0.32,1.37,-0.88,0.1,1.37,-0.7,1.45,0.71,0.08,-0.44,0.66,-0.14,-2.23,0.25,1.07,-0.83,0.29,-0.25,-0.05,-0.5,-0.41,-1.48,-0.18,0.07,-0.06,0.33,1.06]]},"x":{"Region":["chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr1","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr2","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr3","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4","chr4"]},"z":null},"config":{"graphType":"Circular","isR":true,"circularConnections":[["rgb(40,160,60)","s34","s37"],["rgb(220,40,40)","s75","s72"],["rgb(220,40,40)","s24","s1"],["rgb(220,40,40)","s12","s15"],["rgb(40,160,60)","s22","s44"],["rgb(220,40,40)","s36","s78"],["rgb(220,40,40)","s70","s39"],["rgb(220,40,40)","s65","s78"],["rgb(40,120,220)","s9","s55"],["rgb(240,150,20)","s31","s28"],["rgb(40,120,220)","s22","s64"],["rgb(40,120,220)","s35","s1"],["rgb(40,160,60)","s17","s65"],["rgb(240,150,20)","s11","s23"],["rgb(40,160,60)","s34","s21"],["rgb(220,40,40)","s8","s29"],["rgb(240,150,20)","s65","s64"],["rgb(220,40,40)","s29","s79"]],"circularTrackGraphType":["bar","heatmap","line","dot"],"circularTrackGraphWeight":[30,20,25,25],"circularTrackName":[1,2,3,4],"segregateSamplesBy":["Region"],"title":"Circos-style multi-track plot with connections"},"events":null,"afterRender":null},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Each ring is one track; the inner ribbons are the connections. Hover a segment to read its values; swap the matrix and ribbons for your own genomic tracks and interactions.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The matrix, the connections and the <code>config</code> <strong>are</strong> the figure — one portable spec. The same spec renders the identical circular plot from Python or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../genome-tracks-in-r/">Genome browser tracks in R</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://github.com/neuhausi/canvasXpress" class="uri">https://github.com/neuhausi/canvasXpress</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>canvasXpress</category>
+  <category>circos</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/r/circos-plots-in-r/</guid>
+  <pubDate>Fri, 23 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/r/circos-plots-in-r/thumbnail.png" medium="image" type="image/png" height="139" width="144"/>
+</item>
+<item>
   <title>Choropleth maps in R with canvasXpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
   <link>https://neuhausi.github.io/canvasxpress-blog/posts/r/choropleth-maps-in-r/</link>

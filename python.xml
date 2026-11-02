@@ -2068,6 +2068,868 @@ var chart_genome = new CanvasXpress({"renderTo": "genome", "data": {"tracks": [{
   <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/genome-tracks-in-python/thumbnail.png" medium="image" type="image/png" height="272" width="144"/>
 </item>
 <item>
+  <title>Oncoprints (mutation landscapes) in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/oncoprint-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>An oncoprint is the standard way to show a <strong>mutation landscape</strong>: genes down one axis, tumours along the other, each cell stacking the alterations that gene carries in that sample — copy-number amplification/deletion plus mutation type — with frequencies alongside. In Python there is no first-class oncoprint; people hand-build one in matplotlib. Here we build an interactive one with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a>, from a single portable spec.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>An oncoprint is a <code>Heatmap</code> with <strong>overlay matrices</strong>: a base matrix (<code>y</code>, here expression) plus same-shaped layers for copy-number (<code>data2</code>) and mutation (<code>data3</code>). Each overlay cell is a string like <code>"Amplification"</code>, <code>"Missense"</code>, or <code>""</code> for none.</p>
+<div id="4be930d8" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> random</span>
+<span id="cb2-2">random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">genes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP53"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"KRAS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PIK3CA"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PTEN"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"EGFR"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BRAF"</span>,</span>
+<span id="cb2-5">         <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"APC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RB1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NF1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MYC"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CDKN2A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ARID1A"</span>]</span>
+<span id="cb2-6">samples <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"T</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:02d}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">28</span>)]</span>
+<span id="cb2-7">mutrate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {g: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(genes))) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(genes)}</span>
+<span id="cb2-8"></span>
+<span id="cb2-9">CNA <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Amplification"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Deletion"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> MUT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Missense"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nonsense"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Truncating"</span>]</span>
+<span id="cb2-10">base, cna, mut <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [], [], []</span>
+<span id="cb2-11"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> genes:</span>
+<span id="cb2-12">    base.append([<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(random.gauss(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> samples])</span>
+<span id="cb2-13">    cna.append([random.choice(CNA) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> random.random() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> mutrate[g] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> samples])</span>
+<span id="cb2-14">    mut.append([random.choice(MUT) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> random.random() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> mutrate[g] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> samples])</span>
+<span id="cb2-15"></span>
+<span id="cb2-16">subtype <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [random.choice([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Basal"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Luminal"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HER2"</span>]) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> samples]</span>
+<span id="cb2-17">pathway <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TSG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Oncogene"</span>)[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(genes))]</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p>The overlays go in the <code>y</code> object alongside the base <code>data</code>; <code>oncoprintCNA</code> / <code>oncoprintMUT</code> name them, and <code>xAxis</code> lists the samples.</p>
+<div id="34910405" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: genes, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: samples, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data2"</span>: cna, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data3"</span>: mut},</span>
+<span id="cb3-6">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Subtype"</span>: subtype}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Pathway"</span>: pathway}}</span>
+<span id="cb3-7">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Heatmap"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"oncoprintCNA"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"oncoprintMUT"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data3"</span>,</span>
+<span id="cb3-8">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"overlaysThickness"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: samples,</span>
+<span id="cb3-9">          <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mutation landscape: 12 genes across 28 tumours"</span>}</span>
+<span id="cb3-10"></span>
+<span id="cb3-11">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"onco"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">820</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">440</span>)</span>
+<span id="cb3-12"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb3-13">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="onco" width="820" height="440"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("onco");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart onco removed for re-rendering.");
+  } else {
+    console.log("Chart onco ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart onco could not be cleaned for re-rendering:", error);
+}
+
+var chart_onco = new CanvasXpress({"renderTo": "onco", "data": {"y": {"vars": ["TP53", "KRAS", "PIK3CA", "PTEN", "EGFR", "BRAF", "APC", "RB1", "NF1", "MYC", "CDKN2A", "ARID1A"], "smps": ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10", "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", "T26", "T27", "T28"], "data": [[-1.18, -1.15, 0.67, -2.29, -0.14, -2.26, 1.1, 0.2, 1.36, -0.5, 0.4, -0.29, -0.74, 0.15, -1.26, -0.35, 0.7, 0.06, -0.41, 2.19, 0.06, -0.59, 0.16, -0.52, -0.39, -0.35, 2.03, 0.02], [-1.0, -0.21, 0.11, 1.34, 0.51, -0.98, -0.3, 0.16, 0.22, -0.13, -1.91, 0.08, 1.11, 1.19, 1.34, -0.44, 0.11, -0.46, -0.52, 0.23, 0.47, -0.69, -3.65, 1.11, 1.64, -2.19, -1.11, 0.33], [-1.04, -1.21, 0.58, 0.1, -1.35, 0.52, 0.29, 1.49, -0.2, -0.21, -0.7, 0.13, 0.5, 0.18, -0.26, 0.58, 0.09, 0.25, -0.96, 0.21, -1.02, -0.86, 0.16, 2.15, 1.02, 0.0, -0.18, 1.01], [-1.31, -1.0, 1.25, 1.14, -0.39, 1.17, -0.43, 0.72, -1.1, -0.21, -1.06, 1.27, -0.23, -0.15, -0.02, 1.1, 1.81, -1.05, -0.16, -0.05, 0.19, -1.04, -1.4, -0.72, -0.77, -0.85, 0.84, -0.52], [-0.73, -0.24, 0.0, -1.21, 0.49, 0.54, -1.13, 1.18, 0.68, 1.43, -0.24, -0.35, -0.22, -0.38, 0.95, 0.95, 0.15, 2.04, -0.88, 0.11, 0.07, -0.23, -0.05, -0.33, 1.44, 2.0, -0.3, -0.65], [-1.63, -1.48, -0.41, -1.46, 0.38, 0.87, 2.9, 1.3, -1.69, 0.34, 0.31, 0.61, 1.32, 0.37, -0.12, -0.79, -1.07, 0.26, -0.26, -0.55, 1.86, 0.39, 0.67, -1.1, 1.47, -0.59, 0.15, 1.8], [0.59, -1.33, 1.55, -0.45, -0.24, -0.75, 0.37, -0.91, 0.25, 0.27, 0.38, 0.68, -0.37, -0.73, 1.57, 0.66, -0.22, -0.08, 0.5, 0.17, -1.24, 1.55, 1.31, -0.43, 0.13, 1.05, -0.58, 0.68], [0.85, 0.15, -0.84, 0.76, -0.29, -0.97, 1.83, -0.2, 1.36, -0.71, -0.6, -1.09, 0.29, -0.91, -1.26, -0.84, -0.81, -0.11, 0.38, 0.2, -0.81, 1.04, 0.1, -1.58, -0.8, 2.16, -0.24, 1.57], [0.78, 0.92, 0.58, 0.29, -0.96, 0.2, 1.73, -1.22, -1.34, -1.18, 0.03, -0.05, -0.23, -0.43, -0.49, 0.82, 0.09, -1.31, -0.82, 0.32, 0.08, -0.63, 0.99, -0.78, -1.77, -0.98, 0.65, -0.69], [-0.21, 0.04, 0.92, 1.45, -1.98, -0.0, 1.37, -0.54, -0.98, -0.9, 0.22, 1.02, -0.31, -1.8, 0.48, -0.95, 0.14, -0.1, 0.24, -0.55, -0.45, 0.72, 0.69, 1.77, 0.85, 0.45, -0.51, 0.4], [0.86, -0.44, -1.55, -0.3, 2.26, -0.94, 0.85, -0.06, 1.16, 2.01, 0.96, 0.51, -0.11, -1.22, -1.74, 1.46, -0.39, 1.21, 0.26, -0.48, -0.69, 0.94, -0.62, -0.27, -0.34, 0.1, 0.78, 0.48], [-0.84, -0.71, 1.87, 2.58, -0.68, -0.83, -1.0, -0.11, 0.73, 2.1, 0.57, 1.03, 0.84, -0.36, 1.06, 0.11, -1.09, -0.46, 0.67, -0.21, 0.04, 0.61, -0.72, -0.25, -0.54, 1.28, 0.35, 0.99]], "data2": [["Amplification", "", "Amplification", "", "", "", "", "Amplification", "", "", "", "", "Amplification", "", "", "", "", "", "", "Deletion", "", "", "", "", "", "Amplification", "", ""], ["", "", "", "", "Deletion", "", "", "Deletion", "", "Deletion", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Deletion", "", "", "", "", "", "", "", "", "Deletion", "", "", "", "Deletion", "", "", "", "", "", "", "Amplification", "", "", "", "", "", "", ""], ["", "", "", "", "", "Amplification", "", "", "", "", "", "Deletion", "", "", "", "", "", "", "Amplification", "", "Amplification", "", "Deletion", "", "", "", "Amplification", ""], ["Deletion", "", "Deletion", "", "", "", "", "", "", "Deletion", "", "", "", "", "", "", "", "", "", "Amplification", "", "", "", "", "", "", "", ""], ["Deletion", "Amplification", "", "", "", "Deletion", "", "", "", "", "", "", "", "", "", "", "", "Amplification", "", "", "", "Deletion", "", "", "", "", "", ""], ["Amplification", "", "Amplification", "", "", "", "", "", "", "", "", "", "", "Amplification", "", "", "", "Deletion", "", "", "Amplification", "", "", "", "", "", "", ""], ["Amplification", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Deletion", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "Deletion", "", "Deletion", "", "", "Deletion", "Deletion", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "Amplification", "", "", "", "", "Deletion", "", "", "Deletion", "", "", "", "", "", "", "Amplification", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Amplification", "", "", "", "", "Deletion", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]], "data3": [["Truncating", "", "Truncating", "", "Truncating", "Missense", "Missense", "", "", "Nonsense", "", "Nonsense", "Truncating", "", "Nonsense", "Missense", "Truncating", "", "", "Truncating", "", "Nonsense", "Missense", "", "", "Nonsense", "Missense", "Truncating"], ["", "Truncating", "", "Nonsense", "", "", "", "", "Truncating", "Nonsense", "Missense", "", "", "", "", "", "", "Nonsense", "", "", "", "", "", "Truncating", "", "", "Truncating", ""], ["", "", "", "", "Missense", "", "Nonsense", "", "Nonsense", "", "Nonsense", "Missense", "Truncating", "", "Missense", "", "", "Truncating", "", "Nonsense", "", "Nonsense", "", "", "Nonsense", "", "", ""], ["", "", "", "Nonsense", "", "", "Missense", "", "Truncating", "Truncating", "Nonsense", "", "Truncating", "", "", "", "Nonsense", "Truncating", "", "", "", "Missense", "Nonsense", "Truncating", "", "Truncating", "", "Missense"], ["", "", "Nonsense", "Missense", "", "Nonsense", "", "", "", "Missense", "", "", "Missense", "", "", "Missense", "", "", "", "", "Truncating", "Nonsense", "", "", "Missense", "", "", ""], ["", "", "", "Missense", "Nonsense", "Nonsense", "", "", "Missense", "", "", "", "", "", "Nonsense", "", "Missense", "", "", "", "Nonsense", "", "", "Nonsense", "", "", "", ""], ["", "", "Nonsense", "", "", "", "", "Nonsense", "", "Missense", "", "Missense", "", "", "", "", "", "", "", "", "", "Missense", "", "Truncating", "", "", "", "Truncating"], ["Nonsense", "", "", "", "", "Truncating", "", "Truncating", "Truncating", "", "", "", "", "", "", "", "", "", "Nonsense", "Missense", "Nonsense", "", "", "Missense", "", "Truncating", "", "Nonsense"], ["", "Nonsense", "Nonsense", "", "", "", "Missense", "", "", "", "", "", "", "", "Missense", "Missense", "", "Nonsense", "", "", "", "Missense", "", "", "Truncating", "Nonsense", "", ""], ["", "Nonsense", "", "", "", "", "", "", "", "", "", "", "", "", "", "Missense", "", "", "", "", "Truncating", "", "", "", "", "", "", "Missense"], ["", "", "", "", "", "", "Truncating", "", "Truncating", "", "", "", "", "Truncating", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Missense", "", "", "", "", "", "", "Truncating", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Truncating", ""]]}, "x": {"Subtype": ["Basal", "Luminal", "HER2", "HER2", "Basal", "Basal", "Luminal", "HER2", "HER2", "Basal", "Basal", "Luminal", "Basal", "HER2", "Luminal", "Luminal", "Luminal", "HER2", "HER2", "HER2", "HER2", "Luminal", "Luminal", "Basal", "HER2", "HER2", "Luminal", "Luminal"]}, "z": {"Pathway": ["TSG", "Oncogene", "TSG", "Oncogene", "TSG", "Oncogene", "TSG", "Oncogene", "TSG", "Oncogene", "TSG", "Oncogene"]}}, "config": {"graphType": "Heatmap", "oncoprintCNA": "data2", "oncoprintMUT": "data3", "overlaysThickness": 100, "xAxis": ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10", "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", "T26", "T27", "T28"], "title": "Mutation landscape: 12 genes across 28 tumours"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>canvasXpress sorts the waterfall for you and shows the alteration frequency per row. Hover a cell to read the exact alteration; swap the overlays for your own MAF / CNA calls.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The base matrix, the overlays and the <code>config</code> <strong>are</strong> the figure — one portable JSON spec that renders the identical oncoprint from R or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../clustered-heatmap-in-python/">A clustered heatmap in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>oncoprint</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/oncoprint-in-python/</guid>
+  <pubDate>Tue, 27 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/oncoprint-in-python/thumbnail.png" medium="image" type="image/png" height="73" width="144"/>
+</item>
+<item>
+  <title>Circular (Circos-style) multi-track plots in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/circos-plots-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A circular (Circos-style) plot wraps a genome — or any ordered set of segments — into a ring, stacks several <strong>data tracks</strong> around it, and draws <strong>ribbons</strong> for relationships between positions. In Python the usual tool is <code>pyCirclize</code>. Here we build an interactive one with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a>, from a single portable spec.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>The matrix is <strong>tracks × segments</strong> (rows are the tracks you draw, columns are the positions around the ring). A sample annotation segments the ring (here into chromosomes), and <code>circularConnections</code> is a list of <code>[colour, from, to]</code> ribbons.</p>
+<div id="08da4624" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> random</span>
+<span id="cb2-2">random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">segments <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"s</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">80</span>)]</span>
+<span id="cb2-5">tracks   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Expression"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Methylation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CopyNumber"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Density"</span>]</span>
+<span id="cb2-6">data_m   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(random.gauss(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> segments] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tracks]</span>
+<span id="cb2-7"></span>
+<span id="cb2-8">region <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"chr</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">80</span>)]</span>
+<span id="cb2-9">cols   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(220,40,40)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(40,120,220)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(40,160,60)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(240,150,20)"</span>]</span>
+<span id="cb2-10">conns  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [[random.choice(cols), random.choice(segments), random.choice(segments)] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>)]</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<p><code>circularTrackGraphType</code> picks a renderer per track (<code>bar</code>, <code>heatmap</code>, <code>line</code>, <code>dot</code>), <code>circularTrackGraphWeight</code> sets each track’s radial thickness, and <code>segregateSamplesBy</code> splits the ring by the annotation.</p>
+<div id="d4acc2a2" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: tracks, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: segments, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: data_m}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Region"</span>: region}}</span>
+<span id="cb3-6">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Circular"</span>,</span>
+<span id="cb3-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"circularConnections"</span>: conns,</span>
+<span id="cb3-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"circularTrackGraphType"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bar"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dot"</span>],</span>
+<span id="cb3-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"circularTrackGraphWeight"</span>: [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>],</span>
+<span id="cb3-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"circularTrackName"</span>: [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>],</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"segregateSamplesBy"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Region"</span>],</span>
+<span id="cb3-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Circos-style multi-track plot with connections"</span>,</span>
+<span id="cb3-14">}</span>
+<span id="cb3-15"></span>
+<span id="cb3-16">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"circ"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">560</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">560</span>)</span>
+<span id="cb3-17"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb3-18">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="circ" width="560" height="560"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("circ");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart circ removed for re-rendering.");
+  } else {
+    console.log("Chart circ ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart circ could not be cleaned for re-rendering:", error);
+}
+
+var chart_circ = new CanvasXpress({"renderTo": "circ", "data": {"y": {"vars": ["Expression", "Methylation", "CopyNumber", "Density"], "smps": ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12", "s13", "s14", "s15", "s16", "s17", "s18", "s19", "s20", "s21", "s22", "s23", "s24", "s25", "s26", "s27", "s28", "s29", "s30", "s31", "s32", "s33", "s34", "s35", "s36", "s37", "s38", "s39", "s40", "s41", "s42", "s43", "s44", "s45", "s46", "s47", "s48", "s49", "s50", "s51", "s52", "s53", "s54", "s55", "s56", "s57", "s58", "s59", "s60", "s61", "s62", "s63", "s64", "s65", "s66", "s67", "s68", "s69", "s70", "s71", "s72", "s73", "s74", "s75", "s76", "s77", "s78", "s79", "s80"], "data": [[0.37, 2.53, 1.1, 1.11, 0.65, 0.38, 0.69, -0.0, -0.7, -0.86, -1.12, 0.34, 0.67, 1.76, 0.62, 0.39, 0.78, 0.1, -1.8, 1.18, -0.36, 0.34, -0.16, 3.09, 1.28, 0.54, -1.05, 1.03, -0.81, 1.3, -1.45, 0.02, 1.07, -0.77, 0.23, 0.28, 1.09, -0.39, 0.83, 2.27, -1.42, -0.77, 0.6, -0.56, -1.27, 1.61, 1.12, 1.28, 1.25, 0.88, -0.72, -2.34, 0.66, -0.99, 0.18, 0.54, -1.17, -0.21, 1.95, 0.94, -1.55, -0.07, 0.14, 0.73, 0.91, 0.07, -0.11, 1.04, -1.36, 1.32, 0.48, -0.39, -0.48, 0.37, -1.41, -2.32, 0.51, 1.63, -0.05, 0.16], [0.08, -0.91, 0.51, 0.94, 0.12, 1.02, -0.98, 0.35, -0.7, -0.44, 0.35, 0.24, 0.95, 0.75, -1.16, 1.4, -1.57, -0.05, 0.36, -0.05, 0.55, 0.06, -0.99, 0.86, -0.04, -0.93, 0.07, -0.02, 0.35, -0.59, 0.18, -0.18, 1.65, -0.37, 1.31, -0.08, 1.16, 2.38, -0.39, 0.15, -0.92, -0.72, -0.57, 0.1, 0.95, 0.91, -0.5, 0.15, -1.49, 0.6, -0.24, -1.1, -0.74, 0.59, 0.1, 0.66, -0.45, 0.16, -0.24, -1.55, -0.16, -0.14, -0.7, 0.8, 2.18, 1.45, 0.04, -1.18, -0.19, -0.64, 0.16, 1.21, -0.05, -1.44, 1.38, 0.06, 1.39, -0.89, 2.54, -1.24], [0.14, 0.83, -2.62, -0.8, -1.62, 1.74, 0.71, -0.97, -1.77, -1.78, 0.17, -0.82, 0.37, -0.54, -1.73, 1.84, 0.5, -0.71, -0.35, 1.33, 0.83, -1.27, 1.49, -0.63, 0.59, -1.23, -0.68, 0.8, -1.22, 0.08, 0.42, -0.67, 1.48, 0.68, -0.14, 1.03, 1.39, 1.26, -0.12, 0.82, 0.4, -1.12, -0.36, 2.06, -0.81, 0.5, 1.73, -0.38, -0.01, -0.76, 0.52, -1.24, 0.46, -0.84, 0.34, -1.74, -1.11, 0.94, 0.6, -3.1, 1.54, -0.84, 0.9, 1.04, -0.17, -0.39, -1.96, 0.47, 1.89, -1.28, 1.14, 0.75, 0.96, -1.09, -0.12, 0.25, 1.73, -0.96, -0.54, -0.79], [0.87, -1.62, -0.21, -1.34, -0.35, 0.76, -0.56, 0.69, -0.49, -0.06, -0.17, -0.91, 0.41, 0.65, -0.82, 0.68, 0.09, -0.45, 0.14, 0.82, 0.74, 1.49, 0.25, 0.2, -1.53, -0.56, 0.58, -1.14, -0.96, 1.83, -0.1, -1.14, -2.16, -0.9, 2.31, -0.04, 0.6, 0.66, -0.51, 0.33, 0.03, -0.35, 1.01, -0.86, -0.78, -0.68, 1.21, -0.51, 1.8, -1.37, -1.02, -2.68, -0.95, 0.06, 0.68, -1.02, -0.55, 1.41, -0.52, 0.08, 0.62, -1.0, 1.22, -0.22, 0.76, -0.32, 0.25, 1.2, 0.2, -1.86, -0.31, -0.41, -0.21, 0.16, -1.66, 1.74, -0.89, 1.27, -0.4, -0.38]]}, "x": {"Region": ["chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr2", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr3", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4", "chr4"]}, "z": null}, "config": {"graphType": "Circular", "circularConnections": [["rgb(220,40,40)", "s11", "s24"], ["rgb(240,150,20)", "s75", "s17"], ["rgb(240,150,20)", "s73", "s75"], ["rgb(220,40,40)", "s48", "s65"], ["rgb(220,40,40)", "s77", "s48"], ["rgb(40,160,60)", "s14", "s41"], ["rgb(220,40,40)", "s62", "s22"], ["rgb(40,120,220)", "s62", "s47"], ["rgb(40,160,60)", "s48", "s55"], ["rgb(40,160,60)", "s5", "s19"], ["rgb(40,160,60)", "s8", "s5"], ["rgb(40,120,220)", "s66", "s47"], ["rgb(240,150,20)", "s47", "s61"], ["rgb(40,120,220)", "s39", "s18"], ["rgb(40,160,60)", "s3", "s57"], ["rgb(40,160,60)", "s75", "s34"], ["rgb(240,150,20)", "s38", "s38"], ["rgb(240,150,20)", "s64", "s58"]], "circularTrackGraphType": ["bar", "heatmap", "line", "dot"], "circularTrackGraphWeight": [0.3, 0.2, 0.25, 0.25], "circularTrackName": [1, 2, 3, 4], "segregateSamplesBy": ["Region"], "title": "Circos-style multi-track plot with connections"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Each ring is one track; the inner ribbons are the connections. Hover a segment to read its values; swap the matrix and ribbons for your own genomic tracks and interactions.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The matrix, the connections and the <code>config</code> <strong>are</strong> the figure — one portable JSON spec that renders the identical circular plot from R or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../genome-tracks-in-python/">Genome browser tracks in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>circos</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/circos-plots-in-python/</guid>
+  <pubDate>Sat, 24 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/circos-plots-in-python/thumbnail.png" medium="image" type="image/png" height="139" width="144"/>
+</item>
+<item>
   <title>Choropleth maps in Python with canvasxpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
   <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/choropleth-maps-in-python/</link>
