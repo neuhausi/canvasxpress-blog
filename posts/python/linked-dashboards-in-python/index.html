@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.39">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Isaac Neuhaus">
+<meta name="dcterms.date" content="2026-10-30">
+<meta name="description" content="Triage a 96-sample sequencing run in Python: an overview QC heatmap plus linked, cross-filtering panels that flag failing samples and batch effects — from portable specs, no Dash.">
+
+<title>An interactive NGS sequencing-QC dashboard in Python with canvasxpress – CanvasXpress Recipes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-9ce2abe5906e9f62962fd5a4218470f6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">CanvasXpress Recipes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">All posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../r.html"> 
+<span class="menu-text">R</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../python.html"> 
+<span class="menu-text">Python</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../js.html"> 
+<span class="menu-text">JavaScript</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/neuhausi/canvasXpress"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../r.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#install" id="toc-install" class="nav-link active" data-scroll-target="#install">Install</a></li>
+  <li><a href="#the-qc-table" id="toc-the-qc-table" class="nav-link" data-scroll-target="#the-qc-table">The QC table</a></li>
+  <li><a href="#overview-a-clustered-qc-heatmap" id="toc-overview-a-clustered-qc-heatmap" class="nav-link" data-scroll-target="#overview-a-clustered-qc-heatmap">Overview — a clustered QC heatmap</a></li>
+  <li><a href="#the-linked-triage-dashboard" id="toc-the-linked-triage-dashboard" class="nav-link" data-scroll-target="#the-linked-triage-dashboard">The linked triage dashboard</a>
+  <ul class="collapse">
+  <li><a href="#mapping-rate-vs-duplication-the-triage-plot" id="toc-mapping-rate-vs-duplication-the-triage-plot" class="nav-link" data-scroll-target="#mapping-rate-vs-duplication-the-triage-plot">1 — Mapping rate vs duplication (the triage plot)</a></li>
+  <li><a href="#contamination-vs-mapping" id="toc-contamination-vs-mapping" class="nav-link" data-scroll-target="#contamination-vs-mapping">2 — Contamination vs mapping</a></li>
+  <li><a href="#q30-vs-gc-by-library-prep" id="toc-q30-vs-gc-by-library-prep" class="nav-link" data-scroll-target="#q30-vs-gc-by-library-prep">3 — Q30 vs GC, by library prep</a></li>
+  <li><a href="#sequencing-depth-per-sample" id="toc-sequencing-depth-per-sample" class="nav-link" data-scroll-target="#sequencing-depth-per-sample">4 — Sequencing depth per sample</a></li>
+  </ul></li>
+  <li><a href="#why-reproducible" id="toc-why-reproducible" class="nav-link" data-scroll-target="#why-reproducible">Why “reproducible”</a></li>
+  <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next">Next</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">An interactive NGS sequencing-QC dashboard in Python with canvasxpress</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Python</div>
+    <div class="quarto-category">canvasxpress</div>
+    <div class="quarto-category">dashboard</div>
+    <div class="quarto-category">bioinformatics</div>
+    <div class="quarto-category">visualization</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Triage a 96-sample sequencing run in Python: an overview QC heatmap plus linked, cross-filtering panels that flag failing samples and batch effects — from portable specs, no Dash.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Isaac Neuhaus </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 30, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>After a sequencing run you get a QC table — one row per sample, a dozen metrics — and you need to answer three questions fast: <strong>which samples fail, is a whole batch off, and are the failures correlated?</strong> A single scatter can’t do it; you want several views that <strong>talk to each other</strong> — select a suspicious sample in one and see it light up in the rest. In Python that usually means Dash or Streamlit (a server, callbacks). canvasXpress does it client-side: give every panel the same <strong>broadcast group</strong> and a selection broadcasts to all of them. Here we build a real QC dashboard for 96 RNA/exome samples.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install canvasxpress</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="the-qc-table" class="level2">
+<h2 class="anchored" data-anchor-id="the-qc-table">The QC table</h2>
+<p>96 samples with mapping rate, duplication, Q30, GC, insert size and contamination (VerifyBamID <code>freemix</code>), plus lane / batch / library annotations. (Download: <a href="ngs-qc.csv"><code>ngs-qc.csv</code></a>.)</p>
+<div id="1697589b" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv, statistics <span class="im">as</span> st</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> <span class="bu">list</span>(csv.DictReader(<span class="bu">open</span>(<span class="st">"ngs-qc.csv"</span>)))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> [<span class="st">"total_reads"</span>, <span class="st">"pct_mapped"</span>, <span class="st">"pct_duplication"</span>, <span class="st">"pct_q30"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">"gc_content"</span>, <span class="st">"insert_size"</span>, <span class="st">"contamination_freemix"</span>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> [r[<span class="st">"sample"</span>] <span class="cf">for</span> r <span class="kw">in</span> rows]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>annot   <span class="op">=</span> {<span class="st">"Lane"</span>: [r[<span class="st">"lane"</span>] <span class="cf">for</span> r <span class="kw">in</span> rows], <span class="st">"Batch"</span>: [r[<span class="st">"batch"</span>] <span class="cf">for</span> r <span class="kw">in</span> rows],</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Library"</span>: [r[<span class="st">"library"</span>] <span class="cf">for</span> r <span class="kw">in</span> rows]}</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> {m: [<span class="bu">float</span>(r[m]) <span class="cf">for</span> r <span class="kw">in</span> rows] <span class="cf">for</span> m <span class="kw">in</span> metrics}</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(samples), <span class="st">"samples,"</span>, <span class="bu">len</span>(metrics), <span class="st">"metrics"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>96 samples, 7 metrics</code></pre>
+</div>
+</div>
+</section>
+<section id="overview-a-clustered-qc-heatmap" class="level2">
+<h2 class="anchored" data-anchor-id="overview-a-clustered-qc-heatmap">Overview — a clustered QC heatmap</h2>
+<p>Z-score each metric and cluster: outlier samples and any batch/library structure jump out at a glance. This is the “is anything wrong, and where” view. Here the matrix is metrics × samples.</p>
+<div id="54355646" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> canvasxpress.canvas <span class="im">import</span> CanvasXpress</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> canvasxpress.render.jupyter <span class="im">import</span> CXNoteBook</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> {m: [(v <span class="op">-</span> st.mean(raw[m])) <span class="op">/</span> (st.pstdev(raw[m]) <span class="kw">or</span> <span class="dv">1</span>) <span class="cf">for</span> v <span class="kw">in</span> raw[m]] <span class="cf">for</span> m <span class="kw">in</span> metrics}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>hm <span class="op">=</span> {<span class="st">"y"</span>: {<span class="st">"vars"</span>: metrics, <span class="st">"smps"</span>: samples, <span class="st">"data"</span>: [[<span class="bu">round</span>(x, <span class="dv">2</span>) <span class="cf">for</span> x <span class="kw">in</span> z[m]] <span class="cf">for</span> m <span class="kw">in</span> metrics]},</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"x"</span>: {<span class="st">"Batch"</span>: annot[<span class="st">"Batch"</span>], <span class="st">"Library"</span>: annot[<span class="st">"Library"</span>]}}</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>cx <span class="op">=</span> CanvasXpress(render_to<span class="op">=</span><span class="st">"qcHeat"</span>, data<span class="op">=</span>hm, width<span class="op">=</span><span class="dv">820</span>, height<span class="op">=</span><span class="dv">420</span>, config<span class="op">=</span>{</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"graphType"</span>: <span class="st">"Heatmap"</span>, <span class="st">"samplesClustered"</span>: <span class="va">True</span>, <span class="st">"variablesClustered"</span>: <span class="va">True</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"colorSpectrum"</span>: [<span class="st">"navy"</span>, <span class="st">"white"</span>, <span class="st">"firebrick3"</span>],</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>: <span class="st">"QC metrics (z-scored) — 96 samples clustered"</span>})</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> part <span class="kw">in</span> CXNoteBook(cx).render():</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    display(part)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcHeat" width="820" height="420"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcHeat");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcHeat removed for re-rendering.");
+  } else {
+    console.log("Chart qcHeat ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcHeat could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcHeat = new CanvasXpress({"renderTo": "qcHeat", "data": {"y": {"vars": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "smps": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "data": [[-0.3, -0.23, -1.09, 1.27, 0.25, -0.64, 0.4, 0.61, -0.67, 0.94, -0.97, 0.69, 0.77, 0.52, 0.49, -0.09, 1.83, 0.19, 0.58, -0.63, -1.06, 1.84, 0.21, 0.88, -1.63, 1.39, 0.57, -1.77, 0.22, -1.3, 0.2, -0.56, 1.05, -0.72, 0.16, -1.95, -0.76, 1.02, -0.24, 2.18, -2.13, 0.63, -0.71, 1.05, -0.33, -0.96, 0.35, -0.35, 0.13, -1.78, 0.93, -0.18, 0.54, 0.1, -0.26, -2.22, -0.85, 1.01, 0.09, -0.92, 0.18, -1.14, -1.39, 0.51, -1.41, 0.58, -1.04, 0.91, -0.6, 0.67, -0.03, 0.66, 0.18, -1.29, -0.84, -1.34, -0.81, -0.41, 1.04, 0.72, 1.2, 0.82, 0.43, 3.01, 1.03, -1.17, -0.45, -0.6, 1.3, -0.57, 0.22, 0.95, -1.35, 0.73, 1.21, 0.25], [0.29, -1.51, 1.73, 1.18, 0.14, 0.28, 1.02, 0.65, 0.96, 1.41, -0.68, -0.6, -0.03, -0.66, 1.11, -1.68, 0.04, 0.96, -0.78, -0.75, -3.5, 1.25, -1.01, -0.54, -1.1, 0.04, 0.77, 0.69, 1.74, 0.52, -1.1, -0.35, 0.32, -0.83, -0.6, 0.34, -0.71, -0.77, 0.03, 0.37, -1.03, 0.17, 0.8, 1.18, -0.96, 0.18, 0.95, -0.29, 1.62, -1.18, 0.88, 0.42, 0.91, 0.74, 1.74, 0.66, -0.09, 0.39, 0.97, 0.07, -2.43, -0.31, 0.77, -2.7, -1.87, 1.74, 0.23, -0.06, -0.12, 0.02, -1.08, 0.19, 0.26, 0.69, -0.15, -2.81, 1.06, 0.32, -0.25, -0.22, 0.2, 0.98, -0.52, 0.5, -0.19, -0.54, 0.26, 0.03, -0.26, 0.12, 0.11, 0.36, -1.05, 0.88, -1.13, 0.19], [-0.38, -0.15, -1.0, -0.07, -0.51, -0.07, 0.81, 0.68, -0.17, 2.25, 0.09, 1.54, -0.4, -0.61, -1.37, 1.31, 0.51, -1.47, -1.68, 0.32, 1.73, -0.37, 1.4, -1.11, -1.76, -1.28, -0.63, 0.67, -1.25, 0.31, -0.58, 1.07, -0.85, 1.47, -1.55, -0.06, -0.84, -0.4, -0.51, 0.7, 0.38, 1.94, -0.83, 0.41, -0.57, -1.34, -0.44, -0.45, -0.6, 0.85, -0.38, 1.21, -0.64, 0.21, -1.21, -0.92, -1.26, 1.01, -0.42, -1.5, 1.3, 0.59, -0.31, 2.58, 2.62, -0.88, 0.13, 0.16, -1.03, 1.26, -0.27, -1.14, -0.55, 0.94, -0.33, 1.08, -0.54, -0.34, 0.91, 0.11, -0.97, 0.05, -0.07, 0.19, -1.58, 0.77, -1.29, 0.84, -0.37, 0.72, 0.9, 1.8, 1.16, 0.1, 0.13, 0.09], [-1.13, 1.28, -0.58, 0.56, -0.09, -0.2, -0.17, 0.23, 0.13, -0.82, -1.96, 0.35, -0.07, -0.24, -0.77, 1.11, 0.88, -0.97, -0.66, 0.21, 1.13, 1.73, -1.63, -0.64, 0.46, -0.17, 0.61, 1.91, -2.8, 0.54, -0.17, 0.25, 0.73, 0.18, -0.09, -0.27, 0.11, -0.8, -0.36, 0.32, 0.29, 0.23, 0.52, 2.04, -0.44, 1.3, -0.22, -0.71, -1.53, 1.33, -1.61, -0.19, -1.27, -0.67, -0.2, -2.11, -0.85, -1.34, 0.33, -1.66, 1.72, -0.45, 0.42, -1.24, 1.9, 0.61, 0.01, -2.49, 0.19, -0.67, -1.19, 0.62, 1.21, -0.66, 0.84, -0.95, -0.37, 0.01, 0.56, 0.62, 0.85, 0.91, 0.09, -0.25, 1.87, 0.32, 0.8, 2.06, -0.25, 1.25, -0.56, 1.21, 0.0, -0.33, 0.79, -0.79], [-1.07, -0.46, 0.6, -1.11, -0.77, -0.48, -0.04, 0.14, 1.66, -0.92, -0.92, -0.0, -1.24, -0.1, -1.69, 1.2, -2.4, -0.33, -1.8, 1.05, -0.09, 1.26, 0.11, -0.23, -0.69, 1.2, -0.16, 0.65, -1.65, -0.04, 0.44, -0.98, 0.42, -2.2, 1.14, 1.75, -0.92, -0.49, 2.42, 0.06, -0.13, 0.11, -0.5, -2.34, 0.55, 0.01, -0.01, 0.4, -1.65, 0.89, -0.05, -0.56, 0.14, 2.22, -0.84, -0.23, 1.48, -1.33, -0.42, 1.01, -0.4, 0.27, 0.89, -0.37, 0.49, 0.27, -2.35, -0.48, 1.45, -0.74, 1.56, 1.35, 0.26, 0.01, 0.43, 0.63, 1.18, -0.44, -0.12, -1.43, 0.23, 0.68, 0.28, 0.92, 0.36, 0.21, 0.02, 1.02, 0.54, 1.35, -0.89, 0.46, 0.81, 0.32, -1.2, 0.34], [0.51, 0.11, 0.27, 0.54, 2.06, 0.83, -2.03, -0.61, 0.0, 0.96, 0.83, 0.32, 0.86, -0.96, -0.8, -2.17, 0.08, -0.67, 1.04, 0.19, -0.19, -1.04, 0.72, -0.16, 1.1, 0.75, -0.29, -0.69, -0.56, 0.94, 1.02, 1.23, -0.94, -1.39, -0.61, -0.35, 0.46, 0.78, 2.09, -1.47, -1.28, -3.4, -0.51, -1.12, 0.86, -0.59, 0.78, -0.29, -0.29, -0.75, -1.34, 1.82, 1.39, -0.37, -0.83, -0.24, -0.29, -0.11, 1.26, 0.11, -0.61, 1.23, 0.48, -0.48, -0.11, -1.1, 0.99, -0.35, 0.72, -1.04, -0.32, 0.67, -0.11, 1.1, 0.24, -2.09, 1.2, 0.8, 0.86, 2.41, -0.05, 0.96, -0.35, -1.26, -1.1, 0.38, 0.16, -0.21, -0.05, -0.48, -0.03, -0.11, -0.24, 0.32, 1.58, -1.58], [-0.15, -1.46, 0.2, 0.88, 1.41, 0.61, 1.7, 0.8, -1.27, 1.57, 0.27, 0.9, -0.68, 0.02, -1.15, 1.03, -1.2, -0.94, 0.21, 1.7, -0.65, 1.2, -1.0, -1.11, 1.49, -1.58, -1.23, 1.76, 0.95, -1.26, 1.8, -0.88, 1.81, -0.03, -0.07, -0.77, 0.8, -1.13, -0.64, -1.38, 1.56, 0.02, -0.2, -1.37, -0.83, -1.1, 0.06, -0.04, -0.86, -1.55, -1.2, -0.34, -1.04, -0.1, -0.82, -0.29, 1.13, 1.09, 0.77, -0.94, 0.41, -0.47, -1.48, 1.0, 1.61, -1.48, 1.01, 0.05, 0.75, 0.36, -0.7, 1.52, -0.92, -0.74, -0.47, -1.01, 0.8, 0.58, -0.09, -0.76, 0.37, 0.9, -0.41, 1.39, 0.53, 1.24, -1.55, 0.9, 1.24, -0.67, -1.05, -0.14, 0.12, 0.95, 0.18, -0.4]]}, "x": {"Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "z": null}, "config": {"graphType": "Heatmap", "samplesClustered": true, "variablesClustered": true, "colorSpectrum": ["navy", "white", "firebrick3"], "title": "QC metrics (z-scored) \u2014 96 samples clustered"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="the-linked-triage-dashboard" class="level2">
+<h2 class="anchored" data-anchor-id="the-linked-triage-dashboard">The linked triage dashboard</h2>
+<p>Four panels over the <strong>same samples</strong>, all sharing <code>broadcastGroup: "qc"</code>. The sample is the unit, so each sample is a point and its lane/batch/library live in the per-sample annotation <code>z</code>. Select points in any panel and the same samples re-mark everywhere.</p>
+<div id="b56999fe" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample-centric: vars = samples (points), smps = metrics (axes), z = per-sample annotations.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {<span class="st">"y"</span>: {<span class="st">"vars"</span>: samples, <span class="st">"smps"</span>: metrics, <span class="st">"data"</span>: [[raw[m][i] <span class="cf">for</span> m <span class="kw">in</span> metrics] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(samples))]},</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"z"</span>: annot}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panel(cfg, cid, w<span class="op">=</span><span class="dv">640</span>, h<span class="op">=</span><span class="dv">360</span>):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    cfg <span class="op">=</span> {<span class="op">**</span>cfg, <span class="st">"broadcast"</span>: <span class="va">True</span>, <span class="st">"broadcastGroup"</span>: <span class="st">"qc"</span>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    cx <span class="op">=</span> CanvasXpress(render_to<span class="op">=</span>cid, data<span class="op">=</span>data, config<span class="op">=</span>cfg, width<span class="op">=</span>w, height<span class="op">=</span>h)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> part <span class="kw">in</span> CXNoteBook(cx).render():</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        display(part)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="mapping-rate-vs-duplication-the-triage-plot" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-rate-vs-duplication-the-triage-plot">1 — Mapping rate vs duplication (the triage plot)</h3>
+<p>Bubble size is depth; failing libraries fall to the <strong>bottom-right</strong>. Lasso them here.</p>
+<div id="8a232ed8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>panel({<span class="st">"graphType"</span>: <span class="st">"Scatter2D"</span>, <span class="st">"xAxis"</span>: [<span class="st">"pct_duplication"</span>], <span class="st">"yAxis"</span>: [<span class="st">"pct_mapped"</span>],</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>       <span class="st">"colorBy"</span>: <span class="st">"Batch"</span>, <span class="st">"sizeBy"</span>: <span class="st">"total_reads"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="st">"title"</span>: <span class="st">"Mapping rate vs duplication — select the bottom-right"</span>}, <span class="st">"qcMap"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcMap" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcMap");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcMap removed for re-rendering.");
+  } else {
+    console.log("Chart qcMap ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcMap could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcMap = new CanvasXpress({"renderTo": "qcMap", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["pct_duplication"], "yAxis": ["pct_mapped"], "colorBy": "Batch", "sizeBy": "total_reads", "title": "Mapping rate vs duplication \u2014 select the bottom-right", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="contamination-vs-mapping" class="level3">
+<h3 class="anchored" data-anchor-id="contamination-vs-mapping">2 — Contamination vs mapping</h3>
+<div id="4bdf91e5" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>panel({<span class="st">"graphType"</span>: <span class="st">"Scatter2D"</span>, <span class="st">"xAxis"</span>: [<span class="st">"pct_mapped"</span>], <span class="st">"yAxis"</span>: [<span class="st">"contamination_freemix"</span>],</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>       <span class="st">"colorBy"</span>: <span class="st">"Batch"</span>, <span class="st">"title"</span>: <span class="st">"Contamination (freemix) vs mapping rate"</span>}, <span class="st">"qcContam"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcContam" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcContam");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcContam removed for re-rendering.");
+  } else {
+    console.log("Chart qcContam ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcContam could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcContam = new CanvasXpress({"renderTo": "qcContam", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["pct_mapped"], "yAxis": ["contamination_freemix"], "colorBy": "Batch", "title": "Contamination (freemix) vs mapping rate", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="q30-vs-gc-by-library-prep" class="level3">
+<h3 class="anchored" data-anchor-id="q30-vs-gc-by-library-prep">3 — Q30 vs GC, by library prep</h3>
+<div id="66a1edee" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>panel({<span class="st">"graphType"</span>: <span class="st">"Scatter2D"</span>, <span class="st">"xAxis"</span>: [<span class="st">"gc_content"</span>], <span class="st">"yAxis"</span>: [<span class="st">"pct_q30"</span>],</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>       <span class="st">"colorBy"</span>: <span class="st">"Library"</span>, <span class="st">"title"</span>: <span class="st">"Q30 vs GC content, coloured by library"</span>}, <span class="st">"qcQ30"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcQ30" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcQ30");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcQ30 removed for re-rendering.");
+  } else {
+    console.log("Chart qcQ30 ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcQ30 could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcQ30 = new CanvasXpress({"renderTo": "qcQ30", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["gc_content"], "yAxis": ["pct_q30"], "colorBy": "Library", "title": "Q30 vs GC content, coloured by library", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="sequencing-depth-per-sample" class="level3">
+<h3 class="anchored" data-anchor-id="sequencing-depth-per-sample">4 — Sequencing depth per sample</h3>
+<div id="4d91e972" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>panel({<span class="st">"graphType"</span>: <span class="st">"Bar"</span>, <span class="st">"graphOrientation"</span>: <span class="st">"vertical"</span>, <span class="st">"xAxis"</span>: [<span class="st">"total_reads"</span>],</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>       <span class="st">"colorBy"</span>: <span class="st">"Batch"</span>, <span class="st">"title"</span>: <span class="st">"Total reads per sample (flag the short ones)"</span>}, <span class="st">"qcReads"</span>, w<span class="op">=</span><span class="dv">820</span>, h<span class="op">=</span><span class="dv">300</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcReads" width="820" height="300"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcReads");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcReads removed for re-rendering.");
+  } else {
+    console.log("Chart qcReads ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcReads could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcReads = new CanvasXpress({"renderTo": "qcReads", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Bar", "graphOrientation": "vertical", "xAxis": ["total_reads"], "colorBy": "Batch", "title": "Total reads per sample (flag the short ones)", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Lasso the bad cluster in panel 1 and panels 2–4 immediately restrict to those samples — you can read their contamination, library and depth without a single callback. The “wiring” is one shared group id.</p>
+</section>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>Each panel is a portable <code>data</code> + <code>config</code> spec; the cross-filter is just a shared <code>broadcastGroup</code>. The same specs reproduce the dashboard from R or JavaScript, against the same <code>ngs-qc.csv</code>.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../network-graphs-in-python/">Interactive network graphs in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/neuhausi\.github\.io\/canvasxpress-blog");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://www.r-bloggers.com">
+<p>Syndicated on R-bloggers</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../../../about.html">
+<p>About</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://canvasxpress.org">
+<p>canvasXpress</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

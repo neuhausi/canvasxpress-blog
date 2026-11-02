@@ -2,6 +2,9 @@
   {
     "listing": "/r.html",
     "items": [
+      "/posts/r/network-graphs-in-r/index.html",
+      "/posts/r/linked-dashboards-in-r/index.html",
+      "/posts/r/genome-tracks-in-r/index.html",
       "/posts/r/choropleth-maps-in-r/index.html",
       "/posts/r/sankey-diagrams-in-r/index.html",
       "/posts/r/violin-plots-in-r/index.html",
@@ -15,6 +18,15 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/js/network-graphs-in-javascript/index.html",
+      "/posts/js/genome-tracks-in-javascript/index.html",
+      "/posts/js/linked-dashboards-in-javascript/index.html",
+      "/posts/python/network-graphs-in-python/index.html",
+      "/posts/python/linked-dashboards-in-python/index.html",
+      "/posts/python/genome-tracks-in-python/index.html",
+      "/posts/r/network-graphs-in-r/index.html",
+      "/posts/r/linked-dashboards-in-r/index.html",
+      "/posts/r/genome-tracks-in-r/index.html",
       "/posts/js/choropleth-maps-in-javascript/index.html",
       "/posts/python/choropleth-maps-in-python/index.html",
       "/posts/r/choropleth-maps-in-r/index.html",
@@ -40,6 +52,9 @@
   {
     "listing": "/js.html",
     "items": [
+      "/posts/js/network-graphs-in-javascript/index.html",
+      "/posts/js/genome-tracks-in-javascript/index.html",
+      "/posts/js/linked-dashboards-in-javascript/index.html",
       "/posts/js/choropleth-maps-in-javascript/index.html",
       "/posts/js/sankey-diagrams-in-javascript/index.html",
       "/posts/js/violin-plots-in-javascript/index.html",
@@ -51,6 +66,9 @@
   {
     "listing": "/python.html",
     "items": [
+      "/posts/python/network-graphs-in-python/index.html",
+      "/posts/python/linked-dashboards-in-python/index.html",
+      "/posts/python/genome-tracks-in-python/index.html",
       "/posts/python/choropleth-maps-in-python/index.html",
       "/posts/python/sankey-diagrams-in-python/index.html",
       "/posts/python/violin-plots-in-python/index.html",

@@ -10,7 +10,2063 @@
 <atom:link href="https://neuhausi.github.io/canvasxpress-blog/python.xml" rel="self" type="application/rss+xml"/>
 <description>Interactive, reproducible scientific visualization with canvasXpress — in R, Python and JavaScript.</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Wed, 07 Oct 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 30 Oct 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Interactive network graphs in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/network-graphs-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A network graph shows <strong>relationships</strong>: nodes connected by edges, laid out so connected things sit near each other. The usual Python reach is <code>networkx</code> + matplotlib (static) or <code>pyvis</code>. Here we build one with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — draggable, hover-labelled, force-directed, and reproducible from a single portable spec.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>canvasXpress builds a network from two lists: <strong>nodes</strong> (<code>id</code>, <code>name</code>, <code>group</code>) and <strong>edges</strong> (<code>id1</code>, <code>id2</code>, <code>value</code>). Swap this simulated three-community graph for your own.</p>
+<div id="d93a4a56" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> random</span>
+<span id="cb2-2">random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4">groups <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alpha"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Beta"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Gamma"</span>]</span>
+<span id="cb2-5">nodes, by_group <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [], {g: [] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> groups}</span>
+<span id="cb2-6">k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb2-7"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> groups:</span>
+<span id="cb2-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>):</span>
+<span id="cb2-9">        nid <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"n</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>k<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> nodes.append({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>: nid, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>g<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"group"</span>: g})</span>
+<span id="cb2-10">        by_group[g].append(nid)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb2-11"></span>
+<span id="cb2-12">edges <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb2-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> groups:                                   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># dense within a community</span></span>
+<span id="cb2-14">    m <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> by_group[g]</span>
+<span id="cb2-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(m)):</span>
+<span id="cb2-16">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> j <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(m)):</span>
+<span id="cb2-17">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> random.random() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>:</span>
+<span id="cb2-18">                edges.append({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id1"</span>: m[i], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id2"</span>: m[j], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>: random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)})</span>
+<span id="cb2-19"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>):                                 <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># a few cross-community links</span></span>
+<span id="cb2-20">    g1, g2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> random.sample(groups, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb2-21">    edges.append({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id1"</span>: random.choice(by_group[g1]), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id2"</span>: random.choice(by_group[g2]), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>})</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<div id="499d16e7" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nodes"</span>: nodes, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"edges"</span>: edges}</span>
+<span id="cb3-6">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Network"</span>,</span>
+<span id="cb3-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"networkLayoutType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"forceDirected"</span>,</span>
+<span id="cb3-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorNodeBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"group"</span>,</span>
+<span id="cb3-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nodeSize"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>,</span>
+<span id="cb3-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"showAnimation"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A small community network"</span>,</span>
+<span id="cb3-13">}</span>
+<span id="cb3-14"></span>
+<span id="cb3-15">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"network"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">650</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb3-16"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb3-17">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="network" width="650" height="500"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("network");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart network removed for re-rendering.");
+  } else {
+    console.log("Chart network ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart network could not be cleaned for re-rendering:", error);
+}
+
+var chart_network = new CanvasXpress({"renderTo": "network", "data": {"nodes": [{"id": "n0", "name": "Alpha1", "group": "Alpha"}, {"id": "n1", "name": "Alpha2", "group": "Alpha"}, {"id": "n2", "name": "Alpha3", "group": "Alpha"}, {"id": "n3", "name": "Alpha4", "group": "Alpha"}, {"id": "n4", "name": "Alpha5", "group": "Alpha"}, {"id": "n5", "name": "Alpha6", "group": "Alpha"}, {"id": "n6", "name": "Alpha7", "group": "Alpha"}, {"id": "n7", "name": "Beta1", "group": "Beta"}, {"id": "n8", "name": "Beta2", "group": "Beta"}, {"id": "n9", "name": "Beta3", "group": "Beta"}, {"id": "n10", "name": "Beta4", "group": "Beta"}, {"id": "n11", "name": "Beta5", "group": "Beta"}, {"id": "n12", "name": "Beta6", "group": "Beta"}, {"id": "n13", "name": "Beta7", "group": "Beta"}, {"id": "n14", "name": "Gamma1", "group": "Gamma"}, {"id": "n15", "name": "Gamma2", "group": "Gamma"}, {"id": "n16", "name": "Gamma3", "group": "Gamma"}, {"id": "n17", "name": "Gamma4", "group": "Gamma"}, {"id": "n18", "name": "Gamma5", "group": "Gamma"}, {"id": "n19", "name": "Gamma6", "group": "Gamma"}, {"id": "n20", "name": "Gamma7", "group": "Gamma"}], "edges": [{"id1": "n0", "id2": "n1", "value": 1}, {"id1": "n0", "id2": "n2", "value": 4}, {"id1": "n0", "id2": "n4", "value": 4}, {"id1": "n0", "id2": "n6", "value": 1}, {"id1": "n1", "id2": "n3", "value": 5}, {"id1": "n1", "id2": "n5", "value": 4}, {"id1": "n1", "id2": "n6", "value": 2}, {"id1": "n2", "id2": "n4", "value": 3}, {"id1": "n2", "id2": "n5", "value": 1}, {"id1": "n3", "id2": "n4", "value": 4}, {"id1": "n7", "id2": "n10", "value": 2}, {"id1": "n8", "id2": "n9", "value": 5}, {"id1": "n8", "id2": "n11", "value": 3}, {"id1": "n8", "id2": "n12", "value": 3}, {"id1": "n10", "id2": "n12", "value": 3}, {"id1": "n14", "id2": "n16", "value": 2}, {"id1": "n14", "id2": "n18", "value": 2}, {"id1": "n14", "id2": "n19", "value": 3}, {"id1": "n14", "id2": "n20", "value": 5}, {"id1": "n15", "id2": "n16", "value": 2}, {"id1": "n15", "id2": "n18", "value": 4}, {"id1": "n15", "id2": "n20", "value": 3}, {"id1": "n16", "id2": "n20", "value": 2}, {"id1": "n17", "id2": "n18", "value": 2}, {"id1": "n19", "id2": "n20", "value": 5}, {"id1": "n10", "id2": "n16", "value": 1}, {"id1": "n17", "id2": "n6", "value": 1}, {"id1": "n18", "id2": "n6", "value": 1}, {"id1": "n17", "id2": "n0", "value": 1}, {"id1": "n11", "id2": "n18", "value": 1}, {"id1": "n3", "id2": "n13", "value": 1}], "x": null, "z": null}, "config": {"graphType": "Network", "networkLayoutType": "forceDirected", "colorNodeBy": "group", "nodeSize": 25, "showAnimation": true, "title": "A small community network"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Drag any node and the layout settles around it; hover to read the label. The three communities separate on their own because within-group edges outnumber the cross-group ones.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The nodes, edges and <code>config</code> <strong>are</strong> the figure — one portable JSON spec that renders the identical network from R or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../sankey-diagrams-in-python/">Sankey / alluvial diagrams in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>network</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/network-graphs-in-python/</guid>
+  <pubDate>Fri, 30 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/network-graphs-in-python/thumbnail.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
+<item>
+  <title>An interactive NGS sequencing-QC dashboard in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/linked-dashboards-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>After a sequencing run you get a QC table — one row per sample, a dozen metrics — and you need to answer three questions fast: <strong>which samples fail, is a whole batch off, and are the failures correlated?</strong> A single scatter can’t do it; you want several views that <strong>talk to each other</strong> — select a suspicious sample in one and see it light up in the rest. In Python that usually means Dash or Streamlit (a server, callbacks). canvasXpress does it client-side: give every panel the same <strong>broadcast group</strong> and a selection broadcasts to all of them. Here we build a real QC dashboard for 96 RNA/exome samples.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-qc-table" class="level2">
+<h2 class="anchored" data-anchor-id="the-qc-table">The QC table</h2>
+<p>96 samples with mapping rate, duplication, Q30, GC, insert size and contamination (VerifyBamID <code>freemix</code>), plus lane / batch / library annotations. (Download: <a href="ngs-qc.csv"><code>ngs-qc.csv</code></a>.)</p>
+<div id="1697589b" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> csv, statistics <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> st</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(csv.DictReader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ngs-qc.csv"</span>)))</span>
+<span id="cb2-4">metrics <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"total_reads"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_mapped"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_duplication"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_q30"</span>,</span>
+<span id="cb2-5">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gc_content"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"insert_size"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contamination_freemix"</span>]</span>
+<span id="cb2-6"></span>
+<span id="cb2-7">samples <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sample"</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> r <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> rows]</span>
+<span id="cb2-8">annot   <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lane"</span>: [r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lane"</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> r <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> rows], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>: [r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"batch"</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> r <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> rows],</span>
+<span id="cb2-9">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Library"</span>: [r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"library"</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> r <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> rows]}</span>
+<span id="cb2-10">raw <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {m: [<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>(r[m]) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> r <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> rows] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> metrics}</span>
+<span id="cb2-11"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(samples), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"samples,"</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(metrics), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"metrics"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>96 samples, 7 metrics</code></pre>
+</div>
+</div>
+</section>
+<section id="overview-a-clustered-qc-heatmap" class="level2">
+<h2 class="anchored" data-anchor-id="overview-a-clustered-qc-heatmap">Overview — a clustered QC heatmap</h2>
+<p>Z-score each metric and cluster: outlier samples and any batch/library structure jump out at a glance. This is the “is anything wrong, and where” view. Here the matrix is metrics × samples.</p>
+<div id="54355646" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb4-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb4-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb4-4"></span>
+<span id="cb4-5">z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {m: [(v <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> st.mean(raw[m])) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (st.pstdev(raw[m]) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">or</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> v <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> raw[m]] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> metrics}</span>
+<span id="cb4-6">hm <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: metrics, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: samples, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(x, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> z[m]] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> metrics]},</span>
+<span id="cb4-7">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>: annot[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Library"</span>: annot[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Library"</span>]}}</span>
+<span id="cb4-8"></span>
+<span id="cb4-9">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qcHeat"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>hm, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">820</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">420</span>, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>{</span>
+<span id="cb4-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Heatmap"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"samplesClustered"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"variablesClustered"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb4-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorSpectrum"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"navy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"firebrick3"</span>],</span>
+<span id="cb4-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"QC metrics (z-scored) — 96 samples clustered"</span>})</span>
+<span id="cb4-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb4-14">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcHeat" width="820" height="420"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcHeat");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcHeat removed for re-rendering.");
+  } else {
+    console.log("Chart qcHeat ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcHeat could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcHeat = new CanvasXpress({"renderTo": "qcHeat", "data": {"y": {"vars": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "smps": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "data": [[-0.3, -0.23, -1.09, 1.27, 0.25, -0.64, 0.4, 0.61, -0.67, 0.94, -0.97, 0.69, 0.77, 0.52, 0.49, -0.09, 1.83, 0.19, 0.58, -0.63, -1.06, 1.84, 0.21, 0.88, -1.63, 1.39, 0.57, -1.77, 0.22, -1.3, 0.2, -0.56, 1.05, -0.72, 0.16, -1.95, -0.76, 1.02, -0.24, 2.18, -2.13, 0.63, -0.71, 1.05, -0.33, -0.96, 0.35, -0.35, 0.13, -1.78, 0.93, -0.18, 0.54, 0.1, -0.26, -2.22, -0.85, 1.01, 0.09, -0.92, 0.18, -1.14, -1.39, 0.51, -1.41, 0.58, -1.04, 0.91, -0.6, 0.67, -0.03, 0.66, 0.18, -1.29, -0.84, -1.34, -0.81, -0.41, 1.04, 0.72, 1.2, 0.82, 0.43, 3.01, 1.03, -1.17, -0.45, -0.6, 1.3, -0.57, 0.22, 0.95, -1.35, 0.73, 1.21, 0.25], [0.29, -1.51, 1.73, 1.18, 0.14, 0.28, 1.02, 0.65, 0.96, 1.41, -0.68, -0.6, -0.03, -0.66, 1.11, -1.68, 0.04, 0.96, -0.78, -0.75, -3.5, 1.25, -1.01, -0.54, -1.1, 0.04, 0.77, 0.69, 1.74, 0.52, -1.1, -0.35, 0.32, -0.83, -0.6, 0.34, -0.71, -0.77, 0.03, 0.37, -1.03, 0.17, 0.8, 1.18, -0.96, 0.18, 0.95, -0.29, 1.62, -1.18, 0.88, 0.42, 0.91, 0.74, 1.74, 0.66, -0.09, 0.39, 0.97, 0.07, -2.43, -0.31, 0.77, -2.7, -1.87, 1.74, 0.23, -0.06, -0.12, 0.02, -1.08, 0.19, 0.26, 0.69, -0.15, -2.81, 1.06, 0.32, -0.25, -0.22, 0.2, 0.98, -0.52, 0.5, -0.19, -0.54, 0.26, 0.03, -0.26, 0.12, 0.11, 0.36, -1.05, 0.88, -1.13, 0.19], [-0.38, -0.15, -1.0, -0.07, -0.51, -0.07, 0.81, 0.68, -0.17, 2.25, 0.09, 1.54, -0.4, -0.61, -1.37, 1.31, 0.51, -1.47, -1.68, 0.32, 1.73, -0.37, 1.4, -1.11, -1.76, -1.28, -0.63, 0.67, -1.25, 0.31, -0.58, 1.07, -0.85, 1.47, -1.55, -0.06, -0.84, -0.4, -0.51, 0.7, 0.38, 1.94, -0.83, 0.41, -0.57, -1.34, -0.44, -0.45, -0.6, 0.85, -0.38, 1.21, -0.64, 0.21, -1.21, -0.92, -1.26, 1.01, -0.42, -1.5, 1.3, 0.59, -0.31, 2.58, 2.62, -0.88, 0.13, 0.16, -1.03, 1.26, -0.27, -1.14, -0.55, 0.94, -0.33, 1.08, -0.54, -0.34, 0.91, 0.11, -0.97, 0.05, -0.07, 0.19, -1.58, 0.77, -1.29, 0.84, -0.37, 0.72, 0.9, 1.8, 1.16, 0.1, 0.13, 0.09], [-1.13, 1.28, -0.58, 0.56, -0.09, -0.2, -0.17, 0.23, 0.13, -0.82, -1.96, 0.35, -0.07, -0.24, -0.77, 1.11, 0.88, -0.97, -0.66, 0.21, 1.13, 1.73, -1.63, -0.64, 0.46, -0.17, 0.61, 1.91, -2.8, 0.54, -0.17, 0.25, 0.73, 0.18, -0.09, -0.27, 0.11, -0.8, -0.36, 0.32, 0.29, 0.23, 0.52, 2.04, -0.44, 1.3, -0.22, -0.71, -1.53, 1.33, -1.61, -0.19, -1.27, -0.67, -0.2, -2.11, -0.85, -1.34, 0.33, -1.66, 1.72, -0.45, 0.42, -1.24, 1.9, 0.61, 0.01, -2.49, 0.19, -0.67, -1.19, 0.62, 1.21, -0.66, 0.84, -0.95, -0.37, 0.01, 0.56, 0.62, 0.85, 0.91, 0.09, -0.25, 1.87, 0.32, 0.8, 2.06, -0.25, 1.25, -0.56, 1.21, 0.0, -0.33, 0.79, -0.79], [-1.07, -0.46, 0.6, -1.11, -0.77, -0.48, -0.04, 0.14, 1.66, -0.92, -0.92, -0.0, -1.24, -0.1, -1.69, 1.2, -2.4, -0.33, -1.8, 1.05, -0.09, 1.26, 0.11, -0.23, -0.69, 1.2, -0.16, 0.65, -1.65, -0.04, 0.44, -0.98, 0.42, -2.2, 1.14, 1.75, -0.92, -0.49, 2.42, 0.06, -0.13, 0.11, -0.5, -2.34, 0.55, 0.01, -0.01, 0.4, -1.65, 0.89, -0.05, -0.56, 0.14, 2.22, -0.84, -0.23, 1.48, -1.33, -0.42, 1.01, -0.4, 0.27, 0.89, -0.37, 0.49, 0.27, -2.35, -0.48, 1.45, -0.74, 1.56, 1.35, 0.26, 0.01, 0.43, 0.63, 1.18, -0.44, -0.12, -1.43, 0.23, 0.68, 0.28, 0.92, 0.36, 0.21, 0.02, 1.02, 0.54, 1.35, -0.89, 0.46, 0.81, 0.32, -1.2, 0.34], [0.51, 0.11, 0.27, 0.54, 2.06, 0.83, -2.03, -0.61, 0.0, 0.96, 0.83, 0.32, 0.86, -0.96, -0.8, -2.17, 0.08, -0.67, 1.04, 0.19, -0.19, -1.04, 0.72, -0.16, 1.1, 0.75, -0.29, -0.69, -0.56, 0.94, 1.02, 1.23, -0.94, -1.39, -0.61, -0.35, 0.46, 0.78, 2.09, -1.47, -1.28, -3.4, -0.51, -1.12, 0.86, -0.59, 0.78, -0.29, -0.29, -0.75, -1.34, 1.82, 1.39, -0.37, -0.83, -0.24, -0.29, -0.11, 1.26, 0.11, -0.61, 1.23, 0.48, -0.48, -0.11, -1.1, 0.99, -0.35, 0.72, -1.04, -0.32, 0.67, -0.11, 1.1, 0.24, -2.09, 1.2, 0.8, 0.86, 2.41, -0.05, 0.96, -0.35, -1.26, -1.1, 0.38, 0.16, -0.21, -0.05, -0.48, -0.03, -0.11, -0.24, 0.32, 1.58, -1.58], [-0.15, -1.46, 0.2, 0.88, 1.41, 0.61, 1.7, 0.8, -1.27, 1.57, 0.27, 0.9, -0.68, 0.02, -1.15, 1.03, -1.2, -0.94, 0.21, 1.7, -0.65, 1.2, -1.0, -1.11, 1.49, -1.58, -1.23, 1.76, 0.95, -1.26, 1.8, -0.88, 1.81, -0.03, -0.07, -0.77, 0.8, -1.13, -0.64, -1.38, 1.56, 0.02, -0.2, -1.37, -0.83, -1.1, 0.06, -0.04, -0.86, -1.55, -1.2, -0.34, -1.04, -0.1, -0.82, -0.29, 1.13, 1.09, 0.77, -0.94, 0.41, -0.47, -1.48, 1.0, 1.61, -1.48, 1.01, 0.05, 0.75, 0.36, -0.7, 1.52, -0.92, -0.74, -0.47, -1.01, 0.8, 0.58, -0.09, -0.76, 0.37, 0.9, -0.41, 1.39, 0.53, 1.24, -1.55, 0.9, 1.24, -0.67, -1.05, -0.14, 0.12, 0.95, 0.18, -0.4]]}, "x": {"Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "z": null}, "config": {"graphType": "Heatmap", "samplesClustered": true, "variablesClustered": true, "colorSpectrum": ["navy", "white", "firebrick3"], "title": "QC metrics (z-scored) \u2014 96 samples clustered"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="the-linked-triage-dashboard" class="level2">
+<h2 class="anchored" data-anchor-id="the-linked-triage-dashboard">The linked triage dashboard</h2>
+<p>Four panels over the <strong>same samples</strong>, all sharing <code>broadcastGroup: "qc"</code>. The sample is the unit, so each sample is a point and its lane/batch/library live in the per-sample annotation <code>z</code>. Select points in any panel and the same samples re-mark everywhere.</p>
+<div id="b56999fe" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sample-centric: vars = samples (points), smps = metrics (axes), z = per-sample annotations.</span></span>
+<span id="cb5-2">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"y"</span>: {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vars"</span>: samples, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"smps"</span>: metrics, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [[raw[m][i] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> metrics] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(samples))]},</span>
+<span id="cb5-3">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: annot}</span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> panel(cfg, cid, w<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, h<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">360</span>):</span>
+<span id="cb5-6">    cfg <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>cfg, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"broadcast"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"broadcastGroup"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qc"</span>}</span>
+<span id="cb5-7">    cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>cid, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>cfg, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>w, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>h)</span>
+<span id="cb5-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb5-9">        display(part)</span></code></pre></div>
+</div>
+<section id="mapping-rate-vs-duplication-the-triage-plot" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-rate-vs-duplication-the-triage-plot">1 — Mapping rate vs duplication (the triage plot)</h3>
+<p>Bubble size is depth; failing libraries fall to the <strong>bottom-right</strong>. Lasso them here.</p>
+<div id="8a232ed8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">panel({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatter2D"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_duplication"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_mapped"</span>],</span>
+<span id="cb6-2">       <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sizeBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"total_reads"</span>,</span>
+<span id="cb6-3">       <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mapping rate vs duplication — select the bottom-right"</span>}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qcMap"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcMap" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcMap");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcMap removed for re-rendering.");
+  } else {
+    console.log("Chart qcMap ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcMap could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcMap = new CanvasXpress({"renderTo": "qcMap", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["pct_duplication"], "yAxis": ["pct_mapped"], "colorBy": "Batch", "sizeBy": "total_reads", "title": "Mapping rate vs duplication \u2014 select the bottom-right", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="contamination-vs-mapping" class="level3">
+<h3 class="anchored" data-anchor-id="contamination-vs-mapping">2 — Contamination vs mapping</h3>
+<div id="4bdf91e5" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">panel({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatter2D"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_mapped"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contamination_freemix"</span>],</span>
+<span id="cb7-2">       <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Contamination (freemix) vs mapping rate"</span>}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qcContam"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcContam" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcContam");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcContam removed for re-rendering.");
+  } else {
+    console.log("Chart qcContam ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcContam could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcContam = new CanvasXpress({"renderTo": "qcContam", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["pct_mapped"], "yAxis": ["contamination_freemix"], "colorBy": "Batch", "title": "Contamination (freemix) vs mapping rate", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="q30-vs-gc-by-library-prep" class="level3">
+<h3 class="anchored" data-anchor-id="q30-vs-gc-by-library-prep">3 — Q30 vs GC, by library prep</h3>
+<div id="66a1edee" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1">panel({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatter2D"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gc_content"</span>], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pct_q30"</span>],</span>
+<span id="cb8-2">       <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Library"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Q30 vs GC content, coloured by library"</span>}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qcQ30"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcQ30" width="640" height="360"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcQ30");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcQ30 removed for re-rendering.");
+  } else {
+    console.log("Chart qcQ30 ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcQ30 could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcQ30 = new CanvasXpress({"renderTo": "qcQ30", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Scatter2D", "xAxis": ["gc_content"], "yAxis": ["pct_q30"], "colorBy": "Library", "title": "Q30 vs GC content, coloured by library", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+</section>
+<section id="sequencing-depth-per-sample" class="level3">
+<h3 class="anchored" data-anchor-id="sequencing-depth-per-sample">4 — Sequencing depth per sample</h3>
+<div id="4d91e972" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">panel({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Bar"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphOrientation"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vertical"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xAxis"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"total_reads"</span>],</span>
+<span id="cb9-2">       <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colorBy"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Batch"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total reads per sample (flag the short ones)"</span>}, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qcReads"</span>, w<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">820</span>, h<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="qcReads" width="820" height="300"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("qcReads");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart qcReads removed for re-rendering.");
+  } else {
+    console.log("Chart qcReads ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart qcReads could not be cleaned for re-rendering:", error);
+}
+
+var chart_qcReads = new CanvasXpress({"renderTo": "qcReads", "data": {"y": {"vars": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008", "S009", "S010", "S011", "S012", "S013", "S014", "S015", "S016", "S017", "S018", "S019", "S020", "S021", "S022", "S023", "S024", "S025", "S026", "S027", "S028", "S029", "S030", "S031", "S032", "S033", "S034", "S035", "S036", "S037", "S038", "S039", "S040", "S041", "S042", "S043", "S044", "S045", "S046", "S047", "S048", "S049", "S050", "S051", "S052", "S053", "S054", "S055", "S056", "S057", "S058", "S059", "S060", "S061", "S062", "S063", "S064", "S065", "S066", "S067", "S068", "S069", "S070", "S071", "S072", "S073", "S074", "S075", "S076", "S077", "S078", "S079", "S080", "S081", "S082", "S083", "S084", "S085", "S086", "S087", "S088", "S089", "S090", "S091", "S092", "S093", "S094", "S095", "S096"], "smps": ["total_reads", "pct_mapped", "pct_duplication", "pct_q30", "gc_content", "insert_size", "contamination_freemix"], "data": [[39731273.0, 93.85, 11.9, 89.58, 44.63, 295.0, 0.0165], [40380961.0, 86.82, 13.41, 94.49, 46.71, 280.0, 0.0015], [32582992.0, 99.47, 7.88, 90.7, 50.27, 286.0, 0.0205], [53943211.0, 97.33, 13.95, 93.02, 44.51, 296.0, 0.0283], [44716872.0, 93.27, 11.08, 91.7, 45.65, 353.0, 0.0344], [36599101.0, 93.81, 13.99, 91.47, 46.64, 307.0, 0.0252], [46095164.0, 96.7, 19.76, 91.54, 48.13, 200.0, 0.0377], [48000008.0, 95.26, 18.89, 92.35, 48.73, 253.0, 0.0274], [36369073.0, 96.45, 13.29, 92.15, 53.85, 276.0, 0.0037], [50969240.0, 98.24, 29.2, 90.22, 45.15, 312.0, 0.0363], [33599116.0, 90.06, 14.99, 87.9, 45.15, 307.0, 0.0214], [48655822.0, 90.39, 24.5, 92.59, 48.25, 288.0, 0.0286], [49427201.0, 92.61, 11.81, 91.74, 44.08, 308.0, 0.0104], [47119993.0, 90.14, 10.41, 91.39, 47.9, 240.0, 0.0185], [46853194.0, 97.07, 5.44, 90.31, 42.56, 246.0, 0.005], [41603968.0, 86.13, 23.03, 94.13, 52.31, 195.0, 0.0301], [59046428.0, 92.89, 17.75, 93.67, 40.16, 279.0, 0.0045], [44160518.0, 96.46, 4.81, 89.9, 47.14, 251.0, 0.0074], [47727667.0, 89.67, 3.39, 90.54, 42.19, 315.0, 0.0206], [36724246.0, 89.8, 16.5, 92.31, 51.81, 283.0, 0.0378], [32834123.0, 79.02, 25.79, 94.17, 47.94, 269.0, 0.0108], [59130932.0, 97.62, 11.99, 95.4, 52.51, 237.0, 0.032], [44365467.0, 88.78, 23.6, 88.56, 48.62, 303.0, 0.0068], [50373280.0, 90.6, 7.17, 90.58, 47.49, 270.0, 0.0055], [27634567.0, 88.41, 2.91, 92.81, 45.91, 317.0, 0.0353], [55067555.0, 92.88, 6.01, 91.54, 52.3, 304.0, 0.0001], [47573074.0, 95.73, 10.26, 93.11, 47.71, 265.0, 0.0041], [26419904.0, 95.42, 18.8, 95.77, 50.43, 250.0, 0.0384], [44382069.0, 99.5, 6.25, 86.2, 42.67, 255.0, 0.0291], [30681013.0, 94.75, 16.45, 92.97, 48.13, 311.0, 0.0038], [44211734.0, 88.42, 10.6, 91.53, 49.74, 314.0, 0.0389], [37321516.0, 91.33, 21.43, 92.38, 44.94, 322.0, 0.0081], [51980437.0, 93.95, 8.86, 93.36, 49.68, 241.0, 0.039], [35908215.0, 89.48, 24.07, 92.25, 40.83, 224.0, 0.0179], [43841593.0, 90.38, 4.28, 91.69, 52.09, 253.0, 0.0174], [24751211.0, 94.05, 14.02, 91.33, 54.14, 263.0, 0.0094], [35531985.0, 89.94, 8.89, 92.11, 45.14, 293.0, 0.0274], [51665363.0, 89.7, 11.8, 90.25, 46.59, 305.0, 0.0053], [40270860.0, 92.83, 11.11, 91.15, 56.42, 354.0, 0.0109], [62194964.0, 94.15, 18.98, 92.54, 48.46, 221.0, 0.0024], [23130329.0, 88.7, 16.89, 92.46, 47.81, 228.0, 0.0362], [48105118.0, 93.37, 27.16, 92.35, 48.63, 149.0, 0.0185], [36035403.0, 95.84, 8.99, 92.94, 46.56, 257.0, 0.016], [51977734.0, 97.33, 17.13, 96.02, 40.34, 234.0, 0.0025], [39437507.0, 88.95, 10.68, 90.99, 50.1, 308.0, 0.0087], [33750550.0, 93.43, 5.63, 94.53, 48.28, 254.0, 0.0056], [45625993.0, 96.44, 11.56, 91.44, 48.23, 305.0, 0.0189], [39267219.0, 91.57, 11.44, 90.43, 49.61, 265.0, 0.0178], [43603870.0, 99.05, 10.52, 88.77, 42.68, 265.0, 0.0084], [26322443.0, 88.1, 20.0, 94.59, 51.26, 248.0, 0.0005], [50827140.0, 96.17, 11.95, 88.6, 48.08, 226.0, 0.0045], [40761784.0, 94.36, 22.35, 91.5, 46.36, 344.0, 0.0143], [47320485.0, 96.26, 10.22, 89.31, 48.72, 328.0, 0.0063], [43369554.0, 95.62, 15.79, 90.51, 55.74, 262.0, 0.0171], [40114772.0, 99.5, 6.46, 91.48, 45.43, 245.0, 0.0088], [22339638.0, 95.3, 8.38, 87.6, 47.46, 267.0, 0.0149], [34758883.0, 92.38, 6.17, 90.16, 53.23, 265.0, 0.0312], [51604859.0, 94.24, 21.01, 89.15, 43.77, 272.0, 0.0307], [43270147.0, 96.49, 11.69, 92.55, 46.85, 323.0, 0.0271], [34107245.0, 92.97, 4.57, 88.51, 51.67, 280.0, 0.0074], [44048770.0, 83.22, 22.92, 95.37, 46.89, 253.0, 0.0229], [32112102.0, 91.49, 18.3, 90.97, 49.17, 322.0, 0.0128], [29809698.0, 95.74, 12.41, 92.73, 51.25, 294.0, 0.0013], [47040642.0, 82.17, 31.35, 89.37, 46.99, 258.0, 0.0297], [29626002.0, 85.39, 31.62, 95.75, 49.92, 272.0, 0.0367], [47661306.0, 99.5, 8.65, 93.12, 49.15, 235.0, 0.0013], [33024620.0, 93.63, 15.27, 91.9, 40.33, 313.0, 0.0298], [50703414.0, 92.5, 15.47, 86.82, 46.62, 263.0, 0.0188], [37015975.0, 92.23, 7.66, 92.26, 53.15, 303.0, 0.0268], [48527426.0, 92.78, 22.69, 90.51, 45.75, 237.0, 0.0224], [42127399.0, 88.49, 12.67, 89.46, 53.53, 264.0, 0.0102], [48366188.0, 93.46, 6.95, 93.15, 52.82, 301.0, 0.0357], [44082084.0, 93.74, 10.84, 94.33, 49.12, 272.0, 0.0077], [30703825.0, 95.42, 20.6, 90.54, 48.28, 317.0, 0.0098], [34817148.0, 92.11, 12.25, 93.58, 49.7, 285.0, 0.0129], [30327242.0, 81.72, 21.48, 89.96, 50.38, 198.0, 0.0066], [35056118.0, 96.86, 10.9, 91.12, 52.24, 321.0, 0.0274], [38741227.0, 93.97, 12.2, 91.9, 46.75, 306.0, 0.0249], [51892586.0, 91.75, 20.37, 93.02, 47.86, 308.0, 0.0172], [48967691.0, 91.86, 15.16, 93.14, 43.43, 366.0, 0.0095], [53294644.0, 93.5, 8.04, 93.6, 49.02, 274.0, 0.0225], [49837358.0, 96.54, 14.74, 93.72, 50.56, 312.0, 0.0286], [46298909.0, 90.68, 13.94, 92.06, 49.18, 263.0, 0.0135], [69724382.0, 94.67, 15.69, 91.37, 51.37, 229.0, 0.0342], [51769934.0, 91.97, 4.04, 95.67, 49.45, 235.0, 0.0243], [31818466.0, 90.59, 19.49, 92.53, 48.97, 290.0, 0.0325], [38365238.0, 93.75, 5.95, 93.5, 48.33, 282.0, 0.0005], [37024697.0, 92.84, 19.93, 96.06, 51.7, 268.0, 0.0286], [54204131.0, 91.71, 11.97, 91.38, 50.06, 274.0, 0.0325], [37236193.0, 93.17, 19.11, 94.41, 52.82, 258.0, 0.0106], [44443845.0, 93.16, 20.34, 90.74, 45.25, 275.0, 0.0062], [51079846.0, 94.13, 26.21, 94.33, 49.79, 272.0, 0.0166], [30167587.0, 88.6, 22.03, 91.89, 50.98, 267.0, 0.0196], [49060567.0, 96.15, 15.06, 91.21, 49.33, 288.0, 0.0292], [53415711.0, 88.31, 15.27, 93.49, 44.19, 335.0, 0.0203], [44717772.0, 93.47, 15.0, 90.28, 49.4, 217.0, 0.0136]]}, "z": {"Lane": ["L4", "L5", "L4", "L1", "L4", "L7", "L7", "L4", "L5", "L7", "L3", "L1", "L2", "L1", "L1", "L3", "L8", "L2", "L6", "L8", "L3", "L5", "L6", "L8", "L6", "L2", "L2", "L4", "L6", "L8", "L2", "L1", "L4", "L1", "L4", "L4", "L5", "L7", "L8", "L8", "L7", "L6", "L5", "L8", "L6", "L5", "L4", "L1", "L5", "L5", "L8", "L7", "L5", "L5", "L6", "L8", "L4", "L1", "L7", "L7", "L3", "L7", "L5", "L3", "L3", "L8", "L1", "L7", "L6", "L4", "L1", "L8", "L6", "L5", "L5", "L3", "L4", "L7", "L7", "L2", "L7", "L1", "L7", "L8", "L2", "L2", "L4", "L5", "L6", "L2", "L1", "L8", "L3", "L2", "L4", "L8"], "Batch": ["RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunB", "RunB", "RunB", "RunC", "RunC", "RunC", "RunB", "RunA", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunC", "RunB", "RunC", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunC", "RunA", "RunB", "RunA", "RunC", "RunB", "RunB", "RunC", "RunA", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunA", "RunB", "RunA", "RunC", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunC", "RunA", "RunB", "RunA", "RunB", "RunC", "RunB", "RunB", "RunB", "RunB", "RunC", "RunB", "RunB", "RunA", "RunA", "RunC", "RunB", "RunA", "RunB", "RunA", "RunB", "RunC", "RunC", "RunA", "RunA", "RunA", "RunC", "RunA", "RunC", "RunC", "RunA", "RunA", "RunA", "RunB", "RunC", "RunA", "RunC", "RunC"], "Library": ["PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "PolyA", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "RiboZero", "Exome", "RiboZero", "RiboZero", "RiboZero", "Exome", "RiboZero", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "RiboZero", "Exome", "PolyA", "Exome", "PolyA", "PolyA", "PolyA", "RiboZero", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "RiboZero", "PolyA", "Exome", "Exome", "PolyA", "RiboZero", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "RiboZero", "PolyA", "Exome", "Exome", "Exome", "RiboZero", "RiboZero", "PolyA", "RiboZero", "Exome", "Exome", "RiboZero", "PolyA", "PolyA", "PolyA", "PolyA", "PolyA", "Exome", "RiboZero", "RiboZero", "PolyA", "Exome", "PolyA", "RiboZero", "RiboZero", "PolyA", "RiboZero", "RiboZero", "RiboZero", "Exome", "PolyA", "PolyA", "Exome", "Exome"]}, "x": null}, "config": {"graphType": "Bar", "graphOrientation": "vertical", "xAxis": ["total_reads"], "colorBy": "Batch", "title": "Total reads per sample (flag the short ones)", "broadcast": true, "broadcastGroup": "qc"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Lasso the bad cluster in panel 1 and panels 2–4 immediately restrict to those samples — you can read their contamination, library and depth without a single callback. The “wiring” is one shared group id.</p>
+</section>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>Each panel is a portable <code>data</code> + <code>config</code> spec; the cross-filter is just a shared <code>broadcastGroup</code>. The same specs reproduce the dashboard from R or JavaScript, against the same <code>ngs-qc.csv</code>.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../network-graphs-in-python/">Interactive network graphs in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>dashboard</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/linked-dashboards-in-python/</guid>
+  <pubDate>Fri, 30 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/linked-dashboards-in-python/thumbnail.png" medium="image" type="image/png" height="110" width="144"/>
+</item>
+<item>
+  <title>Genome browser tracks in Python with canvasxpress</title>
+  <dc:creator>Isaac Neuhaus</dc:creator>
+  <link>https://neuhausi.github.io/canvasxpress-blog/posts/python/genome-tracks-in-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>A genome browser view stacks <strong>tracks</strong> that share one coordinate axis: coverage, gene models, variants. In Python this usually means <code>pyGenomeTracks</code> or a static matplotlib figure. Here we build an interactive, zoomable view with <a href="https://pypi.org/project/canvasxpress/">canvasxpress</a> — from one portable spec.</p>
+<section id="install" class="level2">
+<h2 class="anchored" data-anchor-id="install">Install</h2>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pip</span> install canvasxpress</span></code></pre></div>
+</section>
+<section id="the-data-shape" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-shape">The data shape</h2>
+<p>A Genome figure is a list of <strong>tracks</strong> that share one coordinate axis — each with a <code>type</code>. Real browser views stack several: here we build four — <strong>gene models</strong> (<code>box</code>, multi-exon, connected), <strong>coverage across three tissues</strong> (<code>bar</code>), an <strong>expression heatmap</strong> (<code>heatmap</code>), and <strong>variant markers</strong> (<code>triangle</code>).</p>
+<div id="a793e16b" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> random</span>
+<span id="cb2-2">random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Gene models: each gene is a set of exon [start, end] intervals, drawn connected.</span></span>
+<span id="cb2-5">genes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb2-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> j <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>):</span>
+<span id="cb2-7">    start <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> j <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span></span>
+<span id="cb2-8">    exons <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [[start <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, start <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>))]</span>
+<span id="cb2-9">    genes.append({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"GENE</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>j<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dir"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> j <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>,</span>
+<span id="cb2-10">                  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fill"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(70,130,220)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"outline"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(0,0,0)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: exons})</span>
+<span id="cb2-11"></span>
+<span id="cb2-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coverage and expression: one entry per binned position, three tissues each.</span></span>
+<span id="cb2-13">offsets  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">22</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">22</span>)]</span>
+<span id="cb2-14">coverage <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [{<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"p</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"offset"</span>: o,</span>
+<span id="cb2-15">             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>), random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>), random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>)]}</span>
+<span id="cb2-16">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, o <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(offsets)]</span>
+<span id="cb2-17">express  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [{<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"p</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"offset"</span>: o,</span>
+<span id="cb2-18">             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(random.gauss(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)]}</span>
+<span id="cb2-19">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, o <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(offsets)]</span>
+<span id="cb2-20"></span>
+<span id="cb2-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Variants: point markers at genomic positions.</span></span>
+<span id="cb2-22">snps <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [{<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"rs</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>k<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"offset"</span>: random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">520</span>),</span>
+<span id="cb2-23">         <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fill"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(200,40,40)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"outline"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(0,0,0)"</span>} <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)]</span>
+<span id="cb2-24"></span>
+<span id="cb2-25">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"tracks"</span>: [</span>
+<span id="cb2-26">    {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Genes (exon models)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"type"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"connect"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: genes},</span>
+<span id="cb2-27">    {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage — Heart / Liver / Kidney"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"type"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bar"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"height"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>,</span>
+<span id="cb2-28">     <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fill"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(80,80,200)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"outline"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(60,60,60)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: coverage},</span>
+<span id="cb2-29">    {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Expression (z-score)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"type"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"height"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">90</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: express},</span>
+<span id="cb2-30">    {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SNPs"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"type"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"triangle"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: snps},</span>
+<span id="cb2-31">]}</span></code></pre></div>
+</div>
+</section>
+<section id="the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="the-plot">The plot</h2>
+<div id="020b62c8" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.canvas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CanvasXpress</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> canvasxpress.render.jupyter <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CXNoteBook</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> IPython.display <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> display</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">config <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb3-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"graphType"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Genome"</span>,</span>
+<span id="cb3-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"background"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rgb(245,245,245)"</span>,</span>
+<span id="cb3-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"featureStaggered"</span>: <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Multi-track genome browser: genes, coverage, expression and variants"</span>,</span>
+<span id="cb3-10">}</span>
+<span id="cb3-11"></span>
+<span id="cb3-12">cx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CanvasXpress(render_to<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"genome"</span>, data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data, config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>config, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">760</span>, height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">520</span>)</span>
+<span id="cb3-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> part <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> CXNoteBook(cx).render():</span>
+<span id="cb3-14">    display(part)</span></code></pre></div>
+<div class="cell-output cell-output-display">
+
+</div>
+<div class="cell-output cell-output-display">
+
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; width: 100%;">
+  <div><canvas id="genome" width="760" height="520"></canvas></div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/javascript">
+
+// 1. First, handle CSS Insertion and wait for it to be completely ready
+new Promise((cssResolve, cssReject) => {
+    const cssUrl = "https://www.canvasxpress.org/dist/canvasXpress.css";
+    let existingLink = document.querySelector(`head link[href="${cssUrl}"]`);
+
+    if (!existingLink) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = cssUrl;
+        link.onload = () => {
+            link.dataset.state = "loaded";
+            link.dispatchEvent(new Event("assetLoaded"));
+            cssResolve();
+        };
+        link.onerror = () => {
+            link.dataset.state = "failed";
+            link.dispatchEvent(new Event("assetFailed"));
+            cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+        };
+        document.head.appendChild(link);
+    } else if (existingLink.dataset.state === "loaded") {
+        cssResolve();
+    } else if (existingLink.dataset.state === "failed") {
+        cssReject(new Error(`Failed to load CSS: ${cssUrl}`));
+    } else {
+        // Safe queueing for subsequent runs initiated while CSS is downloading
+        existingLink.addEventListener('assetLoaded', () => cssResolve(), { once: true });
+        existingLink.addEventListener('assetFailed', () => cssReject(new Error(`Failed to load CSS: ${cssUrl}`)), { once: true });
+    }
+})
+.then(() => {
+    // 2. CSS is guaranteed ready. Now handle JS Insertion
+    return new Promise((jsResolve, jsReject) => {
+        const scriptUrl = 'https://www.canvasxpress.org/dist/canvasXpress.min.js';
+        let existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+
+        if (existingScript) {
+            if (existingScript.dataset.state === "loaded") {
+                jsResolve();
+            } else if (existingScript.dataset.state === "failed") {
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            } else {
+                // Safe queueing for subsequent runs initiated while JS is downloading
+                existingScript.addEventListener('assetLoaded', () => jsResolve(), { once: true });
+                existingScript.addEventListener('assetFailed', () => jsReject(new Error(`Failed to load script: ${scriptUrl}`)), { once: true });
+            }
+        } else {
+            const script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = scriptUrl;
+            script.dataset.state = "loading";
+
+            script.onload = () => {
+                script.dataset.state = "loaded";
+                script.dispatchEvent(new Event("assetLoaded"));
+                jsResolve();
+            };
+            script.onerror = () => {
+                script.dataset.state = "failed";
+                script.dispatchEvent(new Event("assetFailed"));
+                jsReject(new Error(`Failed to load script: ${scriptUrl}`));
+            };
+            document.head.appendChild(script);
+        }
+    });
+})
+.then(() => { 
+    // 3. Both CSS and JS are ready in order. Run user payload.
+    
+try {
+  // 1. Get the chart object using the HTML element ID
+  let myChart = CanvasXpress.getObject("genome");
+  
+  // 2. Check if the chart exists before trying to delete it
+  if (myChart) {
+    myChart.destroy();
+    console.log("Chart genome removed for re-rendering.");
+  } else {
+    console.log("Chart genome ready for rendering.");
+  }
+} catch (error) {
+  // 3. Handle any unexpected errors safely
+  console.error("Chart genome could not be cleaned for re-rendering:", error);
+}
+
+var chart_genome = new CanvasXpress({"renderTo": "genome", "data": {"tracks": [{"name": "Genes (exon models)", "type": "box", "connect": true, "data": [{"id": "GENE1", "dir": "right", "fill": "rgb(70,130,220)", "outline": "rgb(0,0,0)", "data": [[40, 58], [70, 88]]}, {"id": "GENE2", "dir": "left", "fill": "rgb(70,130,220)", "outline": "rgb(0,0,0)", "data": [[160, 178], [190, 208], [220, 238], [250, 268]]}, {"id": "GENE3", "dir": "right", "fill": "rgb(70,130,220)", "outline": "rgb(0,0,0)", "data": [[280, 298], [310, 328], [340, 358], [370, 388]]}, {"id": "GENE4", "dir": "left", "fill": "rgb(70,130,220)", "outline": "rgb(0,0,0)", "data": [[400, 418], [430, 448]]}]}, {"name": "Coverage \u2014 Heart / Liver / Kidney", "type": "bar", "height": 120, "fill": "rgb(80,80,200)", "outline": "rgb(60,60,60)", "data": [{"id": "p0", "offset": 50, "data": [31, 38, 45]}, {"id": "p1", "offset": 72, "data": [12, 8, 38]}, {"id": "p2", "offset": 94, "data": [24, 43, 22]}, {"id": "p3", "offset": 116, "data": [20, 38, 42]}, {"id": "p4", "offset": 138, "data": [43, 38, 33]}, {"id": "p5", "offset": 160, "data": [17, 22, 17]}, {"id": "p6", "offset": 182, "data": [41, 32, 8]}, {"id": "p7", "offset": 204, "data": [12, 18, 45]}, {"id": "p8", "offset": 226, "data": [10, 27, 9]}, {"id": "p9", "offset": 248, "data": [25, 38, 32]}, {"id": "p10", "offset": 270, "data": [35, 33, 44]}, {"id": "p11", "offset": 292, "data": [36, 16, 31]}, {"id": "p12", "offset": 314, "data": [14, 10, 16]}, {"id": "p13", "offset": 336, "data": [39, 21, 24]}, {"id": "p14", "offset": 358, "data": [35, 27, 34]}, {"id": "p15", "offset": 380, "data": [40, 32, 44]}, {"id": "p16", "offset": 402, "data": [30, 42, 45]}, {"id": "p17", "offset": 424, "data": [34, 45, 22]}, {"id": "p18", "offset": 446, "data": [29, 9, 25]}, {"id": "p19", "offset": 468, "data": [18, 28, 42]}, {"id": "p20", "offset": 490, "data": [44, 44, 14]}, {"id": "p21", "offset": 512, "data": [21, 44, 25]}]}, {"name": "Expression (z-score)", "type": "heatmap", "height": 90, "data": [{"id": "p0", "offset": 50, "data": [-0.08, 0.35, 1.84]}, {"id": "p1", "offset": 72, "data": [-2.41, 1.53, 0.95]}, {"id": "p2", "offset": 94, "data": [-0.48, 0.3, -0.47]}, {"id": "p3", "offset": 116, "data": [1.65, 0.21, -0.22]}, {"id": "p4", "offset": 138, "data": [-0.23, -0.2, -0.18]}, {"id": "p5", "offset": 160, "data": [-0.88, 2.06, -1.91]}, {"id": "p6", "offset": 182, "data": [-3.61, -0.12, -0.15]}, {"id": "p7", "offset": 204, "data": [0.37, -0.2, -0.15]}, {"id": "p8", "offset": 226, "data": [0.33, 0.97, -0.45]}, {"id": "p9", "offset": 248, "data": [-0.37, 1.94, 0.53]}, {"id": "p10", "offset": 270, "data": [-0.99, 2.32, 0.78]}, {"id": "p11", "offset": 292, "data": [-0.59, -1.17, 0.3]}, {"id": "p12", "offset": 314, "data": [-0.83, -1.06, -1.3]}, {"id": "p13", "offset": 336, "data": [-0.51, 1.11, -0.43]}, {"id": "p14", "offset": 358, "data": [-1.45, 0.67, 0.07]}, {"id": "p15", "offset": 380, "data": [0.84, 1.2, -0.17]}, {"id": "p16", "offset": 402, "data": [-0.14, -0.05, -1.13]}, {"id": "p17", "offset": 424, "data": [0.67, 1.37, 0.17]}, {"id": "p18", "offset": 446, "data": [-0.24, -0.26, -0.78]}, {"id": "p19", "offset": 468, "data": [-0.8, -0.4, -0.84]}, {"id": "p20", "offset": 490, "data": [-0.44, -1.58, 0.35]}, {"id": "p21", "offset": 512, "data": [0.05, -1.15, -2.3]}]}, {"name": "SNPs", "type": "triangle", "data": [{"id": "rs1000", "offset": 173, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1001", "offset": 366, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1002", "offset": 278, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1003", "offset": 197, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1004", "offset": 348, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1005", "offset": 352, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1006", "offset": 208, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1007", "offset": 135, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}, {"id": "rs1008", "offset": 231, "fill": "rgb(200,40,40)", "outline": "rgb(0,0,0)"}]}], "x": null, "z": null}, "config": {"graphType": "Genome", "background": "rgb(245,245,245)", "featureStaggered": true, "title": "Multi-track genome browser: genes, coverage, expression and variants"}, "events": null}); 
+;
+
+ 
+})
+.catch((error) => {
+    console.error("CanvasXpress injection failed:", error);
+});
+
+
+</script>
+</div>
+</div>
+<p>Scroll/drag to pan and zoom into a region; every track stays locked to the shared coordinate axis, so the gene models, coverage, expression and variants line up position-for-position. Swap each track for your own pileup, annotation and VCF-derived data.</p>
+</section>
+<section id="why-reproducible" class="level2">
+<h2 class="anchored" data-anchor-id="why-reproducible">Why “reproducible”</h2>
+<p>The tracks and <code>config</code> <strong>are</strong> the figure — one portable JSON spec that renders the identical browser view from R or JavaScript, and can be validated and re-rendered later.</p>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li><a href="../network-graphs-in-python/">Interactive network graphs in Python</a></li>
+<li>Gallery: <a href="https://canvasxpress.org/examples.html" class="uri">https://canvasxpress.org/examples.html</a></li>
+<li>Package: <a href="https://pypi.org/project/canvasxpress/" class="uri">https://pypi.org/project/canvasxpress/</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>canvasxpress</category>
+  <category>genome</category>
+  <category>bioinformatics</category>
+  <category>visualization</category>
+  <guid>https://neuhausi.github.io/canvasxpress-blog/posts/python/genome-tracks-in-python/</guid>
+  <pubDate>Fri, 30 Oct 2026 04:00:00 GMT</pubDate>
+  <media:content url="https://neuhausi.github.io/canvasxpress-blog/posts/python/genome-tracks-in-python/thumbnail.png" medium="image" type="image/png" height="272" width="144"/>
+</item>
 <item>
   <title>Choropleth maps in Python with canvasxpress</title>
   <dc:creator>Isaac Neuhaus</dc:creator>
