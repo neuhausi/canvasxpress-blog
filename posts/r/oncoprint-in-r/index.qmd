@@ -1,0 +1,78 @@
+---
+title: "Oncoprints (mutation landscapes) in R with canvasXpress"
+description: "Draw a publication-style oncoprint — genes by tumours, with CNA and mutation overlays and per-gene frequencies — in R, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-26"
+categories: [R, canvasXpress, oncoprint, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+An oncoprint is the standard way to show a **mutation landscape**: genes down one axis, tumours
+along the other, each cell stacking the alterations that gene carries in that sample — copy-number
+amplification/deletion plus mutation type — with per-gene (or per-sample) frequencies alongside. In
+R the usual tool is `ComplexHeatmap::oncoPrint`. Here we build an interactive one with
+[canvasXpress](https://canvasxpress.org), from a single portable spec.
+
+## The data shape
+
+An oncoprint is a `Heatmap` with **overlay matrices**: a base matrix (`y`, here expression) plus
+same-shaped layers for copy-number (`data2`) and mutation (`data3`). Each overlay cell is a string
+like `"Amplification"`, `"Missense"`, or `""` for none.
+
+```{r}
+#| message: false
+library(canvasXpress)
+
+set.seed(5)
+genes   <- c("TP53", "KRAS", "PIK3CA", "PTEN", "EGFR", "BRAF",
+             "APC", "RB1", "NF1", "MYC", "CDKN2A", "ARID1A")
+samples <- sprintf("T%02d", 1:28)
+mutrate <- setNames(pmax(0.05, 0.5 * (1 - (seq_along(genes) - 1) / length(genes))), genes)
+
+base <- matrix(round(rnorm(length(genes) * length(samples)), 2),
+               nrow = length(genes), dimnames = list(genes, samples))
+
+CNA <- c("Amplification", "Deletion"); MUT <- c("Missense", "Nonsense", "Truncating")
+cna <- mut <- matrix("", length(genes), length(samples), dimnames = list(genes, samples))
+for (g in genes) for (s in samples) {
+  if (runif(1) < mutrate[g])       mut[g, s] <- sample(MUT, 1)
+  if (runif(1) < mutrate[g] * 0.5) cna[g, s] <- sample(CNA, 1)
+}
+
+smpAnnot <- data.frame(Subtype = sample(c("Basal", "Luminal", "HER2"), length(samples), replace = TRUE),
+                      row.names = samples)
+varAnnot <- data.frame(Pathway = rep(c("TSG", "Oncogene"), length.out = length(genes)),
+                      row.names = genes)
+```
+
+## The plot
+
+Pass the overlays in a named `data` list and point `oncoprintCNA` / `oncoprintMUT` at them. `xAxis`
+lists the samples.
+
+```{r}
+canvasXpress(
+  data          = list(y = base, data2 = cna, data3 = mut),
+  smpAnnot      = smpAnnot, varAnnot = varAnnot,
+  graphType     = "Heatmap",
+  oncoprintCNA  = "data2", oncoprintMUT = "data3",
+  overlaysThickness = 100,
+  xAxis         = as.list(samples),
+  title         = "Mutation landscape: 12 genes across 28 tumours",
+  width         = 820, height = 440
+)
+```
+
+canvasXpress sorts the waterfall for you and shows the alteration frequency per row. Hover a cell to
+read the exact alteration; swap the overlays for your own MAF / CNA calls.
+
+## Why "reproducible"
+
+The base matrix, the overlays and the `config` **are** the figure — one portable spec. The same spec
+renders the identical oncoprint from Python or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [A clustered heatmap in R](../clustered-heatmap-in-r/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://github.com/neuhausi/canvasXpress>

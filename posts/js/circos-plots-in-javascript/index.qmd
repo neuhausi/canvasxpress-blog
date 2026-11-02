@@ -1,0 +1,101 @@
+---
+title: "Circular (Circos-style) multi-track plots in JavaScript with CanvasXpress"
+description: "Draw a circular genome plot in the browser — stacked data tracks around a ring with connection ribbons — from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-25"
+categories: [JavaScript, CanvasXpress, circos, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+A circular (Circos-style) plot wraps a genome — or any ordered set of segments — into a ring, stacks
+several **data tracks** around it, and draws **ribbons** for relationships between positions. Building
+one in the browser by hand is serious trigonometry. CanvasXpress is a JavaScript library at heart, so
+it's a `tracks × segments` matrix plus a `config`.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+Rows are the tracks you draw, columns are the positions around the ring; `Region` segments the ring,
+and `circularConnections` is a list of `[colour, from, to]` ribbons.
+
+```html
+<canvas id="circ" width="560" height="560"></canvas>
+<script>
+  var segments = [], tracks = ["Expression", "Methylation", "CopyNumber", "Density"],
+      cols = ["rgb(220,40,40)", "rgb(40,120,220)", "rgb(40,160,60)", "rgb(240,150,20)"];
+  for (var i = 0; i < 80; i++) segments.push("s" + (i + 1));
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  var data_m = tracks.map(function () {
+    return segments.map(function () { return Math.round((Math.random() * 4 - 2) * 100) / 100; });
+  });
+  var region = segments.map(function (_, i) { return "chr" + (Math.floor(i / 20) + 1); });
+  var conns = [];
+  for (var c = 0; c < 18; c++) conns.push([pick(cols), pick(segments), pick(segments)]);
+
+  var data = { y: { vars: tracks, smps: segments, data: data_m }, x: { Region: region } };
+  var config = {
+    graphType: "Circular",
+    circularConnections: conns,
+    circularTrackGraphType: ["bar", "heatmap", "line", "dot"],
+    circularTrackGraphWeight: [30, 20, 25, 25],
+    circularTrackName: [1, 2, 3, 4],
+    segregateSamplesBy: ["Region"],
+    title: "Circos-style multi-track plot with connections"
+  };
+
+  new CanvasXpress("circ", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="circLive" width="560" height="560"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var segments = [], tracks = ["Expression", "Methylation", "CopyNumber", "Density"],
+        cols = ["rgb(220,40,40)", "rgb(40,120,220)", "rgb(40,160,60)", "rgb(240,150,20)"];
+    for (var i = 0; i < 80; i++) segments.push("s" + (i + 1));
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    var data_m = tracks.map(function () {
+      return segments.map(function () { return Math.round((Math.random() * 4 - 2) * 100) / 100; });
+    });
+    var region = segments.map(function (_, i) { return "chr" + (Math.floor(i / 20) + 1); });
+    var conns = [];
+    for (var c = 0; c < 18; c++) conns.push([pick(cols), pick(segments), pick(segments)]);
+    new CanvasXpress("circLive",
+      { y: { vars: tracks, smps: segments, data: data_m }, x: { Region: region } },
+      { graphType: "Circular", circularConnections: conns,
+        circularTrackGraphType: ["bar", "heatmap", "line", "dot"],
+        circularTrackGraphWeight: [30, 20, 25, 25], circularTrackName: [1, 2, 3, 4],
+        segregateSamplesBy: ["Region"], title: "Circos-style multi-track plot with connections" });
+  }
+  draw();
+})();
+</script>
+```
+
+Each ring is one track; the inner ribbons are the connections. Hover a segment to read its values;
+swap the matrix and ribbons for your own genomic tracks and interactions.
+
+## Why "reproducible"
+
+The matrix, the connections and the `config` **are** the figure — one portable JSON spec that renders
+the same from R, Python, or a web page.
+
+## Next
+
+- [Genome browser tracks in JavaScript](../genome-tracks-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

@@ -1,0 +1,102 @@
+---
+title: "Oncoprints (mutation landscapes) in JavaScript with CanvasXpress"
+description: "Draw a publication-style oncoprint — genes by tumours, with CNA and mutation overlays and per-gene frequencies — in the browser, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-28"
+categories: [JavaScript, CanvasXpress, oncoprint, bioinformatics, visualization]
+image: "thumbnail.png"
+---
+
+An oncoprint is the standard way to show a **mutation landscape**: genes down one axis, tumours along
+the other, each cell stacking the alterations that gene carries in that sample — copy-number
+amplification/deletion plus mutation type. Building one in the browser from scratch is a lot of SVG
+and sorting logic. CanvasXpress is a JavaScript library at heart, so it's a `Heatmap` with overlay
+matrices.
+
+## Load the library
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+```
+
+## The markup and the spec
+
+The base matrix is `data`; same-shaped `data2` (copy number) and `data3` (mutation) are the overlays,
+each cell a string like `"Amplification"`, `"Missense"`, or `""`.
+
+```html
+<canvas id="onco" width="820" height="440"></canvas>
+<script>
+  var genes = ["TP53","KRAS","PIK3CA","PTEN","EGFR","BRAF","APC","RB1","NF1","MYC","CDKN2A","ARID1A"],
+      samples = [], CNA = ["Amplification","Deletion"], MUT = ["Missense","Nonsense","Truncating"];
+  for (var i = 0; i < 28; i++) samples.push("T" + (i + 1 < 10 ? "0" : "") + (i + 1));
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  var base = [], cna = [], mut = [];
+  genes.forEach(function (g, gi) {
+    var rate = Math.max(0.05, 0.5 * (1 - gi / genes.length)), b = [], c = [], m = [];
+    samples.forEach(function () {
+      b.push(Math.round((Math.random() * 4 - 2) * 100) / 100);
+      c.push(Math.random() < rate * 0.5 ? pick(CNA) : "");
+      m.push(Math.random() < rate ? pick(MUT) : "");
+    });
+    base.push(b); cna.push(c); mut.push(m);
+  });
+
+  var data = { y: { vars: genes, smps: samples, data: base, data2: cna, data3: mut } };
+  var config = { graphType: "Heatmap", oncoprintCNA: "data2", oncoprintMUT: "data3",
+                 overlaysThickness: 100, xAxis: samples,
+                 title: "Mutation landscape: 12 genes across 28 tumours" };
+
+  new CanvasXpress("onco", data, config);
+</script>
+```
+
+## Live result
+
+```{=html}
+<link href="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/neuhausi/canvasXpress@73.3.0/inst/htmlwidgets/lib/canvasXpress/canvasXpress.min.js"></script>
+<canvas id="oncoLive" width="820" height="440"></canvas>
+<script>
+(function () {
+  function draw() {
+    if (typeof CanvasXpress === "undefined") { return setTimeout(draw, 60); }
+    var genes = ["TP53","KRAS","PIK3CA","PTEN","EGFR","BRAF","APC","RB1","NF1","MYC","CDKN2A","ARID1A"],
+        samples = [], CNA = ["Amplification","Deletion"], MUT = ["Missense","Nonsense","Truncating"];
+    for (var i = 0; i < 28; i++) samples.push("T" + (i + 1 < 10 ? "0" : "") + (i + 1));
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    var base = [], cna = [], mut = [];
+    genes.forEach(function (g, gi) {
+      var rate = Math.max(0.05, 0.5 * (1 - gi / genes.length)), b = [], c = [], m = [];
+      samples.forEach(function () {
+        b.push(Math.round((Math.random() * 4 - 2) * 100) / 100);
+        c.push(Math.random() < rate * 0.5 ? pick(CNA) : "");
+        m.push(Math.random() < rate ? pick(MUT) : "");
+      });
+      base.push(b); cna.push(c); mut.push(m);
+    });
+    new CanvasXpress("oncoLive",
+      { y: { vars: genes, smps: samples, data: base, data2: cna, data3: mut } },
+      { graphType: "Heatmap", oncoprintCNA: "data2", oncoprintMUT: "data3", overlaysThickness: 100,
+        xAxis: samples, title: "Mutation landscape: 12 genes across 28 tumours" });
+  }
+  draw();
+})();
+</script>
+```
+
+canvasXpress sorts the waterfall for you and shows the alteration frequency per row. Hover a cell to
+read the exact alteration; swap the overlays for your own MAF / CNA calls.
+
+## Why "reproducible"
+
+The base matrix, the overlays and the `config` **are** the figure — one portable JSON spec that
+renders the same from R, Python, or a web page.
+
+## Next
+
+- [A clustered heatmap in JavaScript](../clustered-heatmap-in-javascript/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Source & npm: <https://github.com/neuhausi/canvasXpress>

@@ -1,0 +1,82 @@
+---
+title: "Oncoprints (mutation landscapes) in Python with canvasxpress"
+description: "Draw a publication-style oncoprint — genes by tumours, with CNA and mutation overlays and per-gene frequencies — in Python, from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-27"
+categories: [Python, canvasxpress, oncoprint, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+An oncoprint is the standard way to show a **mutation landscape**: genes down one axis, tumours along
+the other, each cell stacking the alterations that gene carries in that sample — copy-number
+amplification/deletion plus mutation type — with frequencies alongside. In Python there is no
+first-class oncoprint; people hand-build one in matplotlib. Here we build an interactive one with
+[canvasxpress](https://pypi.org/project/canvasxpress/), from a single portable spec.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The data shape
+
+An oncoprint is a `Heatmap` with **overlay matrices**: a base matrix (`y`, here expression) plus
+same-shaped layers for copy-number (`data2`) and mutation (`data3`). Each overlay cell is a string
+like `"Amplification"`, `"Missense"`, or `""` for none.
+
+```{python}
+import random
+random.seed(5)
+
+genes = ["TP53", "KRAS", "PIK3CA", "PTEN", "EGFR", "BRAF",
+         "APC", "RB1", "NF1", "MYC", "CDKN2A", "ARID1A"]
+samples = [f"T{i+1:02d}" for i in range(28)]
+mutrate = {g: max(0.05, 0.5 * (1 - i / len(genes))) for i, g in enumerate(genes)}
+
+CNA = ["Amplification", "Deletion"]; MUT = ["Missense", "Nonsense", "Truncating"]
+base, cna, mut = [], [], []
+for g in genes:
+    base.append([round(random.gauss(0, 1), 2) for _ in samples])
+    cna.append([random.choice(CNA) if random.random() < mutrate[g] * 0.5 else "" for _ in samples])
+    mut.append([random.choice(MUT) if random.random() < mutrate[g] else "" for _ in samples])
+
+subtype = [random.choice(["Basal", "Luminal", "HER2"]) for _ in samples]
+pathway = [("TSG", "Oncogene")[i % 2] for i in range(len(genes))]
+```
+
+## The plot
+
+The overlays go in the `y` object alongside the base `data`; `oncoprintCNA` / `oncoprintMUT` name
+them, and `xAxis` lists the samples.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+data = {"y": {"vars": genes, "smps": samples, "data": base, "data2": cna, "data3": mut},
+        "x": {"Subtype": subtype}, "z": {"Pathway": pathway}}
+config = {"graphType": "Heatmap", "oncoprintCNA": "data2", "oncoprintMUT": "data3",
+          "overlaysThickness": 100, "xAxis": samples,
+          "title": "Mutation landscape: 12 genes across 28 tumours"}
+
+cx = CanvasXpress(render_to="onco", data=data, config=config, width=820, height=440)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+canvasXpress sorts the waterfall for you and shows the alteration frequency per row. Hover a cell to
+read the exact alteration; swap the overlays for your own MAF / CNA calls.
+
+## Why "reproducible"
+
+The base matrix, the overlays and the `config` **are** the figure — one portable JSON spec that
+renders the identical oncoprint from R or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [A clustered heatmap in Python](../clustered-heatmap-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>

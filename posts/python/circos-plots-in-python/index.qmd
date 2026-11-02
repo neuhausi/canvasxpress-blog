@@ -1,0 +1,80 @@
+---
+title: "Circular (Circos-style) multi-track plots in Python with canvasxpress"
+description: "Draw a circular genome plot in Python — stacked data tracks around a ring with connection ribbons — from one portable spec."
+author: "Isaac Neuhaus"
+date: "2026-10-24"
+categories: [Python, canvasxpress, circos, bioinformatics, visualization]
+image: "thumbnail.png"
+jupyter: python3
+---
+
+A circular (Circos-style) plot wraps a genome — or any ordered set of segments — into a ring, stacks
+several **data tracks** around it, and draws **ribbons** for relationships between positions. In
+Python the usual tool is `pyCirclize`. Here we build an interactive one with
+[canvasxpress](https://pypi.org/project/canvasxpress/), from a single portable spec.
+
+## Install
+
+```bash
+pip install canvasxpress
+```
+
+## The data shape
+
+The matrix is **tracks × segments** (rows are the tracks you draw, columns are the positions around
+the ring). A sample annotation segments the ring (here into chromosomes), and `circularConnections`
+is a list of `[colour, from, to]` ribbons.
+
+```{python}
+import random
+random.seed(8)
+
+segments = [f"s{i+1}" for i in range(80)]
+tracks   = ["Expression", "Methylation", "CopyNumber", "Density"]
+data_m   = [[round(random.gauss(0, 1), 2) for _ in segments] for _ in tracks]
+
+region = [f"chr{i//20 + 1}" for i in range(80)]
+cols   = ["rgb(220,40,40)", "rgb(40,120,220)", "rgb(40,160,60)", "rgb(240,150,20)"]
+conns  = [[random.choice(cols), random.choice(segments), random.choice(segments)] for _ in range(18)]
+```
+
+## The plot
+
+`circularTrackGraphType` picks a renderer per track (`bar`, `heatmap`, `line`, `dot`),
+`circularTrackGraphWeight` sets each track's radial thickness, and `segregateSamplesBy` splits the
+ring by the annotation.
+
+```{python}
+from canvasxpress.canvas import CanvasXpress
+from canvasxpress.render.jupyter import CXNoteBook
+from IPython.display import display
+
+data = {"y": {"vars": tracks, "smps": segments, "data": data_m}, "x": {"Region": region}}
+config = {
+    "graphType": "Circular",
+    "circularConnections": conns,
+    "circularTrackGraphType": ["bar", "heatmap", "line", "dot"],
+    "circularTrackGraphWeight": [30, 20, 25, 25],
+    "circularTrackName": [1, 2, 3, 4],
+    "segregateSamplesBy": ["Region"],
+    "title": "Circos-style multi-track plot with connections",
+}
+
+cx = CanvasXpress(render_to="circ", data=data, config=config, width=560, height=560)
+for part in CXNoteBook(cx).render():
+    display(part)
+```
+
+Each ring is one track; the inner ribbons are the connections. Hover a segment to read its values;
+swap the matrix and ribbons for your own genomic tracks and interactions.
+
+## Why "reproducible"
+
+The matrix, the connections and the `config` **are** the figure — one portable JSON spec that renders
+the identical circular plot from R or JavaScript, and can be validated and re-rendered later.
+
+## Next
+
+- [Genome browser tracks in Python](../genome-tracks-in-python/)
+- Gallery: <https://canvasxpress.org/examples.html>
+- Package: <https://pypi.org/project/canvasxpress/>
