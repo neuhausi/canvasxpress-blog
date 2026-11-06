@@ -2,6 +2,7 @@
   {
     "listing": "/r.html",
     "items": [
+      "/posts/r/interactive-figures-in-teal/index.html",
       "/posts/r/network-graphs-in-r/index.html",
       "/posts/r/linked-dashboards-in-r/index.html",
       "/posts/r/genome-tracks-in-r/index.html",
@@ -20,6 +21,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/r/interactive-figures-in-teal/index.html",
       "/posts/js/network-graphs-in-javascript/index.html",
       "/posts/js/genome-tracks-in-javascript/index.html",
       "/posts/js/linked-dashboards-in-javascript/index.html",
